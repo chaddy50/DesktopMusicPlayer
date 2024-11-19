@@ -10,21 +10,36 @@ body {
   margin: 0;
 }
 
-.mainView {
+.mainViewContainer {
   display: flex;
   flex: 1;
   flex-direction: row;
 }
 
-.topBarContainer {
+.topBar {
+  max-height: 50px;
+}
+
+.bottomBar {
   max-height: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.bottomBarContainer {
-  max-height: 50px;
+.sideBar {
+  height: auto;
+  background-color: red;
+  min-width: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mainPane {
+  height: auto;
+  width: -webkit-fill-available;
+  background-color: blue;
   display: flex;
   justify-content: center;
   align-items: center;
