@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import "./MusicPlayer.css";
 import { useEffect, useState } from "react";
 import MainView from "./components/MainView";
-import TopBar from "./components/TopBar";
+import TopBar from "./components/TopBar/TopBar";
 
 function MusicPlayer() {
   const [genres, setGenres] = useState([""]);
@@ -19,13 +19,13 @@ function MusicPlayer() {
 
   return (
     <div className="appContainer">
-      <TopBar genres={genres} selectedGenreIndex={selectedGenreIndex} setSelectedGenreIndex={setSelectedGenreIndex} />
+      <TopBar 
+        genres={genres}
+        selectedGenreIndex={selectedGenreIndex} 
+        setSelectedGenreIndex={setSelectedGenreIndex} 
+      />
 
       <MainView selectedGenre={genres[selectedGenreIndex]} />
-
-      <div className="bottomBar">
-        <h1>Bottom Bar</h1>
-      </div>
     </div>
   );
 }

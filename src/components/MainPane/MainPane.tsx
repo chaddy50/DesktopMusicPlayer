@@ -1,12 +1,15 @@
 import { invoke } from "@tauri-apps/api/core";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import AlbumCard from "./AlbumCard";
 
 interface MainPaneProps {
     selectedAlbumArtist: string,
+    selectedAlbumIndex: number,
+    setSelectedAlbumIndex: Dispatch<SetStateAction<number>>,
 }
 
 function MainPane(props: MainPaneProps) {
-    const { selectedAlbumArtist } = props;
+    const { selectedAlbumArtist, selectedAlbumIndex, setSelectedAlbumIndex } = props;
 
     const [albums, setAlbums] = useState([""]);
 
@@ -19,16 +22,10 @@ function MainPane(props: MainPaneProps) {
 
     }, [selectedAlbumArtist, setAlbums])
 
-    console.log("selectedAlbumArtist: {}", selectedAlbumArtist)
-    console.log(albums);
     return (
         <div className="mainPane">
-            {albums.map((album) => {
-                return (
-                    <div key={album} style={{ width: "200px", height: "200px", display: "flex", justifyContent: "center", alignItems: "center", border: "1px solid black", margin: "20px" }}>
-                        {album}
-                    </div>
-                );
+            {albums.map((album, index) => {
+                return <AlbumCard album={album} isSelected={index === selectedAlbumIndex} selectAlbum={() => setSelectedAlbumIndex(index)} />
             })}
         </div>
     )

@@ -1,4 +1,4 @@
-import "./Sidebar.css";
+import "./LeftSidebar.css";
 
 interface ArtistCardProps {
     artist: string,
@@ -10,7 +10,7 @@ function ArtistCard(props: ArtistCardProps) {
     const { artist, isSelected, selectArtist } = props;
 
     return (
-        <div style={{ display: "flex", justifyContent: "center", width: "100%", borderBottom: "1px solid black" }} onClick={selectArtist}>
+        <div style={{ display: "flex", width: "100%", paddingLeft: "20px", borderBottom: "1px solid black" }} onClick={selectArtist}>
             <p className={isSelected ? "selectedArtistCard" : "unselectedArtistCard"}>{artist}</p>
         </div>
     );

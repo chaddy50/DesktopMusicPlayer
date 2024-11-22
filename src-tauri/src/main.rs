@@ -21,21 +21,21 @@ fn build_music_database() {
         Ok(database_connection) => {
             create_database_tables(&database_connection);
 
-            // retrieve_audio_files_from_directory(
-            //     &database_connection,
-            //     "/home/nathan/Music/Video Game",
-            // );
-            // retrieve_audio_files_from_directory(&database_connection, "/home/nathan/Music/Rock");
-            // retrieve_audio_files_from_directory(&database_connection, "/home/nathan/Music/Jazz");
-            // retrieve_audio_files_from_directory(
-            //     &database_connection,
-            //     "/home/nathan/Music/Classic Rock",
-            // );
-            // retrieve_audio_files_from_directory(&database_connection, "/home/nathan/Music/Ambient");
-            // retrieve_audio_files_from_directory(
-            //     &database_connection,
-            //     "/home/nathan/Music/Electronic",
-            // );
+            retrieve_audio_files_from_directory(
+                &database_connection,
+                "/home/nathan/Music/Video Game",
+            );
+            retrieve_audio_files_from_directory(&database_connection, "/home/nathan/Music/Rock");
+            retrieve_audio_files_from_directory(&database_connection, "/home/nathan/Music/Jazz");
+            retrieve_audio_files_from_directory(
+                &database_connection,
+                "/home/nathan/Music/Classic Rock",
+            );
+            retrieve_audio_files_from_directory(&database_connection, "/home/nathan/Music/Ambient");
+            retrieve_audio_files_from_directory(
+                &database_connection,
+                "/home/nathan/Music/Electronic",
+            );
         }
         Err(error) => {
             println!("Error connecting to database: {}", error);
@@ -144,7 +144,7 @@ fn add_song_to_database(database_connection: &Connection, song: Song) {
             r#"
             INSERT OR IGNORE INTO songs VALUES ('{}', '{}', '{}', '{}');
             "#,
-            song.title, song.album, song.album_artist, song.genre,
+            song.title, song.genre, song.album_artist, song.album,
         );
         let result = database_connection.execute(query);
         match result {

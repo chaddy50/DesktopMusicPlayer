@@ -83,6 +83,34 @@ fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
     albums
 }
 
+#[tauri::command]
+fn get_tracks_for_album(album: String) -> Vec<String> {
+    let mut tracks = Vec::new();
+    let database_connection = sqlite::open("music_database.db");
+    match database_connection {
+        Ok(database_connection) => {
+            let mut statement = database_connection
+                .prepare(format!(
+                    r#"
+                    SELECT * FROM songs
+                    WHERE album = '{}'
+                    ORDER BY name
+                    "#,
+                    album
+                ))
+                .unwrap();
+
+            while let Ok(State::Row) = statement.next() {
+                tracks.push(statement.read::<String, _>("name").unwrap());
+            }
+        }
+        Err(error) => {
+            println!("Error connecting to database: {}", error);
+        }
+    }
+    tracks
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -99,6 +127,7 @@ pub fn run() {
             get_genres,
             get_album_artists_for_genre,
             get_albums_for_album_artist,
+            get_tracks_for_album,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

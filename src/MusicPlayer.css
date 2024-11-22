@@ -14,6 +14,7 @@ body {
   display: flex;
   max-height: 50px;
   border-bottom: 1px solid black;
+  border-top: 1px solid black;
 }
 
 .appContainer .sideBar {
@@ -22,8 +23,9 @@ body {
   align-items: center;
   min-width: 400px;
   overflow-y: scroll;
-  max-height: calc(100vh - 102px);
+  max-height: calc(100vh - 51px);
   border-right: 1px solid black;
+  border-left: 1px solid black;
 }
 
 .appContainer .bottomBar {
@@ -42,7 +44,7 @@ body {
 
 .mainPane {
   max-height: calc(100vh - 102px);
-  width: calc(100vw - 402px);
+  width: calc(100vw - 804px);
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
