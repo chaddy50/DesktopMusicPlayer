@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import Sidebar from "./Sidebar/Sidebar";
+import MainPane from "./MainPane";
 
 interface MainViewProps {
     selectedGenre: string,
@@ -12,8 +14,11 @@ function MainView(props: MainViewProps) {
     const [selectedAlbumArtistIndex, setSelectedAlbumArtistIndex] = useState(0);
 
     useEffect(() => {
+        setSelectedAlbumArtistIndex(0);
+    }, [selectedGenre])
+
+    useEffect(() => {
         async function getAlbumArtists(genre: string): Promise<void> {
-            console.log("got album artists");
             const albumArtists: string[] = await invoke("get_album_artists_for_genre", { genre });
             setAlbumArtists(albumArtists);
         }
@@ -23,12 +28,9 @@ function MainView(props: MainViewProps) {
 
     return (
         <div className="mainViewContainer">
-            <div className="sideBar">
-                <h2>Sidebar</h2>
-            </div>
-            <div className="mainPane">
-                <h2>Main Pane</h2>
-            </div>
+            <Sidebar albumArtists={albumArtists} selectedAlbumArtistIndex={selectedAlbumArtistIndex} setSelectedAlbumArtistIndex={setSelectedAlbumArtistIndex} />
+
+            <MainPane selectedAlbumArtist={albumArtists[selectedAlbumArtistIndex]} />
         </div>
     );
 }

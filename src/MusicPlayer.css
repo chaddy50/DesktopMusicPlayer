@@ -10,37 +10,40 @@ body {
   margin: 0;
 }
 
+.appContainer .topBar {
+  display: flex;
+  max-height: 50px;
+  border-bottom: 1px solid black;
+}
+
+.appContainer .sideBar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 400px;
+  overflow-y: scroll;
+  max-height: calc(100vh - 102px);
+  border-right: 1px solid black;
+}
+
+.appContainer .bottomBar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 50px;
+  border-top: 1px solid black;
+}
+
 .mainViewContainer {
   display: flex;
   flex: 1;
   flex-direction: row;
 }
 
-.topBar {
-  max-height: 50px;
-}
-
-.bottomBar {
-  max-height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.sideBar {
-  height: auto;
-  background-color: red;
-  min-width: 400px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .mainPane {
-  height: auto;
-  width: -webkit-fill-available;
-  background-color: blue;
+  max-height: calc(100vh - 102px);
+  width: calc(100vw - 402px);
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-wrap: wrap;
+  align-content: flex-start;
 }

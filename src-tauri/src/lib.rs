@@ -8,7 +8,12 @@ fn get_genres() -> Vec<String> {
     match database_connection {
         Ok(database_connection) => {
             let mut statement = database_connection
-                .prepare("SELECT * FROM genres ORDER BY name")
+                .prepare(
+                    r#"
+                SELECT * FROM genres 
+                ORDER BY name
+                "#,
+                )
                 .unwrap();
 
             while let Ok(State::Row) = statement.next() {
@@ -30,7 +35,11 @@ fn get_album_artists_for_genre(genre: String) -> Vec<String> {
         Ok(database_connection) => {
             let mut statement = database_connection
                 .prepare(format!(
-                    r#"SELECT * FROM albumArtists WHERE genre = '{}' ORDER BY name"#,
+                    r#"
+                    SELECT * FROM albumArtists 
+                    WHERE genre = '{}' AND name <> ""
+                    ORDER BY name
+                    "#,
                     genre
                 ))
                 .unwrap();
@@ -44,6 +53,34 @@ fn get_album_artists_for_genre(genre: String) -> Vec<String> {
         }
     }
     album_artists
+}
+
+#[tauri::command]
+fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
+    let mut albums = Vec::new();
+    let database_connection = sqlite::open("music_database.db");
+    match database_connection {
+        Ok(database_connection) => {
+            let mut statement = database_connection
+                .prepare(format!(
+                    r#"
+                    SELECT * FROM albums
+                    WHERE albumArtist = '{}'
+                    ORDER BY name
+                    "#,
+                    album_artist
+                ))
+                .unwrap();
+
+            while let Ok(State::Row) = statement.next() {
+                albums.push(statement.read::<String, _>("name").unwrap());
+            }
+        }
+        Err(error) => {
+            println!("Error connecting to database: {}", error);
+        }
+    }
+    albums
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -60,7 +97,8 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             get_genres,
-            get_album_artists_for_genre
+            get_album_artists_for_genre,
+            get_albums_for_album_artist,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
