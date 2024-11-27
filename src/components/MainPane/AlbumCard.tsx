@@ -28,12 +28,7 @@ function AlbumCard(props: AlbumCardProps) {
     },[album]);
 
     return (
-        <div key={album} style={{ width: "200px", height: "200px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", border: "1px solid black", margin: "20px" }} onClick={selectAlbum}>
-            {isSelected &&
-                tracks.map((track) => {
-                    return <p>{track}</p>
-                })
-            }
+        <div key={album} className={isSelected ? "selectedAlbum" : "albumContainer"} onClick={selectAlbum}>
             <img src={artworkSource} width="100%" height="100%" />
         </div>
     );
