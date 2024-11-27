@@ -1,3 +1,4 @@
+use base64::{engine::general_purpose, Engine as _};
 use sqlite::State;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -111,6 +112,36 @@ fn get_tracks_for_album(album: String) -> Vec<String> {
     tracks
 }
 
+#[tauri::command]
+fn get_artwork_for_album(album: String) -> String {
+    let mut artwork_source = String::new();
+    let database_connection = sqlite::open("music_database.db");
+    match database_connection {
+        Ok(database_connection) => {
+            let mut statement = database_connection
+                .prepare(format!(
+                    r#"
+                    SELECT coverData, coverMimeType FROM albums
+                    WHERE name = '{}'
+                    "#,
+                    album
+                ))
+                .unwrap();
+
+            while let Ok(State::Row) = statement.next() {
+                let cover_data = statement.read::<String, _>("coverData").unwrap();
+                let cover_mime_type = statement.read::<String, _>("coverMimeType").unwrap();
+
+                artwork_source = format!("data:image/{cover_mime_type};base64,{cover_data}")
+            }
+        }
+        Err(error) => {
+            println!("Error connecting to database: {}", error);
+        }
+    }
+    artwork_source
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -128,6 +159,7 @@ pub fn run() {
             get_album_artists_for_genre,
             get_albums_for_album_artist,
             get_tracks_for_album,
+            get_artwork_for_album,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

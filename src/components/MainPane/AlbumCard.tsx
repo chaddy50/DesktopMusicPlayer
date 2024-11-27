@@ -11,25 +11,30 @@ interface AlbumCardProps {
 function AlbumCard(props: AlbumCardProps) {
     const { album, isSelected, selectAlbum} = props;
     const [tracks, setTracks] = useState([""]);
+    const [artworkSource, setArtworkSource] = useState("");
 
     useEffect(() => {
         async function getTracksForAlbum(album: string): Promise<void> {
             const tracks: string[] = await invoke("get_tracks_for_album", { album });
             setTracks(tracks);
         }
-        getTracksForAlbum(album);
-    },[]);
+        async function getAlbumArtwork(album: string): Promise<void> {
+            const artworkSource: string = await invoke("get_artwork_for_album", {album});
+            setArtworkSource(artworkSource);
+        }
 
-    console.log(tracks);
+        getTracksForAlbum(album);
+        getAlbumArtwork(album);
+    },[album]);
 
     return (
         <div key={album} style={{ width: "200px", height: "200px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", border: "1px solid black", margin: "20px" }} onClick={selectAlbum}>
-            <p className={isSelected ? "selectedAlbum" : "unselectedAlbum"}>{album}</p>
             {isSelected &&
                 tracks.map((track) => {
                     return <p>{track}</p>
                 })
             }
+            <img src={artworkSource} width="100%" height="100%" />
         </div>
     );
 }

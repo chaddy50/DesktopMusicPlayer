@@ -4,10 +4,12 @@
 use std::{
     fs::{self, DirEntry},
     io::Error,
+    path::Path,
     path::PathBuf,
 };
 
-use audiotags::Tag;
+use audiotags::{Picture, Tag};
+use base64::{engine::general_purpose, Engine as _};
 use sqlite::{Connection, State};
 
 fn main() {
@@ -16,6 +18,11 @@ fn main() {
 }
 
 fn build_music_database() {
+    if Path::new("music_database.db").exists() {
+        println!("database not generated");
+        return;
+    }
+
     let database_connection = sqlite::open("music_database.db");
     match database_connection {
         Ok(database_connection) => {
@@ -47,7 +54,7 @@ fn create_database_tables(database_connection: &Connection) {
     let query = "
     CREATE TABLE IF NOT EXISTS genres (name TEXT PRIMARY KEY);
     CREATE TABLE IF NOT EXISTS albumArtists (name TEXT PRIMARY KEY, genre TEXT);
-    CREATE TABLE IF NOT EXISTS albums (name TEXT PRIMARY KEY, genre TEXT, albumArtist TEXT);
+    CREATE TABLE IF NOT EXISTS albums (name TEXT PRIMARY KEY, genre TEXT, albumArtist TEXT, coverData TEXT, coverMimeType);
     CREATE TABLE IF NOT EXISTS songs (name TEXT PRIMARY KEY, genre TEXT, albumArtist TEXT, album TEXT);
     ";
     database_connection.execute(query).unwrap();
@@ -127,6 +134,9 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
                 album: metadata.album().unwrap().title,
                 album_artist: metadata.album_artist().unwrap_or_default(),
                 genre: metadata.genre().unwrap_or_default(),
+                artwork: &metadata
+                    .album_cover()
+                    .unwrap_or(Picture::new(&[1], audiotags::MimeType::Png)),
             };
 
             add_song_to_database(database_connection, song);
@@ -160,10 +170,15 @@ fn add_album_to_database(database_connection: &Connection, song: Song) {
     if !song.title.contains('\'') {
         let query = format!(
             r#"
-            INSERT OR IGNORE INTO albums VALUES ('{}', '{}', '{}');
+            INSERT OR IGNORE INTO albums VALUES ('{}', '{}', '{}', '{}', '{:?}');
             "#,
-            song.album, song.genre, song.album_artist,
+            song.album,
+            song.genre,
+            song.album_artist,
+            convert_artwork_data_to_base_64(song.artwork.data),
+            song.artwork.mime_type
         );
+
         let result = database_connection.execute(query);
         match result {
             Ok(_result) => {}
@@ -172,6 +187,10 @@ fn add_album_to_database(database_connection: &Connection, song: Song) {
             }
         }
     }
+}
+
+fn convert_artwork_data_to_base_64(artwork_data: &[u8]) -> String {
+    general_purpose::STANDARD.encode(artwork_data)
 }
 
 fn add_album_artist_to_database(database_connection: &Connection, song: Song) {
@@ -219,4 +238,5 @@ struct Song<'a> {
     album: &'a str,
     album_artist: &'a str,
     genre: &'a str,
+    artwork: &'a Picture<'a>,
 }
