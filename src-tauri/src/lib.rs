@@ -1,4 +1,3 @@
-use base64::{engine::general_purpose, Engine as _};
 use sqlite::State;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -41,7 +40,7 @@ fn get_album_artists_for_genre(genre: String) -> Vec<String> {
                     WHERE genre = '{}' AND name <> ""
                     ORDER BY name
                     "#,
-                    genre
+                    escape_apostrophe(&genre)
                 ))
                 .unwrap();
 
@@ -69,7 +68,7 @@ fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
                     WHERE albumArtist = '{}'
                     ORDER BY name
                     "#,
-                    album_artist
+                    escape_apostrophe(&album_artist)
                 ))
                 .unwrap();
 
@@ -97,7 +96,7 @@ fn get_tracks_for_album(album: String) -> Vec<String> {
                     WHERE album = '{}'
                     ORDER BY name
                     "#,
-                    album
+                    escape_apostrophe(&album)
                 ))
                 .unwrap();
 
@@ -112,6 +111,10 @@ fn get_tracks_for_album(album: String) -> Vec<String> {
     tracks
 }
 
+fn escape_apostrophe(str: &str) -> String {
+    str.replace('\'', "\'\'")
+}
+
 #[tauri::command]
 fn get_artwork_for_album(album: String) -> String {
     let mut artwork_source = String::new();
@@ -124,7 +127,7 @@ fn get_artwork_for_album(album: String) -> String {
                     SELECT coverData, coverMimeType FROM albums
                     WHERE name = '{}'
                     "#,
-                    album
+                    escape_apostrophe(&album)
                 ))
                 .unwrap();
 

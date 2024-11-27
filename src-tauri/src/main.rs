@@ -10,7 +10,7 @@ use std::{
 
 use audiotags::{Picture, Tag};
 use base64::{engine::general_purpose, Engine as _};
-use sqlite::{Connection, State};
+use sqlite::Connection;
 
 fn main() {
     build_music_database();
@@ -19,7 +19,6 @@ fn main() {
 
 fn build_music_database() {
     if Path::new("music_database.db").exists() {
-        println!("database not generated");
         return;
     }
 
@@ -149,42 +148,41 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
 }
 
 fn add_song_to_database(database_connection: &Connection, song: Song) {
-    if !song.title.contains('\'') {
-        let query = format!(
-            r#"
-            INSERT OR IGNORE INTO songs VALUES ('{}', '{}', '{}', '{}');
-            "#,
-            song.title, song.genre, song.album_artist, song.album,
-        );
-        let result = database_connection.execute(query);
-        match result {
-            Ok(_result) => {}
-            Err(_error) => {
-                println!("Error adding song to database: {}", song.title);
-            }
+    let query = format!(
+        r#"
+        INSERT OR IGNORE INTO songs VALUES ('{}', '{}', '{}', '{}');
+        "#,
+        escape_apostrophe(song.title),
+        escape_apostrophe(song.genre),
+        escape_apostrophe(song.album_artist),
+        escape_apostrophe(song.album),
+    );
+    let result = database_connection.execute(query);
+    match result {
+        Ok(_result) => {}
+        Err(_error) => {
+            println!("Error adding song to database: {}", song.title);
         }
     }
 }
 
 fn add_album_to_database(database_connection: &Connection, song: Song) {
-    if !song.title.contains('\'') {
-        let query = format!(
-            r#"
-            INSERT OR IGNORE INTO albums VALUES ('{}', '{}', '{}', '{}', '{:?}');
-            "#,
-            song.album,
-            song.genre,
-            song.album_artist,
-            convert_artwork_data_to_base_64(song.artwork.data),
-            song.artwork.mime_type
-        );
+    let query = format!(
+        r#"
+        INSERT OR IGNORE INTO albums VALUES ('{}', '{}', '{}', '{}', '{:?}');
+        "#,
+        escape_apostrophe(song.album),
+        escape_apostrophe(song.genre),
+        escape_apostrophe(song.album_artist),
+        convert_artwork_data_to_base_64(song.artwork.data),
+        song.artwork.mime_type
+    );
 
-        let result = database_connection.execute(query);
-        match result {
-            Ok(_result) => {}
-            Err(_error) => {
-                println!("Error adding album to database: {}", song.album);
-            }
+    let result = database_connection.execute(query);
+    match result {
+        Ok(_result) => {}
+        Err(_error) => {
+            println!("Error adding album to database: {}", song.album);
         }
     }
 }
@@ -193,41 +191,42 @@ fn convert_artwork_data_to_base_64(artwork_data: &[u8]) -> String {
     general_purpose::STANDARD.encode(artwork_data)
 }
 
+fn escape_apostrophe(str: &str) -> String {
+    str.replace('\'', "\'\'")
+}
+
 fn add_album_artist_to_database(database_connection: &Connection, song: Song) {
-    if !song.title.contains('\'') {
-        let query = format!(
-            r#"
-            INSERT OR IGNORE INTO albumArtists VALUES ('{}', '{}');
-            "#,
-            song.album_artist, song.genre,
-        );
-        let result = database_connection.execute(query);
-        match result {
-            Ok(_result) => {}
-            Err(_error) => {
-                println!(
-                    "Error adding album artist to database: {}",
-                    song.album_artist
-                );
-            }
+    let query = format!(
+        r#"
+        INSERT OR IGNORE INTO albumArtists VALUES ('{}', '{}');
+        "#,
+        escape_apostrophe(song.album_artist),
+        escape_apostrophe(song.genre),
+    );
+    let result = database_connection.execute(query);
+    match result {
+        Ok(_result) => {}
+        Err(_error) => {
+            println!(
+                "Error adding album artist to database: {}",
+                song.album_artist
+            );
         }
     }
 }
 
 fn add_genre_to_database(database_connection: &Connection, song: Song) {
-    if !song.title.contains('\'') {
-        let query = format!(
-            r#"
-            INSERT OR IGNORE INTO genres VALUES ('{}');
-            "#,
-            song.genre
-        );
-        let result = database_connection.execute(query);
-        match result {
-            Ok(_result) => {}
-            Err(_error) => {
-                println!("Error adding genre to database: {}", song.genre);
-            }
+    let query = format!(
+        r#"
+        INSERT OR IGNORE INTO genres VALUES ('{}');
+        "#,
+        escape_apostrophe(song.genre)
+    );
+    let result = database_connection.execute(query);
+    match result {
+        Ok(_result) => {}
+        Err(_error) => {
+            println!("Error adding genre to database: {}", song.genre);
         }
     }
 }
