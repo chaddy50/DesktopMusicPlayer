@@ -23,7 +23,8 @@ body {
   align-items: center;
   min-width: 400px;
   overflow-y: scroll;
-  max-height: calc(100vh - 51px);
+  overflow-x: hidden;
+  max-height: calc(100vh - 52px);
   border-right: 1px solid black;
   border-left: 1px solid black;
 }
@@ -43,11 +44,10 @@ body {
 }
 
 .mainPane {
-  max-height: calc(100vh - 51px);
+  max-height: calc(100vh - 52px);
   overflow-y: scroll;
   width: calc(100vw - 804px);
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
-  margin: 5px;
 }
