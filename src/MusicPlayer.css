@@ -43,7 +43,8 @@ body {
 }
 
 .mainPane {
-  max-height: calc(100vh - 102px);
+  max-height: calc(100vh - 51px);
+  overflow-y: scroll;
   width: calc(100vw - 804px);
   display: flex;
   flex-wrap: wrap;

@@ -1,21 +1,16 @@
-.selectedAlbum {
-    width: 200px;
-    height: 200px;
+.albumCardContainer {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    border: 3px solid black;
+    justify-content: center;
     margin: 20px;
 }
 
-.albumContainer {
-    width: 200px;
-    height: 200px;
+.albumArtworkContainer {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid black;
-    margin: 20px;
+}
+
+.albumArtworkContainerSelected {
+    display: flex;
+    border: 3px solid black;
 }

@@ -27,9 +27,14 @@ function AlbumCard(props: AlbumCardProps) {
         getAlbumArtwork(album);
     },[album]);
 
+    const imageSize = 300;
+
     return (
-        <div key={album} className={isSelected ? "selectedAlbum" : "albumContainer"} onClick={selectAlbum}>
-            <img src={artworkSource} width="100%" height="100%" />
+        <div key={album} className="albumCardContainer" onClick={selectAlbum}>
+            <div className={isSelected ? "albumArtworkContainerSelected" : "albumArtworkContainer"}>
+                <img src={artworkSource} width={imageSize+"px"} height={imageSize+"px"} />
+            </div>
+            <p style={{maxWidth: imageSize+"px"}}>{album}</p>
         </div>
     );
 }
