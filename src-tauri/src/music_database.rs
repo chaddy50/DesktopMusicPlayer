@@ -20,6 +20,7 @@ const COLUMN_GENRE: &str = "genre";
 const COLUMN_ALBUM_ARTIST: &str = "album_artist";
 const COLUMN_ARTWORK_DATA: &str = "artwork_data";
 const COLUMN_ALBUM: &str = "album";
+const COLUMN_YEAR: &str = "year";
 
 pub fn build_music_database() {
     if Path::new(DATABASE_PATH).exists() {
@@ -57,7 +58,7 @@ fn create_database_tables(database_connection: &Connection) {
     let query = format!("
     CREATE TABLE IF NOT EXISTS {TABLE_GENRES} ({COLUMN_NAME} TEXT PRIMARY KEY);
     CREATE TABLE IF NOT EXISTS {TABLE_ALBUM_ARTISTS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT);
-    CREATE TABLE IF NOT EXISTS {TABLE_ALBUMS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ARTWORK_DATA} TEXT);
+    CREATE TABLE IF NOT EXISTS {TABLE_ALBUMS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ARTWORK_DATA} TEXT, {COLUMN_YEAR} INT);
     CREATE TABLE IF NOT EXISTS {TABLE_SONGS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ALBUM} TEXT);
     ");
     database_connection.execute(query).unwrap();
@@ -140,6 +141,7 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
                 artwork: &metadata
                     .album_cover()
                     .unwrap_or(Picture::new(&[1], audiotags::MimeType::Png)),
+                year: &metadata.year().unwrap_or_default(),
             };
 
             add_song_to_database(database_connection, song);
@@ -178,12 +180,13 @@ fn add_album_to_database(database_connection: &Connection, song: Song) {
 
     let query = format!(
         r#"
-        INSERT OR IGNORE INTO {TABLE_ALBUMS} VALUES ('{}', '{}', '{}', '{}');
+        INSERT OR IGNORE INTO {TABLE_ALBUMS} VALUES ('{}', '{}', '{}', '{}', '{}');
         "#,
         escape_apostrophe(song.album),
         escape_apostrophe(song.genre),
         escape_apostrophe(song.album_artist),
         artwork_data,
+        song.year,
     );
 
     let result = database_connection.execute(query);
@@ -246,6 +249,7 @@ struct Song<'a> {
     album_artist: &'a str,
     genre: &'a str,
     artwork: &'a Picture<'a>,
+    year: &'a i32,
 }
 
 pub fn get_genres() -> Vec<String> {
@@ -310,7 +314,7 @@ pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
                     r#"
                     SELECT * FROM {TABLE_ALBUMS}
                     WHERE {COLUMN_ALBUM_ARTIST} = '{}'
-                    ORDER BY {COLUMN_NAME}
+                    ORDER BY {COLUMN_YEAR}
                     "#,
                     escape_apostrophe(&album_artist)
                 ))
