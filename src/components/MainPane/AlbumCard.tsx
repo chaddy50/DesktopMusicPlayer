@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./MainPane.css";
+import TrackBrowser from "./TrackBrowser";
 
 interface AlbumCardProps {
     album: string;
@@ -30,11 +31,16 @@ function AlbumCard(props: AlbumCardProps) {
     const imageSize = 300;
 
     return (
-        <div key={album} className="albumCardContainer" onClick={selectAlbum}>
-            <div className={isSelected ? "albumArtworkContainerSelected" : "albumArtworkContainer"}>
-                <img src={artworkSource} width={imageSize+"px"} height={imageSize+"px"} />
+        <div>
+            <div key={album} className="albumCardContainer" onClick={selectAlbum}>
+                <div className={isSelected ? "albumArtworkContainerSelected" : "albumArtworkContainer"}>
+                    <img src={artworkSource} width={imageSize+"px"} height={imageSize+"px"} />
+                </div>
+                <p style={{maxWidth: imageSize+"px"}}>{album}</p>
             </div>
-            <p style={{maxWidth: imageSize+"px"}}>{album}</p>
+            {isSelected &&
+                <TrackBrowser tracks={tracks} />
+            }
         </div>
     );
 }
