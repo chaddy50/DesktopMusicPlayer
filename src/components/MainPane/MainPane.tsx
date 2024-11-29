@@ -25,7 +25,8 @@ function MainPane(props: MainPaneProps) {
     return (
         <div className="mainPane">
             {albums.map((album, index) => {
-                return <AlbumCard album={album} isSelected={index === selectedAlbumIndex} selectAlbum={() => setSelectedAlbumIndex(index)} />
+                const indexToSelect = (index === selectedAlbumIndex) ? -1 : index
+                return <AlbumCard album={album} isSelected={index === selectedAlbumIndex} selectAlbum={() => setSelectedAlbumIndex(indexToSelect)} />
             })}
         </div>
     )
