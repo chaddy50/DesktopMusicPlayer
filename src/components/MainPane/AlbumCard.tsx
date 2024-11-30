@@ -15,16 +15,11 @@ function AlbumCard(props: AlbumCardProps) {
     const [artworkSource, setArtworkSource] = useState("");
 
     useEffect(() => {
-        async function getTracksForAlbum(album: string): Promise<void> {
-            const tracks: string[] = await invoke("get_tracks_for_album", { album });
-            setTracks(tracks);
-        }
         async function getAlbumArtwork(album: string): Promise<void> {
             const artworkSource: string = await invoke("get_artwork_for_album", {album});
             setArtworkSource(artworkSource);
         }
 
-        getTracksForAlbum(album);
         getAlbumArtwork(album);
     },[album]);
 
@@ -38,9 +33,6 @@ function AlbumCard(props: AlbumCardProps) {
                 </div>
                 <p style={{maxWidth: imageSize+"px"}}>{album}</p>
             </div>
-            {isSelected &&
-                <TrackBrowser tracks={tracks} />
-            }
         </div>
     );
 }

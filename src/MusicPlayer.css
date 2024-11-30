@@ -43,11 +43,11 @@ body {
   flex-direction: row;
 }
 
-.mainPane {
-  max-height: calc(100vh - 52px);
+.albumListContainer {
   overflow-y: scroll;
   width: calc(100vw - 804px);
   display: flex;
+  flex: 2;
   flex-wrap: wrap;
   align-content: flex-start;
 }
