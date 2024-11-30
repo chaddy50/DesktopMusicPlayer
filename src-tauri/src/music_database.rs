@@ -9,7 +9,7 @@ use audiotags::{Picture, Tag};
 use base64::{engine::general_purpose, Engine as _};
 use sqlite::{Connection, State};
 
-const DATABASE_PATH: &str = "music_database.db";
+const DATABASE_PATH_MUSIC: &str = "music_database.db";
 
 const TABLE_SONGS: &str = "songs";
 const TABLE_ALBUMS: &str = "albums";
@@ -23,11 +23,11 @@ const COLUMN_ALBUM: &str = "album";
 const COLUMN_YEAR: &str = "year";
 
 pub fn build_music_database() {
-    if Path::new(DATABASE_PATH).exists() {
+    if Path::new(DATABASE_PATH_MUSIC).exists() {
         return;
     }
 
-    let database_connection = sqlite::open(DATABASE_PATH);
+    let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
     match database_connection {
         Ok(database_connection) => {
             create_database_tables(&database_connection);
@@ -254,7 +254,7 @@ struct Song<'a> {
 
 pub fn get_genres() -> Vec<String> {
     let mut genres = Vec::new();
-    let database_connection = sqlite::open(DATABASE_PATH);
+    let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
     match database_connection {
         Ok(database_connection) => {
             let mut statement = database_connection
@@ -279,7 +279,7 @@ pub fn get_genres() -> Vec<String> {
 
 pub fn get_album_artists_for_genre(genre: String) -> Vec<String> {
     let mut album_artists = Vec::new();
-    let database_connection = sqlite::open(DATABASE_PATH);
+    let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
     match database_connection {
         Ok(database_connection) => {
             let mut statement = database_connection
@@ -306,7 +306,7 @@ pub fn get_album_artists_for_genre(genre: String) -> Vec<String> {
 
 pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
     let mut albums = Vec::new();
-    let database_connection = sqlite::open(DATABASE_PATH);
+    let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
     match database_connection {
         Ok(database_connection) => {
             let mut statement = database_connection
@@ -333,7 +333,7 @@ pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
 
 pub fn get_tracks_for_album(album: String) -> Vec<String> {
     let mut tracks = Vec::new();
-    let database_connection = sqlite::open(DATABASE_PATH);
+    let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
     match database_connection {
         Ok(database_connection) => {
             let mut statement = database_connection
@@ -360,7 +360,7 @@ pub fn get_tracks_for_album(album: String) -> Vec<String> {
 
 pub fn get_artwork_for_album(album: String) -> String {
     let mut artwork_source = String::new();
-    let database_connection = sqlite::open(DATABASE_PATH);
+    let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
     match database_connection {
         Ok(database_connection) => {
             let mut statement = database_connection
