@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./MainPane.css";
-import TrackBrowser from "./TrackBrowser";
 
 interface AlbumCardProps {
     album: string;
@@ -11,7 +10,6 @@ interface AlbumCardProps {
 
 function AlbumCard(props: AlbumCardProps) {
     const { album, isSelected, selectAlbum} = props;
-    const [tracks, setTracks] = useState([""]);
     const [artworkSource, setArtworkSource] = useState("");
 
     useEffect(() => {
