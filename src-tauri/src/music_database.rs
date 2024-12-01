@@ -349,59 +349,6 @@ pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
     albums
 }
 
-pub fn get_tracks_for_album(album: String) -> Vec<String> {
-    let mut tracks = Vec::new();
-    let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
-    match database_connection {
-        Ok(database_connection) => {
-            let mut statement = database_connection
-                .prepare(format!(
-                    r#"
-                    SELECT * FROM {TABLE_SONGS}
-                    WHERE {COLUMN_ALBUM} = '{}'
-                    ORDER BY {COLUMN_TRACK_NUMBER}
-                    "#,
-                    escape_apostrophe(&album)
-                ))
-                .unwrap();
-
-            while let Ok(State::Row) = statement.next() {
-                tracks.push(statement.read::<String, _>(COLUMN_NAME).unwrap());
-            }
-        }
-        Err(error) => {
-            println!("Error connecting to database: {}", error);
-        }
-    }
-    tracks
-}
-
-pub fn get_artwork_for_album(album: String) -> String {
-    let mut artwork_source = String::new();
-    let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
-    match database_connection {
-        Ok(database_connection) => {
-            let mut statement = database_connection
-                .prepare(format!(
-                    r#"
-                    SELECT {COLUMN_ARTWORK_DATA} FROM {TABLE_ALBUMS}
-                    WHERE {COLUMN_NAME} = '{}'
-                    "#,
-                    escape_apostrophe(&album)
-                ))
-                .unwrap();
-
-            while let Ok(State::Row) = statement.next() {
-                artwork_source = statement.read::<String, _>(COLUMN_ARTWORK_DATA).unwrap();
-            }
-        }
-        Err(error) => {
-            println!("Error connecting to database: {}", error);
-        }
-    }
-    artwork_source
-}
-
 pub fn get_album_data(album: String) -> Album {
     let album_data: Album;
     let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
@@ -428,7 +375,7 @@ pub fn get_album_data(album: String) -> Album {
                 year = statement.read::<i64, _>(COLUMN_YEAR).unwrap();
             }
 
-            let tracks = get_tracks_for_album(album.clone());
+            let tracks = get_tracks_for_album(&database_connection, album.clone());
             
             album_data = Album {
                 artwork_source: artwork,
@@ -446,4 +393,23 @@ pub fn get_album_data(album: String) -> Album {
             Album { name: album, artwork_source: "".to_string(), genre: "".to_string(), album_artist: "".to_string(), year: -1, tracks: Vec::new()}
         }
     }
+}
+
+fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<String> {
+    let mut tracks = Vec::new();
+    let mut statement = database_connection
+        .prepare(format!(
+            r#"
+            SELECT * FROM {TABLE_SONGS}
+            WHERE {COLUMN_ALBUM} = '{}'
+            ORDER BY {COLUMN_TRACK_NUMBER}
+            "#,
+            escape_apostrophe(&album)
+        ))
+        .unwrap();
+
+    while let Ok(State::Row) = statement.next() {
+        tracks.push(statement.read::<String, _>(COLUMN_NAME).unwrap());
+    }
+    tracks
 }
