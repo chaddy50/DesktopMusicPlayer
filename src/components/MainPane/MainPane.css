@@ -24,5 +24,27 @@
 .albumHeader {
     display: flex;
     flex-direction: row;
+    border-bottom: 1px solid black;
+}
+
+.albumListContainer {
+    overflow-y: scroll;
+    display: flex;
+    flex: 2;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+.trackBrowserContainer {
+    display: flex;
+    flex: 1;
+    height: calc(100vh / 3);
+    flex-direction: column;
+    justify-content: flex-end;
+    border: 1px solid black;
+}
+
+.trackListContainer {
+    overflow-y: scroll;
     flex: 1;
 }

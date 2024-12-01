@@ -1,53 +1,36 @@
 body {
-  margin: 0;
+    margin: 0;
 }
 
 .appContainer {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  height: -webkit-fill-available;
-  margin: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: -webkit-fill-available;
+    margin: 0;
 }
 
 .appContainer .topBar {
-  display: flex;
-  max-height: 50px;
-  border-bottom: 1px solid black;
-  border-top: 1px solid black;
+    display: flex;
+    max-height: 50px;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
 }
 
 .appContainer .sideBar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 400px;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  max-height: calc(100vh - 52px);
-  border-right: 1px solid black;
-  border-left: 1px solid black;
-}
-
-.appContainer .bottomBar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-height: 50px;
-  border-top: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 400px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: calc(100vh - 52px);
+    border-right: 1px solid black;
+    border-left: 1px solid black;
 }
 
 .mainViewContainer {
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-}
-
-.albumListContainer {
-  overflow-y: scroll;
-  width: calc(100vw - 804px);
-  display: flex;
-  flex: 2;
-  flex-wrap: wrap;
-  align-content: flex-start;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
 }
