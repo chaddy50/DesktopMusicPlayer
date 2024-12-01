@@ -17,6 +17,7 @@
 
 .mainPaneContainer {
     display: flex;
+    flex: 1;
     flex-direction: column;
     max-height: calc(100vh - 52px);
 }

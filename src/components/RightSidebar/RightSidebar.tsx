@@ -1,11 +1,11 @@
-interface RightSidebarProps {
-
-}
+interface RightSidebarProps {}
 
 function RightSidebar(_props: RightSidebarProps) {
     return (
-        <div className="sideBar"><p>Now Playing</p></div>
-    )
+        <div className="rightSidebar">
+            <p>Now Playing</p>
+        </div>
+    );
 }
 
 export default RightSidebar;
