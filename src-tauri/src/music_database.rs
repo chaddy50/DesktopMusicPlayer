@@ -8,6 +8,7 @@ use std::{
 use audiotags::{Picture, Tag};
 use base64::{engine::general_purpose, Engine as _};
 use sqlite::{Connection, State};
+use tauri::ipc::{private::ResponseKind, IpcResponse};
 
 const DATABASE_PATH_MUSIC: &str = "music_database.db";
 
@@ -21,6 +22,7 @@ const COLUMN_ALBUM_ARTIST: &str = "album_artist";
 const COLUMN_ARTWORK_DATA: &str = "artwork_data";
 const COLUMN_ALBUM: &str = "album";
 const COLUMN_YEAR: &str = "year";
+const COLUMN_TRACK_NUMBER: &str = "track_number";
 
 pub fn build_music_database() {
     if Path::new(DATABASE_PATH_MUSIC).exists() {
@@ -57,9 +59,12 @@ pub fn build_music_database() {
 fn create_database_tables(database_connection: &Connection) {
     let query = format!("
     CREATE TABLE IF NOT EXISTS {TABLE_GENRES} ({COLUMN_NAME} TEXT PRIMARY KEY);
+
     CREATE TABLE IF NOT EXISTS {TABLE_ALBUM_ARTISTS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT);
+
     CREATE TABLE IF NOT EXISTS {TABLE_ALBUMS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ARTWORK_DATA} TEXT, {COLUMN_YEAR} INT);
-    CREATE TABLE IF NOT EXISTS {TABLE_SONGS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ALBUM} TEXT);
+
+    CREATE TABLE IF NOT EXISTS {TABLE_SONGS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ALBUM} TEXT, {COLUMN_TRACK_NUMBER} INT);
     ");
     database_connection.execute(query).unwrap();
 }
@@ -133,7 +138,7 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
     let metadata = Tag::new().read_from_path(song_file_path);
     match metadata {
         Ok(metadata) => {
-            let song = Song {
+            let song = Track {
                 title: metadata.title().unwrap_or_default(),
                 album: metadata.album().unwrap().title,
                 album_artist: metadata.album_artist().unwrap_or_default(),
@@ -142,6 +147,7 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
                     .album_cover()
                     .unwrap_or(Picture::new(&[1], audiotags::MimeType::Png)),
                 year: &metadata.year().unwrap_or_default(),
+                track_number: &metadata.track_number().unwrap_or_default(),
             };
 
             add_song_to_database(database_connection, song);
@@ -153,15 +159,16 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
     }
 }
 
-fn add_song_to_database(database_connection: &Connection, song: Song) {
+fn add_song_to_database(database_connection: &Connection, song: Track) {
     let query = format!(
         r#"
-        INSERT OR IGNORE INTO {TABLE_SONGS} VALUES ('{}', '{}', '{}', '{}');
+        INSERT OR IGNORE INTO {TABLE_SONGS} VALUES ('{}', '{}', '{}', '{}', '{}');
         "#,
         escape_apostrophe(song.title),
         escape_apostrophe(song.genre),
         escape_apostrophe(song.album_artist),
         escape_apostrophe(song.album),
+        song.track_number
     );
     let result = database_connection.execute(query);
     match result {
@@ -172,7 +179,7 @@ fn add_song_to_database(database_connection: &Connection, song: Song) {
     }
 }
 
-fn add_album_to_database(database_connection: &Connection, song: Song) {
+fn add_album_to_database(database_connection: &Connection, song: Track) {
     let mime_type = song.artwork.mime_type;
     let cover_data = song.artwork.data;
     let cover_data = convert_artwork_data_to_base_64(cover_data);
@@ -206,7 +213,7 @@ fn escape_apostrophe(str: &str) -> String {
     str.replace('\'', "\'\'")
 }
 
-fn add_album_artist_to_database(database_connection: &Connection, song: Song) {
+fn add_album_artist_to_database(database_connection: &Connection, song: Track) {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_ALBUM_ARTISTS} VALUES ('{}', '{}');
@@ -226,7 +233,7 @@ fn add_album_artist_to_database(database_connection: &Connection, song: Song) {
     }
 }
 
-fn add_genre_to_database(database_connection: &Connection, song: Song) {
+fn add_genre_to_database(database_connection: &Connection, song: Track) {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_GENRES} VALUES ('{}');
@@ -243,13 +250,24 @@ fn add_genre_to_database(database_connection: &Connection, song: Song) {
 }
 
 #[derive(Clone, Copy)]
-struct Song<'a> {
+struct Track<'a> {
     title: &'a str,
     album: &'a str,
     album_artist: &'a str,
     genre: &'a str,
     artwork: &'a Picture<'a>,
     year: &'a i32,
+    track_number: &'a u16,
+}
+
+#[derive(serde::Serialize)]
+pub struct Album {
+    name: String,
+    album_artist: String,
+    genre: String,
+    artwork_source: String,
+    year: i64,
+    tracks: Vec<String>,
 }
 
 pub fn get_genres() -> Vec<String> {
@@ -341,7 +359,7 @@ pub fn get_tracks_for_album(album: String) -> Vec<String> {
                     r#"
                     SELECT * FROM {TABLE_SONGS}
                     WHERE {COLUMN_ALBUM} = '{}'
-                    ORDER BY {COLUMN_NAME}
+                    ORDER BY {COLUMN_TRACK_NUMBER}
                     "#,
                     escape_apostrophe(&album)
                 ))
@@ -382,4 +400,50 @@ pub fn get_artwork_for_album(album: String) -> String {
         }
     }
     artwork_source
+}
+
+pub fn get_album_data(album: String) -> Album {
+    let album_data: Album;
+    let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
+    match database_connection {
+        Ok(database_connection) => {
+            let mut statement = database_connection
+                .prepare(format!(
+                    r#"
+                    SELECT * FROM {TABLE_ALBUMS}
+                    WHERE {COLUMN_NAME} = '{}'
+                    "#,
+                    escape_apostrophe(&album)
+                ))
+                .unwrap();
+
+            let mut artwork = "".to_string();
+            let mut genre = "".to_string();
+            let mut album_artist = "".to_string();
+            let mut year = -1;
+            while let Ok(State::Row) = statement.next() {
+                artwork = statement.read::<String, _>(COLUMN_ARTWORK_DATA).unwrap();
+                genre = statement.read::<String, _>(COLUMN_GENRE).unwrap();
+                album_artist = statement.read::<String, _>(COLUMN_ALBUM_ARTIST).unwrap();
+                year = statement.read::<i64, _>(COLUMN_YEAR).unwrap();
+            }
+
+            let tracks = get_tracks_for_album(album.clone());
+            
+            album_data = Album {
+                artwork_source: artwork,
+                genre: genre,
+                album_artist: album_artist,
+                year: year,
+                name: album.clone(),
+                tracks: tracks,
+            };
+
+            album_data
+        }
+        Err(error) => {
+            println!("Error connecting to database: {}", error);
+            Album { name: album, artwork_source: "".to_string(), genre: "".to_string(), album_artist: "".to_string(), year: -1, tracks: Vec::new()}
+        }
+    }
 }

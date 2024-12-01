@@ -1,3 +1,5 @@
+use audiotags::Album;
+
 mod music_database;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -17,13 +19,8 @@ fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
 }
 
 #[tauri::command]
-fn get_tracks_for_album(album: String) -> Vec<String> {
-    music_database::get_tracks_for_album(album)
-}
-
-#[tauri::command]
-fn get_artwork_for_album(album: String) -> String {
-    music_database::get_artwork_for_album(album)
+fn get_album_data(album: String) -> music_database::Album {
+    music_database::get_album_data(album)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -42,8 +39,7 @@ pub fn run() {
             get_genres,
             get_album_artists_for_genre,
             get_albums_for_album_artist,
-            get_tracks_for_album,
-            get_artwork_for_album,
+            get_album_data,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
