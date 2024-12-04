@@ -350,7 +350,6 @@ pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
 }
 
 pub fn get_album_data(album: String) -> Album {
-    let album_data: Album;
     let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
     match database_connection {
         Ok(database_connection) => {
@@ -377,16 +376,14 @@ pub fn get_album_data(album: String) -> Album {
 
             let tracks = get_tracks_for_album(&database_connection, album.clone());
             
-            album_data = Album {
+            Album {
                 artwork_source: artwork,
                 genre: genre,
                 album_artist: album_artist,
                 year: year,
                 name: album.clone(),
                 tracks: tracks,
-            };
-
-            album_data
+            }
         }
         Err(error) => {
             println!("Error connecting to database: {}", error);
