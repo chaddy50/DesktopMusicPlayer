@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "../../../MusicPlayer.css";
 import AlbumHeader from "./AlbumHeader";
+import Track from "./Track";
 
 interface TrackBrowserProps {
     album: string;
@@ -49,7 +50,7 @@ function TrackBrowser(props: TrackBrowserProps) {
                 <AlbumHeader albumData={albumData} />
                 <div className="trackListContainer">
                     {albumData.tracks.map((track, index) => {
-                        return <p>{track.name}</p>;
+                        return <Track track={track} />;
                     })}
                 </div>
             </div>

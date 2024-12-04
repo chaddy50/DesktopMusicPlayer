@@ -117,3 +117,12 @@ body {
 
 .unselectedTab {
 }
+
+.trackContainer {
+    padding-left: 10px;
+    cursor: pointer;
+}
+
+.trackContainer:hover {
+    background-color: lightgray;
+}
