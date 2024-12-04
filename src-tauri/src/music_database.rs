@@ -142,17 +142,17 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
     match metadata {
         Ok(metadata) => {
             let song = track_to_process {
-                title: metadata.title().unwrap_or_default(),
-                album: metadata.album().unwrap().title,
-                album_artist: metadata.album_artist().unwrap_or_default(),
-                genre: metadata.genre().unwrap_or_default(),
+                title: &escape_string_for_sql(metadata.title().unwrap_or_default()),
+                album: &escape_string_for_sql(metadata.album().unwrap().title),
+                album_artist: &escape_string_for_sql(metadata.album_artist().unwrap_or_default()),
+                genre: &escape_string_for_sql(metadata.genre().unwrap_or_default()),
                 artwork: &metadata
                     .album_cover()
                     .unwrap_or(Picture::new(&[1], audiotags::MimeType::Png)),
                 year: &metadata.year().unwrap_or_default(),
                 track_number: &metadata.track_number().unwrap_or_default(),
-                artist: metadata.artist().unwrap_or_default(),
-                file_path: song_file_path.as_path().to_str().unwrap_or_default(),
+                artist: &escape_string_for_sql(metadata.artist().unwrap_or_default()),
+                file_path: &escape_string_for_sql(song_file_path.as_path().to_str().unwrap_or_default()),
             };
 
             add_song_to_database(database_connection, song);
@@ -170,10 +170,10 @@ fn add_song_to_database(database_connection: &Connection, song: track_to_process
         INSERT OR IGNORE INTO {TABLE_SONGS} VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');
         "#,
         song.file_path,
-        escape_apostrophe(song.title),
-        escape_apostrophe(song.genre),
-        escape_apostrophe(song.album_artist),
-        escape_apostrophe(song.album),
+        song.title,
+        song.genre,
+        song.album_artist,
+        song.album,
         song.track_number,
         song.artist,
         song.file_path,
@@ -198,10 +198,10 @@ fn add_album_to_database(database_connection: &Connection, song: track_to_proces
         r#"
         INSERT OR IGNORE INTO {TABLE_ALBUMS} VALUES ('{}', '{}', '{}', '{}', '{}', '{}');
         "#,
-        format!("{}{}",escape_apostrophe(song.album),escape_apostrophe(song.album_artist)),
-        escape_apostrophe(song.album),
-        escape_apostrophe(song.genre),
-        escape_apostrophe(song.album_artist),
+        format!("{}{}",song.album,song.album_artist),
+        song.album,
+        song.genre,
+        song.album_artist,
         artwork_data,
         song.year,
     );
@@ -219,7 +219,7 @@ fn convert_artwork_data_to_base_64(artwork_data: &[u8]) -> String {
     general_purpose::STANDARD.encode(artwork_data)
 }
 
-fn escape_apostrophe(str: &str) -> String {
+fn escape_string_for_sql(str: &str) -> String {
     str.replace('\'', "\'\'")
 }
 
@@ -228,8 +228,8 @@ fn add_album_artist_to_database(database_connection: &Connection, song: track_to
         r#"
         INSERT OR IGNORE INTO {TABLE_ALBUM_ARTISTS} VALUES ('{}', '{}');
         "#,
-        escape_apostrophe(song.album_artist),
-        escape_apostrophe(song.genre),
+        song.album_artist,
+        song.genre,
     );
     let result = database_connection.execute(query);
     match result {
@@ -248,7 +248,7 @@ fn add_genre_to_database(database_connection: &Connection, song: track_to_proces
         r#"
         INSERT OR IGNORE INTO {TABLE_GENRES} VALUES ('{}');
         "#,
-        escape_apostrophe(song.genre)
+        song.genre
     );
     let result = database_connection.execute(query);
     match result {
@@ -261,13 +261,13 @@ fn add_genre_to_database(database_connection: &Connection, song: track_to_proces
 
 #[derive(Clone, Copy)]
 struct track_to_process<'a> {
-    title: &'a str,
-    album: &'a str,
-    album_artist: &'a str,
-    artist: &'a str,
-    genre: &'a str,
+    title: &'a String,
+    album: &'a String,
+    album_artist: &'a String,
+    artist: &'a String,
+    genre: &'a String,
     artwork: &'a Picture<'a>,
-    file_path: &'a str,
+    file_path: &'a String,
     year: &'a i32,
     track_number: &'a u16,
 }
@@ -319,7 +319,7 @@ pub fn get_album_artists_for_genre(genre: String) -> Vec<String> {
                     WHERE genre = '{}' AND {COLUMN_NAME} <> ""
                     ORDER BY {COLUMN_NAME}
                     "#,
-                    escape_apostrophe(&genre)
+                    escape_string_for_sql(&genre)
                 ))
                 .unwrap();
 
@@ -346,7 +346,7 @@ pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
                     WHERE {COLUMN_ALBUM_ARTIST} = '{}'
                     ORDER BY {COLUMN_YEAR}
                     "#,
-                    escape_apostrophe(&album_artist)
+                    escape_string_for_sql(&album_artist)
                 ))
                 .unwrap();
 
@@ -371,7 +371,7 @@ pub fn get_album_data(album: String) -> album {
                     SELECT * FROM {TABLE_ALBUMS}
                     WHERE {COLUMN_NAME} = '{}'
                     "#,
-                    escape_apostrophe(&album)
+                    escape_string_for_sql(&album)
                 ))
                 .unwrap();
 
@@ -413,7 +413,7 @@ fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<
             WHERE {COLUMN_ALBUM} = '{}'
             ORDER BY {COLUMN_TRACK_NUMBER}
             "#,
-            escape_apostrophe(&album)
+            escape_string_for_sql(&album)
         ))
         .unwrap();
 
