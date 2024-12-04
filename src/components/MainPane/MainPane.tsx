@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import AlbumCard from "./AlbumCard";
-import TrackBrowser from "./TrackBrowser";
+import TrackBrowser from "./TrackBrowser/TrackBrowser";
 
 interface MainPaneProps {
     selectedAlbumArtist: string;

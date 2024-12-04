@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import "./MainPane.css";
+import "../../../MusicPlayer.css";
+import AlbumHeader from "./AlbumHeader";
 
 interface TrackBrowserProps {
     album: string;
@@ -35,15 +36,7 @@ function TrackBrowser(props: TrackBrowserProps) {
     if (albumData) {
         return (
             <div className="trackBrowserContainer">
-                <div className="albumHeader">
-                    <img
-                        src={albumData.artwork_source}
-                        height="100px"
-                        width="100px"
-                    />
-                    <p>{album}</p>
-                    <p>{albumData.year}</p>
-                </div>
+                <AlbumHeader albumData={albumData} />
                 <div className="trackListContainer">
                     {albumData.tracks.map((track, index) => {
                         return <p>{track}</p>;
