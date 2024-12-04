@@ -12,8 +12,18 @@ export interface AlbumDataResponse {
     genre: string;
     album_artist: string;
     artwork_source: string;
-    tracks: string[];
+    tracks: TrackDataResponse[];
     year: number;
+}
+
+export interface TrackDataResponse {
+    name: string;
+    album_artist: string;
+    artist: string;
+    genre: string;
+    artwork_source: string;
+    file_path: string;
+    track_number: number;
 }
 
 function TrackBrowser(props: TrackBrowserProps) {
@@ -39,7 +49,7 @@ function TrackBrowser(props: TrackBrowserProps) {
                 <AlbumHeader albumData={albumData} />
                 <div className="trackListContainer">
                     {albumData.tracks.map((track, index) => {
-                        return <p>{track}</p>;
+                        return <p>{track.name}</p>;
                     })}
                 </div>
             </div>

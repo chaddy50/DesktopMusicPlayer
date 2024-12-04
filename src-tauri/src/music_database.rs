@@ -16,13 +16,16 @@ const TABLE_SONGS: &str = "songs";
 const TABLE_ALBUMS: &str = "albums";
 const TABLE_ALBUM_ARTISTS: &str = "album_artists";
 const TABLE_GENRES: &str = "genres";
+const COLUMN_ID: &str = "id";
 const COLUMN_NAME: &str = "name";
 const COLUMN_GENRE: &str = "genre";
 const COLUMN_ALBUM_ARTIST: &str = "album_artist";
+const COLUMN_ARTIST: &str = "artist";
 const COLUMN_ARTWORK_DATA: &str = "artwork_data";
 const COLUMN_ALBUM: &str = "album";
 const COLUMN_YEAR: &str = "year";
 const COLUMN_TRACK_NUMBER: &str = "track_number";
+const COLUMN_FILE_PATH: &str = "file_path";
 
 pub fn build_music_database() {
     if Path::new(DATABASE_PATH_MUSIC).exists() {
@@ -62,9 +65,9 @@ fn create_database_tables(database_connection: &Connection) {
 
     CREATE TABLE IF NOT EXISTS {TABLE_ALBUM_ARTISTS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT);
 
-    CREATE TABLE IF NOT EXISTS {TABLE_ALBUMS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ARTWORK_DATA} TEXT, {COLUMN_YEAR} INT);
+    CREATE TABLE IF NOT EXISTS {TABLE_ALBUMS} ({COLUMN_ID} TEXT PRIMARY KEY, {COLUMN_NAME} TEXT, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ARTWORK_DATA} TEXT, {COLUMN_YEAR} INT);
 
-    CREATE TABLE IF NOT EXISTS {TABLE_SONGS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ALBUM} TEXT, {COLUMN_TRACK_NUMBER} INT);
+    CREATE TABLE IF NOT EXISTS {TABLE_SONGS} ({COLUMN_ID} TEXT PRIMARY KEY, {COLUMN_NAME} TEXT, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ALBUM} TEXT, {COLUMN_TRACK_NUMBER} INT, {COLUMN_ARTIST} TEXT, {COLUMN_FILE_PATH} TEXT);
     ");
     database_connection.execute(query).unwrap();
 }
@@ -135,10 +138,10 @@ fn read_file<'a>(database_connection: &Connection, file: Result<DirEntry, Error>
 }
 
 fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
-    let metadata = Tag::new().read_from_path(song_file_path);
+    let metadata = Tag::new().read_from_path(&song_file_path);
     match metadata {
         Ok(metadata) => {
-            let song = Track {
+            let song = track_to_process {
                 title: metadata.title().unwrap_or_default(),
                 album: metadata.album().unwrap().title,
                 album_artist: metadata.album_artist().unwrap_or_default(),
@@ -148,6 +151,8 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
                     .unwrap_or(Picture::new(&[1], audiotags::MimeType::Png)),
                 year: &metadata.year().unwrap_or_default(),
                 track_number: &metadata.track_number().unwrap_or_default(),
+                artist: metadata.artist().unwrap_or_default(),
+                file_path: song_file_path.as_path().to_str().unwrap_or_default(),
             };
 
             add_song_to_database(database_connection, song);
@@ -159,27 +164,31 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
     }
 }
 
-fn add_song_to_database(database_connection: &Connection, song: Track) {
+fn add_song_to_database(database_connection: &Connection, song: track_to_process) {
     let query = format!(
         r#"
-        INSERT OR IGNORE INTO {TABLE_SONGS} VALUES ('{}', '{}', '{}', '{}', '{}');
+        INSERT OR IGNORE INTO {TABLE_SONGS} VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');
         "#,
+        song.file_path,
         escape_apostrophe(song.title),
         escape_apostrophe(song.genre),
         escape_apostrophe(song.album_artist),
         escape_apostrophe(song.album),
-        song.track_number
+        song.track_number,
+        song.artist,
+        song.file_path,
     );
     let result = database_connection.execute(query);
     match result {
         Ok(_result) => {}
         Err(_error) => {
             println!("Error adding song to database: {}", song.title);
+            println!("    {}", song.file_path);
         }
     }
 }
 
-fn add_album_to_database(database_connection: &Connection, song: Track) {
+fn add_album_to_database(database_connection: &Connection, song: track_to_process) {
     let mime_type = song.artwork.mime_type;
     let cover_data = song.artwork.data;
     let cover_data = convert_artwork_data_to_base_64(cover_data);
@@ -187,8 +196,9 @@ fn add_album_to_database(database_connection: &Connection, song: Track) {
 
     let query = format!(
         r#"
-        INSERT OR IGNORE INTO {TABLE_ALBUMS} VALUES ('{}', '{}', '{}', '{}', '{}');
+        INSERT OR IGNORE INTO {TABLE_ALBUMS} VALUES ('{}', '{}', '{}', '{}', '{}', '{}');
         "#,
+        format!("{}{}",escape_apostrophe(song.album),escape_apostrophe(song.album_artist)),
         escape_apostrophe(song.album),
         escape_apostrophe(song.genre),
         escape_apostrophe(song.album_artist),
@@ -213,7 +223,7 @@ fn escape_apostrophe(str: &str) -> String {
     str.replace('\'', "\'\'")
 }
 
-fn add_album_artist_to_database(database_connection: &Connection, song: Track) {
+fn add_album_artist_to_database(database_connection: &Connection, song: track_to_process) {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_ALBUM_ARTISTS} VALUES ('{}', '{}');
@@ -233,7 +243,7 @@ fn add_album_artist_to_database(database_connection: &Connection, song: Track) {
     }
 }
 
-fn add_genre_to_database(database_connection: &Connection, song: Track) {
+fn add_genre_to_database(database_connection: &Connection, song: track_to_process) {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_GENRES} VALUES ('{}');
@@ -250,24 +260,26 @@ fn add_genre_to_database(database_connection: &Connection, song: Track) {
 }
 
 #[derive(Clone, Copy)]
-struct Track<'a> {
+struct track_to_process<'a> {
     title: &'a str,
     album: &'a str,
     album_artist: &'a str,
+    artist: &'a str,
     genre: &'a str,
     artwork: &'a Picture<'a>,
+    file_path: &'a str,
     year: &'a i32,
     track_number: &'a u16,
 }
 
 #[derive(serde::Serialize)]
-pub struct Album {
+pub struct album {
     name: String,
     album_artist: String,
     genre: String,
     artwork_source: String,
     year: i64,
-    tracks: Vec<String>,
+    tracks: Vec<track>,
 }
 
 pub fn get_genres() -> Vec<String> {
@@ -349,7 +361,7 @@ pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
     albums
 }
 
-pub fn get_album_data(album: String) -> Album {
+pub fn get_album_data(album: String) -> album {
     let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
     match database_connection {
         Ok(database_connection) => {
@@ -376,7 +388,7 @@ pub fn get_album_data(album: String) -> Album {
 
             let tracks = get_tracks_for_album(&database_connection, album.clone());
             
-            Album {
+            album {
                 artwork_source: artwork,
                 genre: genre,
                 album_artist: album_artist,
@@ -387,12 +399,12 @@ pub fn get_album_data(album: String) -> Album {
         }
         Err(error) => {
             println!("Error connecting to database: {}", error);
-            Album { name: album, artwork_source: "".to_string(), genre: "".to_string(), album_artist: "".to_string(), year: -1, tracks: Vec::new()}
+            album { name: album, artwork_source: "".to_string(), genre: "".to_string(), album_artist: "".to_string(), year: -1, tracks: Vec::new()}
         }
     }
 }
 
-fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<String> {
+fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<track> {
     let mut tracks = Vec::new();
     let mut statement = database_connection
         .prepare(format!(
@@ -405,8 +417,34 @@ fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<
         ))
         .unwrap();
 
+    let mut name = "".to_string();
+    let mut album_artist = "".to_string();
+    let mut artist = "".to_string();
+    let mut genre = "".to_string();
+    let mut artwork_source = "".to_string();
+    let mut file_path = "".to_string();
+    let mut track_number = -1;
     while let Ok(State::Row) = statement.next() {
-        tracks.push(statement.read::<String, _>(COLUMN_NAME).unwrap());
+        name = statement.read::<String, _>(COLUMN_NAME).unwrap_or_default();
+        album_artist = statement.read::<String, _>(COLUMN_ALBUM_ARTIST).unwrap_or_default();
+        artist = statement.read::<String, _>(COLUMN_ARTIST).unwrap_or_default();
+        genre = statement.read::<String, _>(COLUMN_GENRE).unwrap_or_default();
+        artwork_source = statement.read::<String, _>(COLUMN_ARTWORK_DATA).unwrap_or_default();
+        file_path = statement.read::<String, _>(COLUMN_FILE_PATH).unwrap_or_default();
+        track_number = statement.read::<i64, _>(COLUMN_TRACK_NUMBER).unwrap_or_default();
+
+        tracks.push(track { name: name, album_artist: album_artist, artist: artist, genre: genre, artwork_source: artwork_source, file_path: file_path, track_number: track_number });
     }
     tracks
+}
+
+#[derive(serde::Serialize)]
+pub struct track {
+    name: String,
+    album_artist: String,
+    artist: String,
+    genre: String,
+    artwork_source: String,
+    file_path: String,
+    track_number: i64
 }

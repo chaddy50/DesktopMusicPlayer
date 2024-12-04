@@ -19,7 +19,7 @@ fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
 }
 
 #[tauri::command]
-fn get_album_data(album: String) -> music_database::Album {
+fn get_album_data(album: String) -> music_database::album {
     music_database::get_album_data(album)
 }
 
