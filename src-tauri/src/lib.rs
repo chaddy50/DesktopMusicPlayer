@@ -1,6 +1,3 @@
-use std::{fs::File, io::BufReader};
-
-use rodio::Decoder;
 use tauri::{State, Builder, Manager};
 
 mod music_database;
@@ -29,15 +26,7 @@ fn get_album_data(album: String) -> music_database::album {
 
 #[tauri::command]
 async fn play_track(state: State<'_, audio_player::AppState>, track_file_path: String) -> Result<i32, ()> {
-    let track_file = BufReader::new(File::open(track_file_path).unwrap());
-    let source = Decoder::new(track_file).unwrap();
-
-    if state.audio_player.sink.len() > 0 {
-        state.audio_player.sink.stop();
-    }
-
-    state.audio_player.sink.append(source);
-    state.audio_player.sink.sleep_until_end();
+    state.audio_player.play_track(track_file_path);
     Ok(1)
 }
 

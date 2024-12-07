@@ -1,4 +1,6 @@
-use rodio::{Sink, OutputStream, OutputStreamHandle};
+use std::{fs::File, io::BufReader};
+
+use rodio::{Sink, OutputStream, OutputStreamHandle, Decoder};
 
 pub struct AppState {
     pub audio_player: Audio_Player
@@ -23,5 +25,17 @@ impl Audio_Player {
             output_stream,
             output_stream_handle,
         }
+    }
+
+    pub fn play_track(&self, track_file_path: String) {
+        let track_file = BufReader::new(File::open(track_file_path).unwrap());
+        let source = Decoder::new(track_file).unwrap();
+
+        if self.sink.len() > 0 {
+            self.sink.stop();
+        }
+
+        self.sink.append(source);
+        self.sink.sleep_until_end();
     }
 }
