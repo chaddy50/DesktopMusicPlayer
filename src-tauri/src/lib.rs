@@ -1,6 +1,10 @@
-use audiotags::Album;
+use std::{fs::File, io::BufReader};
+
+use rodio::Decoder;
+use tauri::{State, Builder, Manager};
 
 mod music_database;
+mod audio_player;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -23,9 +27,29 @@ fn get_album_data(album: String) -> music_database::album {
     music_database::get_album_data(album)
 }
 
+#[tauri::command]
+async fn play_track(state: State<'_, audio_player::AppState>, track_file_path: String) -> Result<i32, ()> {
+    let track_file = BufReader::new(File::open(track_file_path).unwrap());
+    let source = Decoder::new(track_file).unwrap();
+
+    if state.audio_player.sink.len() > 0 {
+        state.audio_player.sink.stop();
+    }
+
+    state.audio_player.sink.append(source);
+    state.audio_player.sink.sleep_until_end();
+    Ok(1)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    Builder::default()
+        .setup(|app| {
+            app.manage(audio_player::AppState {
+                audio_player: audio_player::Audio_Player::new(),
+            });
+            Ok(())
+        })
         .plugin(
             tauri_plugin_log::Builder::new()
                 .target(tauri_plugin_log::Target::new(
@@ -40,6 +64,7 @@ pub fn run() {
             get_album_artists_for_genre,
             get_albums_for_album_artist,
             get_album_data,
+            play_track,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

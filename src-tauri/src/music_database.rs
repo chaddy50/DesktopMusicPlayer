@@ -1,14 +1,12 @@
 use std::{
     fs::{self, DirEntry},
     io::Error,
-    path::Path,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 use audiotags::{Picture, Tag};
 use base64::{engine::general_purpose, Engine as _};
 use sqlite::{Connection, State};
-use tauri::ipc::{private::ResponseKind, IpcResponse};
 
 const DATABASE_PATH_MUSIC: &str = "music_database.db";
 
@@ -445,6 +443,6 @@ pub struct track {
     artist: String,
     genre: String,
     artwork_source: String,
-    file_path: String,
+    pub file_path: String,
     track_number: i64
 }
