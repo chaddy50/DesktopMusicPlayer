@@ -10,11 +10,11 @@ function Track(props: TrackProps) {
     const { track } = props;
 
     const playTrack = useCallback(() => {
-        invoke("on_track_clicked", { track });
+        invoke("on_track_double_clicked", { track });
     }, [track]);
 
     return (
-        <div className="trackContainer" onClick={playTrack}>
+        <div className="trackContainer" onDoubleClick={playTrack}>
             {track.name}
         </div>
     );

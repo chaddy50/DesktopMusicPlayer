@@ -28,7 +28,7 @@ fn get_album_data(album: String) -> music_database::Album {
 }
 
 #[tauri::command]
-async fn on_track_clicked(state: State<'_, audio_player::AppState>, track: Track) -> Result<i32, ()> {
+async fn on_track_double_clicked(state: State<'_, audio_player::AppState>, track: Track) -> Result<i32, ()> {
     state.audio_player.clear_queue();
     state.audio_player.add_track_to_queue(track);
     state.audio_player.start_playback();
@@ -58,7 +58,7 @@ pub fn run() {
             get_album_artists_for_genre,
             get_albums_for_album_artist,
             get_album_data,
-            on_track_clicked,
+            on_track_double_clicked,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
