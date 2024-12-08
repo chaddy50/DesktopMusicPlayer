@@ -7,6 +7,7 @@ use std::{
 use audiotags::{Picture, Tag};
 use base64::{engine::general_purpose, Engine as _};
 use sqlite::{Connection, State};
+use tauri::{ipc::CommandArg, EventLoopMessage, Wry};
 
 const DATABASE_PATH_MUSIC: &str = "music_database.db";
 
@@ -436,9 +437,9 @@ fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<
     tracks
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct track {
-    name: String,
+    pub name: String,
     album_artist: String,
     artist: String,
     genre: String,

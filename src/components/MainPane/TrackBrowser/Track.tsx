@@ -10,8 +10,7 @@ function Track(props: TrackProps) {
     const { track } = props;
 
     const playTrack = useCallback(() => {
-        const trackFilePath = track.file_path;
-        invoke("play_track", { trackFilePath });
+        invoke("on_track_clicked", { track });
     }, [track]);
 
     return (

@@ -1,3 +1,6 @@
+use std::{borrow::Borrow, collections::VecDeque, sync::Mutex};
+
+use music_database::track;
 use tauri::{State, Builder, Manager};
 
 mod music_database;
@@ -25,8 +28,10 @@ fn get_album_data(album: String) -> music_database::album {
 }
 
 #[tauri::command]
-async fn play_track(state: State<'_, audio_player::AppState>, track_file_path: String) -> Result<i32, ()> {
-    state.audio_player.play_track(track_file_path);
+async fn on_track_clicked(state: State<'_, audio_player::AppState>, track: track) -> Result<i32, ()> {
+    state.audio_player.clear_queue();
+    state.audio_player.add_track_to_queue(track);
+    state.audio_player.start_playback();
     Ok(1)
 }
 
@@ -53,7 +58,7 @@ pub fn run() {
             get_album_artists_for_genre,
             get_albums_for_album_artist,
             get_album_data,
-            play_track,
+            on_track_clicked,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
