@@ -1,4 +1,4 @@
-import "../MusicPlayer.css";
+import "../../MusicPlayer.css";
 
 interface ArtistCardProps {
     artist: string;
@@ -10,15 +10,7 @@ function ArtistCard(props: ArtistCardProps) {
     const { artist, isSelected, selectArtist } = props;
 
     return (
-        <div
-            style={{
-                display: "flex",
-                width: "100%",
-                paddingLeft: "20px",
-                borderBottom: "1px solid black",
-            }}
-            onClick={selectArtist}
-        >
+        <div className="artistCard" onClick={selectArtist}>
             <p
                 className={
                     isSelected ? "selectedArtistCard" : "unselectedArtistCard"

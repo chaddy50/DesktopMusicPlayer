@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import ArtistCard from "../ArtistCard";
+import ArtistBrowser from "../ArtistBrowser/ArtistBrowser";
 
 interface LeftSidebarProps {
     albumArtists: string[];
@@ -16,19 +16,11 @@ function LeftSidebar(props: LeftSidebarProps) {
 
     return (
         <div className="leftSideBar">
-            {albumArtists.map((albumArtist, index) => {
-                if (albumArtist !== "") {
-                    return (
-                        <ArtistCard
-                            artist={albumArtist}
-                            isSelected={selectedAlbumArtistIndex === index}
-                            selectArtist={() =>
-                                setSelectedAlbumArtistIndex(index)
-                            }
-                        />
-                    );
-                }
-            })}
+            <ArtistBrowser
+                albumArtists={albumArtists}
+                selectedAlbumArtistIndex={selectedAlbumArtistIndex}
+                setSelectedAlbumArtistIndex={setSelectedAlbumArtistIndex}
+            />
         </div>
     );
 }
