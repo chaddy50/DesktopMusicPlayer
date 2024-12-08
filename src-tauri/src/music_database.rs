@@ -27,6 +27,7 @@ const COLUMN_TRACK_NUMBER: &str = "track_number";
 const COLUMN_FILE_PATH: &str = "file_path";
 
 #[derive(Clone, Copy)]
+#[allow(dead_code)]
 struct TrackToProcess<'a> {
     title: &'a String,
     album: &'a String,
@@ -60,6 +61,7 @@ pub struct Album {
     tracks: Vec<Track>,
 }
 
+#[allow(dead_code)]
 pub fn build_music_database() {
     if Path::new(DATABASE_PATH_MUSIC).exists() {
         return;
@@ -292,6 +294,7 @@ fn add_genre_to_database(database_connection: &Connection, song: TrackToProcess)
     }
 }
 
+#[allow(dead_code)]
 pub fn get_genres() -> Vec<String> {
     let mut genres = Vec::new();
     let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
@@ -317,6 +320,7 @@ pub fn get_genres() -> Vec<String> {
     genres
 }
 
+#[allow(dead_code)]
 pub fn get_album_artists_for_genre(genre: String) -> Vec<String> {
     let mut album_artists = Vec::new();
     let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
@@ -344,6 +348,7 @@ pub fn get_album_artists_for_genre(genre: String) -> Vec<String> {
     album_artists
 }
 
+#[allow(dead_code)]
 pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
     let mut albums = Vec::new();
     let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
@@ -371,6 +376,7 @@ pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
     albums
 }
 
+#[allow(dead_code)]
 pub fn get_album_data(album: String) -> Album {
     let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
     match database_connection {
@@ -427,21 +433,14 @@ fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<
         ))
         .unwrap();
 
-    let mut name = "".to_string();
-    let mut album_artist = "".to_string();
-    let mut artist = "".to_string();
-    let mut genre = "".to_string();
-    let mut artwork_source = "".to_string();
-    let mut file_path = "".to_string();
-    let mut track_number = -1;
     while let Ok(State::Row) = statement.next() {
-        name = statement.read::<String, _>(COLUMN_NAME).unwrap_or_default();
-        album_artist = statement.read::<String, _>(COLUMN_ALBUM_ARTIST).unwrap_or_default();
-        artist = statement.read::<String, _>(COLUMN_ARTIST).unwrap_or_default();
-        genre = statement.read::<String, _>(COLUMN_GENRE).unwrap_or_default();
-        artwork_source = statement.read::<String, _>(COLUMN_ARTWORK_DATA).unwrap_or_default();
-        file_path = statement.read::<String, _>(COLUMN_FILE_PATH).unwrap_or_default();
-        track_number = statement.read::<i64, _>(COLUMN_TRACK_NUMBER).unwrap_or_default();
+        let name = statement.read::<String, _>(COLUMN_NAME).unwrap_or_default();
+        let album_artist = statement.read::<String, _>(COLUMN_ALBUM_ARTIST).unwrap_or_default();
+        let artist = statement.read::<String, _>(COLUMN_ARTIST).unwrap_or_default();
+        let genre = statement.read::<String, _>(COLUMN_GENRE).unwrap_or_default();
+        let artwork_source = statement.read::<String, _>(COLUMN_ARTWORK_DATA).unwrap_or_default();
+        let file_path = statement.read::<String, _>(COLUMN_FILE_PATH).unwrap_or_default();
+        let track_number = statement.read::<i64, _>(COLUMN_TRACK_NUMBER).unwrap_or_default();
 
         tracks.push(Track { name: name, album_artist: album_artist, artist: artist, genre: genre, artwork_source: artwork_source, file_path: file_path, track_number: track_number });
     }

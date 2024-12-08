@@ -1,25 +1,28 @@
-use std::{collections::VecDeque, fs::File, io::BufReader, ops::Deref, sync::{Mutex, MutexGuard}};
+use std::{collections::VecDeque, fs::File, io::BufReader, sync::{Mutex, MutexGuard}};
 
 use rodio::{Sink, OutputStream, OutputStreamHandle, Decoder};
 
 use crate::music_database::Track;
 
 pub struct AppState {
-    pub audio_player: Audio_Player
+    pub audio_player: AudioPlayer
 }
 
-pub struct Audio_Player {
+pub struct AudioPlayer {
     pub sink: Sink,
+    #[allow(dead_code)] 
+    // The output stream needs to be kept around in order for the music to continue playing, but it's not actually used anywhere
     output_stream: OutputStream,
+    #[allow(dead_code)]
     output_stream_handle: OutputStreamHandle,
     pub music_queue: Mutex<VecDeque<Track>>,
 }
 
-unsafe impl Sync for Audio_Player {}
+unsafe impl Sync for AudioPlayer {}
 
-unsafe impl Send for Audio_Player {}
+unsafe impl Send for AudioPlayer {}
 
-impl Audio_Player {
+impl AudioPlayer {
     pub fn new() -> Self {
         let (output_stream, output_stream_handle) = OutputStream::try_default().unwrap();
         let sink = Sink::try_new(&output_stream_handle).unwrap();
@@ -52,14 +55,21 @@ impl Audio_Player {
     }
 
     pub fn add_track_to_queue(&self, track: Track) {
-        self.sink.append(self.decode_track(&track));
-
         let mut music_queue = self.get_music_queue();
         music_queue.push_back(track);
     }
 
+    pub fn play_next_track(&self) {
+        let mut music_queue = self.get_music_queue();
+
+        let next_track = music_queue.pop_front().expect("Queue should have a next track");
+        self.sink.append(self.decode_track(&next_track));
+
+        self.start_playback();
+    }
+
     fn get_music_queue(&self) -> MutexGuard<'_, VecDeque<Track>> {
-        self.music_queue.lock().expect("Queue locked")
+        self.music_queue.lock().expect("Queue should have been locked")
     }
 
     fn decode_track(&self, track: &Track) -> Decoder<BufReader<File>> {

@@ -1,6 +1,5 @@
-use std::{borrow::Borrow, collections::VecDeque, sync::Mutex};
-
 use music_database::Track;
+use audio_player::{AppState, AudioPlayer};
 use tauri::{State, Builder, Manager};
 
 mod music_database;
@@ -28,10 +27,10 @@ fn get_album_data(album: String) -> music_database::Album {
 }
 
 #[tauri::command]
-async fn on_track_double_clicked(state: State<'_, audio_player::AppState>, track: Track) -> Result<i32, ()> {
+async fn on_track_double_clicked(state: State<'_, AppState>, track: Track) -> Result<i32, ()> {
     state.audio_player.clear_queue();
     state.audio_player.add_track_to_queue(track);
-    state.audio_player.start_playback();
+    state.audio_player.play_next_track();
     Ok(1)
 }
 
@@ -39,8 +38,8 @@ async fn on_track_double_clicked(state: State<'_, audio_player::AppState>, track
 pub fn run() {
     Builder::default()
         .setup(|app| {
-            app.manage(audio_player::AppState {
-                audio_player: audio_player::Audio_Player::new(),
+            app.manage(AppState {
+                audio_player: AudioPlayer::new(),
             });
             Ok(())
         })
