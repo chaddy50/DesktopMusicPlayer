@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import ArtistCard from "./ArtistCard";
+import ArtistCard from "../ArtistCard";
 
 interface LeftSidebarProps {
     albumArtists: string[];

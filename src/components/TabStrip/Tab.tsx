@@ -1,4 +1,4 @@
-import "../../../MusicPlayer.css";
+import "../../MusicPlayer.css";
 
 interface TabProps {
     title: string;

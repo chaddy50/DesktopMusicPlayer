@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "../../MusicPlayer.css";
-import { AlbumDataResponse } from "./TrackBrowser/TrackBrowser";
+import { AlbumDataResponse } from "../TrackBrowser/TrackBrowser";
 
 interface AlbumCardProps {
     album: string;

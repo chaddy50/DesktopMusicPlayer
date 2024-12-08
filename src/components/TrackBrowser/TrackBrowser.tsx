@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import "../../../MusicPlayer.css";
+import "../../MusicPlayer.css";
 import AlbumHeader from "./AlbumHeader";
 import Track from "./Track";
 
