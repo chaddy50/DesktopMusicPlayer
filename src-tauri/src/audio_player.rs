@@ -2,7 +2,7 @@ use std::{collections::VecDeque, fs::File, io::BufReader, ops::Deref, sync::{Mut
 
 use rodio::{Sink, OutputStream, OutputStreamHandle, Decoder};
 
-use crate::music_database::track;
+use crate::music_database::Track;
 
 pub struct AppState {
     pub audio_player: Audio_Player
@@ -12,7 +12,7 @@ pub struct Audio_Player {
     pub sink: Sink,
     output_stream: OutputStream,
     output_stream_handle: OutputStreamHandle,
-    pub music_queue: Mutex<VecDeque<track>>,
+    pub music_queue: Mutex<VecDeque<Track>>,
 }
 
 unsafe impl Sync for Audio_Player {}
@@ -51,18 +51,18 @@ impl Audio_Player {
         drop(music_queue);
     }
 
-    pub fn add_track_to_queue(&self, track: track) {
+    pub fn add_track_to_queue(&self, track: Track) {
         self.sink.append(self.decode_track(&track));
 
         let mut music_queue = self.get_music_queue();
         music_queue.push_back(track);
     }
 
-    fn get_music_queue(&self) -> MutexGuard<'_, VecDeque<track>> {
+    fn get_music_queue(&self) -> MutexGuard<'_, VecDeque<Track>> {
         self.music_queue.lock().expect("Queue locked")
     }
 
-    fn decode_track(&self, track: &track) -> Decoder<BufReader<File>> {
+    fn decode_track(&self, track: &Track) -> Decoder<BufReader<File>> {
         let track_file = BufReader::new(File::open(&track.file_path).unwrap());
         Decoder::new(track_file).unwrap()
     }

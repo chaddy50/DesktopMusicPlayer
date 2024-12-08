@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, collections::VecDeque, sync::Mutex};
 
-use music_database::track;
+use music_database::Track;
 use tauri::{State, Builder, Manager};
 
 mod music_database;
@@ -23,12 +23,12 @@ fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
 }
 
 #[tauri::command]
-fn get_album_data(album: String) -> music_database::album {
+fn get_album_data(album: String) -> music_database::Album {
     music_database::get_album_data(album)
 }
 
 #[tauri::command]
-async fn on_track_clicked(state: State<'_, audio_player::AppState>, track: track) -> Result<i32, ()> {
+async fn on_track_clicked(state: State<'_, audio_player::AppState>, track: Track) -> Result<i32, ()> {
     state.audio_player.clear_queue();
     state.audio_player.add_track_to_queue(track);
     state.audio_player.start_playback();

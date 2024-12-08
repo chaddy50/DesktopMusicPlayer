@@ -6,8 +6,8 @@ use std::{
 
 use audiotags::{Picture, Tag};
 use base64::{engine::general_purpose, Engine as _};
+use serde::{Deserialize, Serialize};
 use sqlite::{Connection, State};
-use tauri::{ipc::CommandArg, EventLoopMessage, Wry};
 
 const DATABASE_PATH_MUSIC: &str = "music_database.db";
 
@@ -25,6 +25,40 @@ const COLUMN_ALBUM: &str = "album";
 const COLUMN_YEAR: &str = "year";
 const COLUMN_TRACK_NUMBER: &str = "track_number";
 const COLUMN_FILE_PATH: &str = "file_path";
+
+#[derive(Clone, Copy)]
+struct TrackToProcess<'a> {
+    title: &'a String,
+    album: &'a String,
+    album_artist: &'a String,
+    artist: &'a String,
+    genre: &'a String,
+    artwork: &'a Picture<'a>,
+    file_path: &'a String,
+    year: &'a i32,
+    track_number: &'a u16,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Track {
+    pub name: String,
+    album_artist: String,
+    artist: String,
+    genre: String,
+    artwork_source: String,
+    pub file_path: String,
+    track_number: i64
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Album {
+    name: String,
+    album_artist: String,
+    genre: String,
+    artwork_source: String,
+    year: i64,
+    tracks: Vec<Track>,
+}
 
 pub fn build_music_database() {
     if Path::new(DATABASE_PATH_MUSIC).exists() {
@@ -140,7 +174,7 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
     let metadata = Tag::new().read_from_path(&song_file_path);
     match metadata {
         Ok(metadata) => {
-            let song = track_to_process {
+            let song = TrackToProcess {
                 title: &escape_string_for_sql(metadata.title().unwrap_or_default()),
                 album: &escape_string_for_sql(metadata.album().unwrap().title),
                 album_artist: &escape_string_for_sql(metadata.album_artist().unwrap_or_default()),
@@ -163,7 +197,7 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
     }
 }
 
-fn add_song_to_database(database_connection: &Connection, song: track_to_process) {
+fn add_song_to_database(database_connection: &Connection, song: TrackToProcess) {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_SONGS} VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');
@@ -187,7 +221,7 @@ fn add_song_to_database(database_connection: &Connection, song: track_to_process
     }
 }
 
-fn add_album_to_database(database_connection: &Connection, song: track_to_process) {
+fn add_album_to_database(database_connection: &Connection, song: TrackToProcess) {
     let mime_type = song.artwork.mime_type;
     let cover_data = song.artwork.data;
     let cover_data = convert_artwork_data_to_base_64(cover_data);
@@ -222,7 +256,7 @@ fn escape_string_for_sql(str: &str) -> String {
     str.replace('\'', "\'\'")
 }
 
-fn add_album_artist_to_database(database_connection: &Connection, song: track_to_process) {
+fn add_album_artist_to_database(database_connection: &Connection, song: TrackToProcess) {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_ALBUM_ARTISTS} VALUES ('{}', '{}');
@@ -242,7 +276,7 @@ fn add_album_artist_to_database(database_connection: &Connection, song: track_to
     }
 }
 
-fn add_genre_to_database(database_connection: &Connection, song: track_to_process) {
+fn add_genre_to_database(database_connection: &Connection, song: TrackToProcess) {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_GENRES} VALUES ('{}');
@@ -256,29 +290,6 @@ fn add_genre_to_database(database_connection: &Connection, song: track_to_proces
             println!("Error adding genre to database: {}", song.genre);
         }
     }
-}
-
-#[derive(Clone, Copy)]
-struct track_to_process<'a> {
-    title: &'a String,
-    album: &'a String,
-    album_artist: &'a String,
-    artist: &'a String,
-    genre: &'a String,
-    artwork: &'a Picture<'a>,
-    file_path: &'a String,
-    year: &'a i32,
-    track_number: &'a u16,
-}
-
-#[derive(serde::Serialize)]
-pub struct album {
-    name: String,
-    album_artist: String,
-    genre: String,
-    artwork_source: String,
-    year: i64,
-    tracks: Vec<track>,
 }
 
 pub fn get_genres() -> Vec<String> {
@@ -360,7 +371,7 @@ pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
     albums
 }
 
-pub fn get_album_data(album: String) -> album {
+pub fn get_album_data(album: String) -> Album {
     let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
     match database_connection {
         Ok(database_connection) => {
@@ -387,7 +398,7 @@ pub fn get_album_data(album: String) -> album {
 
             let tracks = get_tracks_for_album(&database_connection, album.clone());
             
-            album {
+            Album {
                 artwork_source: artwork,
                 genre: genre,
                 album_artist: album_artist,
@@ -398,12 +409,12 @@ pub fn get_album_data(album: String) -> album {
         }
         Err(error) => {
             println!("Error connecting to database: {}", error);
-            album { name: album, artwork_source: "".to_string(), genre: "".to_string(), album_artist: "".to_string(), year: -1, tracks: Vec::new()}
+            Album { name: album, artwork_source: "".to_string(), genre: "".to_string(), album_artist: "".to_string(), year: -1, tracks: Vec::new()}
         }
     }
 }
 
-fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<track> {
+fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<Track> {
     let mut tracks = Vec::new();
     let mut statement = database_connection
         .prepare(format!(
@@ -432,18 +443,7 @@ fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<
         file_path = statement.read::<String, _>(COLUMN_FILE_PATH).unwrap_or_default();
         track_number = statement.read::<i64, _>(COLUMN_TRACK_NUMBER).unwrap_or_default();
 
-        tracks.push(track { name: name, album_artist: album_artist, artist: artist, genre: genre, artwork_source: artwork_source, file_path: file_path, track_number: track_number });
+        tracks.push(Track { name: name, album_artist: album_artist, artist: artist, genre: genre, artwork_source: artwork_source, file_path: file_path, track_number: track_number });
     }
     tracks
-}
-
-#[derive(serde::Serialize, serde::Deserialize)]
-pub struct track {
-    pub name: String,
-    album_artist: String,
-    artist: String,
-    genre: String,
-    artwork_source: String,
-    pub file_path: String,
-    track_number: i64
 }
