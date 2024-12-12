@@ -1,4 +1,5 @@
 import { AlbumDataResponse } from "./TrackBrowser";
+import "../../MusicPlayer.css";
 
 interface AlbumHeaderProps {
     albumData: AlbumDataResponse;
@@ -8,17 +9,17 @@ function AlbumHeader(props: AlbumHeaderProps) {
     const { albumData } = props;
 
     return (
-        <div className="albumHeader">
+        <div className="albumHeaderContainer">
             <img
                 src={albumData.artwork_source}
                 className="albumHeaderImage"
-                height="100px"
-                width="100px"
+                height="300px"
+                width="300px"
             />
             <div className="albumHeaderDetails">
-                <label>{albumData.name}</label>
-                <label>{albumData.year}</label>
-                <label>{albumData.album_artist}</label>
+                <span className="albumTitle">{albumData.name}</span>
+                <span>{albumData.year}</span>
+                <span>{albumData.album_artist}</span>
             </div>
         </div>
     );
