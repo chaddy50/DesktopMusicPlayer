@@ -1,9 +1,9 @@
 import { useCallback } from "react";
-import { TrackDataResponse } from "./TrackBrowser";
+import { TrackData } from "./TrackBrowser";
 import { invoke } from "@tauri-apps/api/core";
 
 interface TrackProps {
-    track: TrackDataResponse;
+    track: TrackData;
 }
 
 function Track(props: TrackProps) {

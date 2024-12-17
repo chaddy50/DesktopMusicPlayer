@@ -1,8 +1,9 @@
 use std::{collections::VecDeque, fs::File, io::BufReader, sync::{Mutex, MutexGuard}};
 
 use rodio::{Sink, OutputStream, OutputStreamHandle, Decoder};
+use tauri::{AppHandle, Emitter};
 
-use crate::music_database::Track;
+use crate::{music_database::Track, NowPlayingData};
 
 pub struct AppState {
     pub audio_player: AudioPlayer
@@ -34,12 +35,12 @@ impl AudioPlayer {
         }
     }
 
-    pub fn play(&self) {
+    pub fn play(&self, app: AppHandle) {
         if self.sink.len() > 0 {
-            self.play_or_unpause();
+            self.play_or_unpause(&app);
         }
         else {
-            self.play_next_track();
+            self.play_next_track(&app);
         }
     }
 
@@ -53,12 +54,13 @@ impl AudioPlayer {
         music_queue.push_back(track);
     }
 
-    fn play_or_unpause(&self) {
+    fn play_or_unpause(&self, app: &AppHandle) {
         if self.sink.is_paused() {
             self.sink.play();
         }
         else if self.sink.len() > 0 {
             self.sink.sleep_until_end();
+            self.play_next_track(app);
         }
     }
 
@@ -73,13 +75,27 @@ impl AudioPlayer {
         music_queue.clear();
     }
 
-    fn play_next_track(&self) {
+    fn play_next_track(&self, app: &AppHandle) {
         let mut music_queue = self.get_music_queue();
+        self.update_now_playing_data(app, &music_queue);
 
         let next_track = music_queue.pop_front().expect("Queue should have a next track");
         self.sink.append(self.decode_track(&next_track));
+        drop(music_queue);
 
-        self.play_or_unpause();
+        self.play_or_unpause(app);
+    }
+
+    fn update_now_playing_data(&self, app: &AppHandle, music_queue: &MutexGuard<'_, VecDeque<Track>>) {
+        let mut now_playing_tracks: Vec<Track> = Vec::new();
+        for track in music_queue.iter() {
+            now_playing_tracks.push(track.clone());
+        }
+
+        let now_playing_data = NowPlayingData {
+            track_queue: now_playing_tracks
+        };
+        app.emit("now_playing_changed", now_playing_data).unwrap();
     }
 
     fn decode_track(&self, track: &Track) -> Decoder<BufReader<File>> {
@@ -87,7 +103,7 @@ impl AudioPlayer {
         Decoder::new(track_file).unwrap()
     }
 
-    fn get_music_queue(&self) -> MutexGuard<'_, VecDeque<Track>> {
+    pub fn get_music_queue(&self) -> MutexGuard<'_, VecDeque<Track>> {
         self.music_queue.lock().expect("Queue should have been locked")
     }
 }

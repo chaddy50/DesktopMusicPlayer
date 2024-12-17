@@ -1,9 +1,13 @@
+import NowPlaying from "../NowPlaying/NowPlaying";
+import PlayerControls from "../PlayerControls/PlayerControls";
+
 interface RightSidebarProps {}
 
 function RightSidebar(_props: RightSidebarProps) {
     return (
         <div className="rightSidebar">
-            <p>Now Playing</p>
+            <PlayerControls isPaused={false} isPlaying={true} />
+            <NowPlaying />
         </div>
     );
 }

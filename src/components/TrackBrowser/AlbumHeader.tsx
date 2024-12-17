@@ -1,8 +1,8 @@
-import { AlbumDataResponse } from "./TrackBrowser";
+import { AlbumData } from "./TrackBrowser";
 import "../../MusicPlayer.css";
 
 interface AlbumHeaderProps {
-    albumData: AlbumDataResponse;
+    albumData: AlbumData;
 }
 
 function AlbumHeader(props: AlbumHeaderProps) {

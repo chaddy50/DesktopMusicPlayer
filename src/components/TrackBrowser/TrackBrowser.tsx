@@ -8,16 +8,16 @@ interface TrackBrowserProps {
     album: string;
 }
 
-export interface AlbumDataResponse {
+export interface AlbumData {
     name: string;
     genre: string;
     album_artist: string;
     artwork_source: string;
-    tracks: TrackDataResponse[];
+    tracks: TrackData[];
     year: number;
 }
 
-export interface TrackDataResponse {
+export interface TrackData {
     name: string;
     album_artist: string;
     artist: string;
@@ -29,16 +29,13 @@ export interface TrackDataResponse {
 
 function TrackBrowser(props: TrackBrowserProps) {
     const { album } = props;
-    const [albumData, setAlbumData] = useState<AlbumDataResponse>();
+    const [albumData, setAlbumData] = useState<AlbumData>();
 
     useEffect(() => {
         async function getAlbumData(album: string): Promise<void> {
-            const albumData: AlbumDataResponse = await invoke(
-                "get_album_data",
-                {
-                    album,
-                }
-            );
+            const albumData: AlbumData = await invoke("get_album_data", {
+                album,
+            });
             setAlbumData(albumData);
         }
         getAlbumData(album);
@@ -49,8 +46,8 @@ function TrackBrowser(props: TrackBrowserProps) {
             <div className="trackBrowserContainer">
                 <AlbumHeader albumData={albumData} />
                 <div className="trackListContainer">
-                    {albumData.tracks.map((track, index) => {
-                        return <Track track={track} />;
+                    {albumData.tracks.map((track) => {
+                        return <Track key={track.file_path} track={track} />;
                     })}
                 </div>
             </div>

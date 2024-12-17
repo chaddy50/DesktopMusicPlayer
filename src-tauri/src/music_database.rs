@@ -41,6 +41,11 @@ struct TrackToProcess<'a> {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct NowPlayingQueue {
+    pub now_playing_tracks: Vec<Track>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Track {
     pub name: String,
     album_artist: String,
@@ -53,12 +58,12 @@ pub struct Track {
 
 #[derive(Serialize, Deserialize)]
 pub struct Album {
-    name: String,
+    pub name: String,
     album_artist: String,
     genre: String,
     artwork_source: String,
     year: i64,
-    tracks: Vec<Track>,
+    pub tracks: Vec<Track>,
 }
 
 #[allow(dead_code)]
