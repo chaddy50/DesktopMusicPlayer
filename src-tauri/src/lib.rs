@@ -1,7 +1,7 @@
 use music_database::{Album, Track};
 use audio_player::{AppState, AudioPlayer};
 use serde::{Deserialize, Serialize};
-use tauri::{State, Builder, Manager, AppHandle, Emitter};
+use tauri::{State, Builder, Manager, AppHandle};
 
 mod music_database;
 mod audio_player;
