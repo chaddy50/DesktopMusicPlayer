@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "../../MusicPlayer.css";
 import { AlbumData } from "../TrackBrowser/TrackBrowser";
+import { useSingleAndDoubleClick } from "../../hooks/SingleAndDoubleClick";
 
 interface AlbumCardProps {
     album: string;
@@ -25,15 +26,20 @@ function AlbumCard(props: AlbumCardProps) {
     }, [album]);
 
     const playAlbum = useCallback(() => {
-        selectAlbum();
         invoke("on_album_double_clicked", { album: albumData });
     }, [album, albumData, selectAlbum]);
+
+    const handleClicks = useSingleAndDoubleClick(selectAlbum, playAlbum);
 
     const imageSize = 300;
 
     if (albumData) {
         return (
-            <div key={album} className="albumCardContainer" onClick={playAlbum}>
+            <div
+                key={album}
+                className="albumCardContainer"
+                onClick={handleClicks}
+            >
                 <div
                     className={
                         isSelected
