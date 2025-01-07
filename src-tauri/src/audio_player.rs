@@ -65,9 +65,8 @@ impl AudioPlayer {
     }
 
     fn stop_playback(&self) {
-        if self.sink.len() > 0 {
-            self.sink.stop();
-        }
+        self.sink.clear();
+        self.sink.stop();
     }
 
     fn clear_queue(&self) {
@@ -79,11 +78,13 @@ impl AudioPlayer {
         let mut music_queue = self.get_music_queue();
         self.update_now_playing_data(app, &music_queue);
 
-        let next_track = music_queue.pop_front().expect("Queue should have a next track");
-        self.sink.append(self.decode_track(&next_track));
-        drop(music_queue);
+        if music_queue.len() > 0 {
+            let next_track = music_queue.pop_front().expect("Queue should have a next track");
+            self.sink.append(self.decode_track(&next_track));
+            drop(music_queue);
 
-        self.play_or_unpause(app);
+            self.play_or_unpause(app);
+        }
     }
 
     fn update_now_playing_data(&self, app: &AppHandle, music_queue: &MutexGuard<'_, VecDeque<Track>>) {
@@ -103,7 +104,7 @@ impl AudioPlayer {
         Decoder::new(track_file).unwrap()
     }
 
-    pub fn get_music_queue(&self) -> MutexGuard<'_, VecDeque<Track>> {
+    fn get_music_queue(&self) -> MutexGuard<'_, VecDeque<Track>> {
         self.music_queue.lock().expect("Queue should have been locked")
     }
 }
