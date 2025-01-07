@@ -46,9 +46,21 @@ async fn on_album_double_clicked(app: AppHandle, state: State<'_, AppState>, alb
     Ok(1)
 }
 
+#[tauri::command]
+fn on_pause_button_clicked(app: AppHandle, state: State<'_, AppState>) {
+    state.audio_player.pause(app);
+}
+
+#[tauri::command]
+fn on_play_button_clicked(app: AppHandle, state: State<'_, AppState>) {
+    state.audio_player.play(app);
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 struct NowPlayingData {
     track_queue: Vec<Track>,
+    is_paused: bool,
+    is_playing: bool,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -76,6 +88,8 @@ pub fn run() {
             get_album_data,
             on_track_double_clicked,
             on_album_double_clicked,
+            on_pause_button_clicked,
+            on_play_button_clicked,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
