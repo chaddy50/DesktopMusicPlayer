@@ -52,6 +52,7 @@ body {
     justify-content: center;
     margin: 20px;
     text-align: center;
+    cursor: pointer;
 }
 
 .albumArtworkContainer {
@@ -146,4 +147,13 @@ body {
     width: 100%;
     border-bottom: 1px solid black;
     justify-content: center;
+    cursor: pointer;
+}
+
+.tab {
+    padding-left: 10px;
+    padding-right: 10px;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    cursor: pointer;
 }
