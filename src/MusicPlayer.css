@@ -130,8 +130,25 @@ body {
 }
 
 .trackContainer {
+    display: flex;
     padding-left: 10px;
+    padding-right: 10px;
     cursor: pointer;
+    height: 30px;
+    align-items: center;
+}
+
+.trackInfoColumn {
+    flex: 1;
+}
+
+.trackInfoColumnTrackNumber {
+    width: 30px;
+}
+
+.trackInfoColumnDuration {
+    width: 50px;
+    text-align: right;
 }
 
 .trackContainer:hover {

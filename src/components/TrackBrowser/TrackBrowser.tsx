@@ -25,6 +25,7 @@ export interface TrackData {
     artwork_source: string;
     file_path: string;
     track_number: number;
+    duration_in_seconds: number;
 }
 
 function TrackBrowser(props: TrackBrowserProps) {
