@@ -26,6 +26,7 @@ const COLUMN_YEAR: &str = "year";
 const COLUMN_TRACK_NUMBER: &str = "track_number";
 const COLUMN_FILE_PATH: &str = "file_path";
 const COLUMN_DURATION: &str = "duration";
+const COLUMN_SORT_NAME: &str = "sort_name";
 
 #[derive(Clone, Copy)]
 #[allow(dead_code)]
@@ -107,7 +108,7 @@ fn create_database_tables(database_connection: &Connection) {
     let query = format!("
     CREATE TABLE IF NOT EXISTS {TABLE_GENRES} ({COLUMN_NAME} TEXT PRIMARY KEY);
 
-    CREATE TABLE IF NOT EXISTS {TABLE_ALBUM_ARTISTS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT);
+    CREATE TABLE IF NOT EXISTS {TABLE_ALBUM_ARTISTS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT, {COLUMN_SORT_NAME} TEXT);
 
     CREATE TABLE IF NOT EXISTS {TABLE_ALBUMS} ({COLUMN_ID} TEXT PRIMARY KEY, {COLUMN_NAME} TEXT, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ARTWORK_DATA} TEXT, {COLUMN_YEAR} INT);
 
@@ -270,12 +271,14 @@ fn escape_string_for_sql(str: &str) -> String {
 }
 
 fn add_album_artist_to_database(database_connection: &Connection, song: TrackToProcess) {
+    let sort_name = get_sort_value_for_string(&song.album_artist);
     let query = format!(
         r#"
-        INSERT OR IGNORE INTO {TABLE_ALBUM_ARTISTS} VALUES ('{}', '{}');
+        INSERT OR IGNORE INTO {TABLE_ALBUM_ARTISTS} VALUES ('{}', '{}','{}');
         "#,
         song.album_artist,
         song.genre,
+        sort_name
     );
     let result = database_connection.execute(query);
     match result {
@@ -286,6 +289,22 @@ fn add_album_artist_to_database(database_connection: &Connection, song: TrackToP
                 song.album_artist
             );
         }
+    }
+}
+
+fn get_sort_value_for_string(string: &str) -> &str {
+    let lowercase = string.to_lowercase();
+    if lowercase.starts_with("the ") {
+        &string[4..]
+    }
+    else if lowercase.starts_with("a ") {
+        &string[2..]
+    }
+    else if lowercase.starts_with("an ") {
+        &string[3..]
+    }
+    else {
+        &string
     }
 }
 
@@ -342,7 +361,7 @@ pub fn get_album_artists_for_genre(genre: String) -> Vec<String> {
                     r#"
                     SELECT * FROM {TABLE_ALBUM_ARTISTS} 
                     WHERE genre = '{}' AND {COLUMN_NAME} <> ""
-                    ORDER BY {COLUMN_NAME}
+                    ORDER BY {COLUMN_SORT_NAME}
                     "#,
                     escape_string_for_sql(&genre)
                 ))
