@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { TrackData } from "./TrackBrowser";
 import { invoke } from "@tauri-apps/api/core";
+import { formatTimeDuration } from "../../utilities/Utilities";
 
 interface TrackProps {
     track: TrackData;
@@ -24,18 +25,6 @@ function Track(props: TrackProps) {
             </span>
         </div>
     );
-}
-
-function formatTimeDuration(timeDurationInSeconds: number): string {
-    const minutes = Math.floor(timeDurationInSeconds / 60);
-    let seconds = timeDurationInSeconds % 60;
-    let secondsAsString = "";
-    if (seconds < 10) {
-        secondsAsString += "0";
-    }
-    secondsAsString += seconds;
-
-    return `${minutes}:${secondsAsString}`;
 }
 
 export default Track;

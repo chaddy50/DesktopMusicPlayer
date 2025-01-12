@@ -15,6 +15,7 @@ export interface AlbumData {
     artwork_source: string;
     tracks: TrackData[];
     year: number;
+    duration_in_seconds: number;
 }
 
 export interface TrackData {

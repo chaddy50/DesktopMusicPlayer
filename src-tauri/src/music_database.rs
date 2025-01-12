@@ -67,6 +67,7 @@ pub struct Album {
     artwork_source: String,
     year: i64,
     pub tracks: Vec<Track>,
+    duration_in_seconds: i64,
 }
 
 #[allow(dead_code)]
@@ -401,31 +402,45 @@ pub fn get_album_data(album: String) -> Album {
                 ))
                 .unwrap();
 
-            let mut artwork = "".to_string();
+            let mut artwork_source = "".to_string();
             let mut genre = "".to_string();
             let mut album_artist = "".to_string();
             let mut year = -1;
             while let Ok(State::Row) = statement.next() {
-                artwork = statement.read::<String, _>(COLUMN_ARTWORK_DATA).unwrap();
+                artwork_source = statement.read::<String, _>(COLUMN_ARTWORK_DATA).unwrap();
                 genre = statement.read::<String, _>(COLUMN_GENRE).unwrap();
                 album_artist = statement.read::<String, _>(COLUMN_ALBUM_ARTIST).unwrap();
                 year = statement.read::<i64, _>(COLUMN_YEAR).unwrap();
             }
 
             let tracks = get_tracks_for_album(&database_connection, album.clone());
+
+            let mut duration_in_seconds = 0;
+            for track in &tracks {
+                duration_in_seconds += track.duration_in_seconds
+            }
             
             Album {
-                artwork_source: artwork,
-                genre: genre,
-                album_artist: album_artist,
-                year: year,
+                artwork_source,
+                genre,
+                album_artist,
+                year,
                 name: album.clone(),
-                tracks: tracks,
+                tracks,
+                duration_in_seconds,
             }
         }
         Err(error) => {
             println!("Error connecting to database: {}", error);
-            Album { name: album, artwork_source: "".to_string(), genre: "".to_string(), album_artist: "".to_string(), year: -1, tracks: Vec::new()}
+            Album { 
+                name: album, 
+                artwork_source: "".to_string(), 
+                genre: "".to_string(), 
+                album_artist: "".to_string(), 
+                year: -1, 
+                tracks: Vec::new(),
+                duration_in_seconds: 0,
+            }
         }
     }
 }
