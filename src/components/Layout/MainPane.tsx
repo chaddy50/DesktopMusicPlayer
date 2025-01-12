@@ -7,24 +7,32 @@ interface MainPaneProps {
     selectedAlbumArtist: string;
     selectedAlbumIndex: number;
     setSelectedAlbumIndex: Dispatch<SetStateAction<number>>;
+    selectedGenre: string;
 }
 
 function MainPane(props: MainPaneProps) {
-    const { selectedAlbumArtist, selectedAlbumIndex, setSelectedAlbumIndex } =
-        props;
+    const {
+        selectedAlbumArtist,
+        selectedAlbumIndex,
+        setSelectedAlbumIndex,
+        selectedGenre,
+    } = props;
 
     const [albums, setAlbums] = useState([""]);
 
     useEffect(() => {
-        async function getAlbums(albumArtist: string): Promise<void> {
+        async function getAlbums(
+            albumArtist: string,
+            genre: string
+        ): Promise<void> {
             const albums: string[] = await invoke(
                 "get_albums_for_album_artist",
-                { albumArtist }
+                { albumArtist, genre }
             );
             setAlbums(albums);
         }
-        getAlbums(selectedAlbumArtist);
-    }, [selectedAlbumArtist, setAlbums]);
+        getAlbums(selectedAlbumArtist, selectedGenre);
+    }, [selectedAlbumArtist, setAlbums, selectedGenre]);
 
     return (
         <div className="mainPaneContainer">

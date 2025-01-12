@@ -18,8 +18,8 @@ fn get_album_artists_for_genre(genre: String) -> Vec<String> {
 }
 
 #[tauri::command]
-fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
-    music_database::get_albums_for_album_artist(album_artist)
+fn get_albums_for_album_artist(album_artist: String, genre: String) -> Vec<String> {
+    music_database::get_albums_for_album_artist(album_artist, genre)
 }
 
 #[tauri::command]

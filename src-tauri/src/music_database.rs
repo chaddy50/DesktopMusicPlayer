@@ -7,7 +7,7 @@ use std::{
 use audiotags::{Picture, Tag};
 use base64::{engine::general_purpose, Engine as _};
 use serde::{Deserialize, Serialize};
-use sqlite::{Connection, State};
+use sqlite::{Connection, State, Statement};
 
 const DATABASE_PATH_MUSIC: &str = "music_database.db";
 
@@ -26,7 +26,7 @@ const COLUMN_YEAR: &str = "year";
 const COLUMN_TRACK_NUMBER: &str = "track_number";
 const COLUMN_FILE_PATH: &str = "file_path";
 const COLUMN_DURATION: &str = "duration";
-const COLUMN_SORT_NAME: &str = "sort_name";
+const COLUMN_ALBUM_ARTIST_SORT_NAME: &str = "album_artist_sort_name";
 
 #[derive(Clone, Copy)]
 #[allow(dead_code)]
@@ -108,7 +108,7 @@ fn create_database_tables(database_connection: &Connection) {
     let query = format!("
     CREATE TABLE IF NOT EXISTS {TABLE_GENRES} ({COLUMN_NAME} TEXT PRIMARY KEY);
 
-    CREATE TABLE IF NOT EXISTS {TABLE_ALBUM_ARTISTS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT, {COLUMN_SORT_NAME} TEXT);
+    CREATE TABLE IF NOT EXISTS {TABLE_ALBUM_ARTISTS} ({COLUMN_NAME} TEXT PRIMARY KEY, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST_SORT_NAME} TEXT);
 
     CREATE TABLE IF NOT EXISTS {TABLE_ALBUMS} ({COLUMN_ID} TEXT PRIMARY KEY, {COLUMN_NAME} TEXT, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ARTWORK_DATA} TEXT, {COLUMN_YEAR} INT);
 
@@ -292,19 +292,19 @@ fn add_album_artist_to_database(database_connection: &Connection, song: TrackToP
     }
 }
 
-fn get_sort_value_for_string(string: &str) -> &str {
-    let lowercase = string.to_lowercase();
+fn get_sort_value_for_string(string: &str) -> String {
+    let lowercase = &string.to_lowercase();
     if lowercase.starts_with("the ") {
-        &string[4..]
+        lowercase[4..].to_string()
     }
     else if lowercase.starts_with("a ") {
-        &string[2..]
+        lowercase[2..].to_string()
     }
     else if lowercase.starts_with("an ") {
-        &string[3..]
+        lowercase[3..].to_string()
     }
     else {
-        &string
+        lowercase.clone()
     }
 }
 
@@ -361,11 +361,13 @@ pub fn get_album_artists_for_genre(genre: String) -> Vec<String> {
                     r#"
                     SELECT * FROM {TABLE_ALBUM_ARTISTS} 
                     WHERE genre = '{}' AND {COLUMN_NAME} <> ""
-                    ORDER BY {COLUMN_SORT_NAME}
+                    ORDER BY {COLUMN_ALBUM_ARTIST_SORT_NAME}
                     "#,
                     escape_string_for_sql(&genre)
                 ))
                 .unwrap();
+
+            album_artists.push(get_all_artists_string(&genre).to_string());
 
             while let Ok(State::Row) = statement.next() {
                 album_artists.push(statement.read::<String, _>(COLUMN_NAME).unwrap());
@@ -378,22 +380,45 @@ pub fn get_album_artists_for_genre(genre: String) -> Vec<String> {
     album_artists
 }
 
+fn get_all_artists_string(genre: &str) -> &str {
+    match genre {
+        "Video Game" => return "All Games",
+        _ => return "All Artists"
+    }
+}
+
 #[allow(dead_code)]
-pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
+pub fn get_albums_for_album_artist(album_artist: String, genre: String) -> Vec<String> {
     let mut albums = Vec::new();
     let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
     match database_connection {
         Ok(database_connection) => {
-            let mut statement = database_connection
-                .prepare(format!(
-                    r#"
-                    SELECT * FROM {TABLE_ALBUMS}
-                    WHERE {COLUMN_ALBUM_ARTIST} = '{}'
-                    ORDER BY {COLUMN_YEAR}
-                    "#,
-                    escape_string_for_sql(&album_artist)
-                ))
-                .unwrap();
+            let mut statement: Statement<'_>;
+            if !is_all_artists_string(&album_artist) {
+                statement = database_connection
+                    .prepare(format!(
+                        r#"
+                        SELECT * FROM {TABLE_ALBUMS}
+                        WHERE {COLUMN_ALBUM_ARTIST} = '{}'
+                        ORDER BY {COLUMN_YEAR}
+                        "#,
+                        escape_string_for_sql(&album_artist)
+                    ))
+                    .unwrap();
+            }
+            else {
+                statement = database_connection
+                    .prepare(format!(
+                        r#"
+                        SELECT {TABLE_ALBUMS}.{COLUMN_NAME}, {TABLE_ALBUMS}.{COLUMN_GENRE}
+                        FROM {TABLE_ALBUMS}
+                        INNER JOIN {TABLE_ALBUM_ARTISTS} ON {TABLE_ALBUMS}.{COLUMN_ALBUM_ARTIST} = {TABLE_ALBUM_ARTISTS}.{COLUMN_NAME}
+                        WHERE {TABLE_ALBUMS}.{COLUMN_GENRE} = '{}'
+                        ORDER BY {TABLE_ALBUM_ARTISTS}.{COLUMN_ALBUM_ARTIST_SORT_NAME}, {TABLE_ALBUMS}.{COLUMN_YEAR}
+                        "#,
+                        escape_string_for_sql(&genre)
+                    )).unwrap()
+            }
 
             while let Ok(State::Row) = statement.next() {
                 albums.push(statement.read::<String, _>(COLUMN_NAME).unwrap());
@@ -404,6 +429,14 @@ pub fn get_albums_for_album_artist(album_artist: String) -> Vec<String> {
         }
     }
     albums
+}
+
+fn is_all_artists_string(string: &str) -> bool {
+    match string {
+        "All Artists" => return true,
+        "All Games" => return true,
+        _ => return false,
+    }
 }
 
 #[allow(dead_code)]

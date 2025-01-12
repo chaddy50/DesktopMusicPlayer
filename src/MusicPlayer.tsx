@@ -62,6 +62,7 @@ function MusicPlayer() {
                     selectedAlbumArtist={albumArtists[selectedAlbumArtistIndex]}
                     selectedAlbumIndex={selectedAlbumIndex}
                     setSelectedAlbumIndex={setSelectedAlbumIndex}
+                    selectedGenre={genres[selectedGenreIndex]}
                 />
 
                 <RightSidebar />
