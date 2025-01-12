@@ -53,7 +53,9 @@ function AlbumCard(props: AlbumCardProps) {
                         height={imageSize + "px"}
                     />
                 </div>
-                <p style={{ maxWidth: imageSize + "px" }}>{album}</p>
+                <p style={{ maxWidth: imageSize + "px", height: "44px" }}>
+                    {album}
+                </p>
             </div>
         );
     }
