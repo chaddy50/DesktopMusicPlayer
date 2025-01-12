@@ -1,7 +1,5 @@
 use std::{
-    fs::{self, DirEntry},
-    io::Error,
-    path::{Path, PathBuf},
+    fs::{self, DirEntry}, io::Error, os::linux::raw::stat, path::{Path, PathBuf}
 };
 
 use audiotags::{Picture, Tag};
@@ -27,6 +25,7 @@ const COLUMN_TRACK_NUMBER: &str = "track_number";
 const COLUMN_FILE_PATH: &str = "file_path";
 const COLUMN_DURATION: &str = "duration";
 const COLUMN_ALBUM_ARTIST_SORT_NAME: &str = "album_artist_sort_name";
+const COLUMN_DISC_NUMBER: &str = "disc_number";
 
 #[derive(Clone, Copy)]
 #[allow(dead_code)]
@@ -41,6 +40,7 @@ struct TrackToProcess<'a> {
     year: &'a i32,
     track_number: &'a u16,
     duration: &'a f64,
+    disc_number: &'a u16,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -57,6 +57,7 @@ pub struct Track {
     artwork_source: String,
     pub file_path: String,
     track_number: i64,
+    disc_number: i64,
     duration_in_seconds: i64,
 }
 
@@ -112,7 +113,7 @@ fn create_database_tables(database_connection: &Connection) {
 
     CREATE TABLE IF NOT EXISTS {TABLE_ALBUMS} ({COLUMN_ID} TEXT PRIMARY KEY, {COLUMN_NAME} TEXT, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ARTWORK_DATA} TEXT, {COLUMN_YEAR} INT);
 
-    CREATE TABLE IF NOT EXISTS {TABLE_SONGS} ({COLUMN_ID} TEXT PRIMARY KEY, {COLUMN_NAME} TEXT, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ALBUM} TEXT, {COLUMN_TRACK_NUMBER} INT, {COLUMN_ARTIST} TEXT, {COLUMN_FILE_PATH} TEXT, {COLUMN_DURATION} INT);
+    CREATE TABLE IF NOT EXISTS {TABLE_SONGS} ({COLUMN_ID} TEXT PRIMARY KEY, {COLUMN_NAME} TEXT, {COLUMN_GENRE} TEXT, {COLUMN_ALBUM_ARTIST} TEXT, {COLUMN_ALBUM} TEXT, {COLUMN_TRACK_NUMBER} INT, {COLUMN_ARTIST} TEXT, {COLUMN_FILE_PATH} TEXT, {COLUMN_DURATION} INT, {COLUMN_DISC_NUMBER} INT);
     ");
     database_connection.execute(query).unwrap();
 }
@@ -199,6 +200,7 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
                 artist: &escape_string_for_sql(metadata.artist().unwrap_or_default()),
                 file_path: &escape_string_for_sql(song_file_path.as_path().to_str().unwrap_or_default()),
                 duration: &metadata.duration().unwrap_or_default(),
+                disc_number: &metadata.disc_number().unwrap_or_default(),
             };
 
             add_song_to_database(database_connection, song);
@@ -213,7 +215,7 @@ fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
 fn add_song_to_database(database_connection: &Connection, song: TrackToProcess) {
     let query = format!(
         r#"
-        INSERT OR IGNORE INTO {TABLE_SONGS} VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');
+        INSERT OR IGNORE INTO {TABLE_SONGS} VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');
         "#,
         song.file_path,
         song.title,
@@ -224,6 +226,7 @@ fn add_song_to_database(database_connection: &Connection, song: TrackToProcess) 
         song.artist,
         song.file_path,
         song.duration,
+        song.disc_number,
     );
     let result = database_connection.execute(query);
     match result {
@@ -504,7 +507,7 @@ fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<
             r#"
             SELECT * FROM {TABLE_SONGS}
             WHERE {COLUMN_ALBUM} = '{}'
-            ORDER BY {COLUMN_TRACK_NUMBER}
+            ORDER BY {COLUMN_DISC_NUMBER},{COLUMN_TRACK_NUMBER}
             "#,
             escape_string_for_sql(&album)
         ))
@@ -519,6 +522,7 @@ fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<
         let file_path = statement.read::<String, _>(COLUMN_FILE_PATH).unwrap_or_default();
         let track_number = statement.read::<i64, _>(COLUMN_TRACK_NUMBER).unwrap_or_default();
         let duration_in_seconds = statement.read::<i64, _>(COLUMN_DURATION).unwrap_or_default();
+        let disc_number = statement.read::<i64,_>(COLUMN_DISC_NUMBER).unwrap_or_default();
 
         tracks.push(Track { 
             name, 
@@ -529,6 +533,7 @@ fn get_tracks_for_album(database_connection: &Connection, album: String) -> Vec<
             file_path, 
             track_number,
             duration_in_seconds,
+            disc_number,
         });
     }
     tracks
