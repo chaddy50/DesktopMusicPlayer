@@ -53,9 +53,17 @@ function AlbumCard(props: AlbumCardProps) {
                         height={imageSize + "px"}
                     />
                 </div>
-                <p style={{ maxWidth: imageSize + "px", height: "44px" }}>
-                    {album}
-                </p>
+                <div
+                    style={{
+                        maxWidth: imageSize + "px",
+                        height: "75px",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
+                    <span className="albumTitle">{album}</span>
+                    <span>{albumData.year}</span>
+                </div>
             </div>
         );
     }

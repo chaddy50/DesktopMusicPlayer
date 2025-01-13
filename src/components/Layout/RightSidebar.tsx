@@ -41,6 +41,7 @@ function RightSidebar(_props: RightSidebarProps) {
             </div>
         );
     }
+    return <div className="rightSidebar"></div>;
 }
 
 export default RightSidebar;
