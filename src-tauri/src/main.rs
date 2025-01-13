@@ -2,8 +2,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod music_database;
+mod file_scanner;
 
 fn main() {
-    music_database::build_music_database();
+    file_scanner::build_music_database();
     music_player_lib::run();
 }

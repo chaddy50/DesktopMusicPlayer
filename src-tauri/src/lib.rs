@@ -5,6 +5,7 @@ use tauri::{State, Builder, Manager, AppHandle};
 
 mod music_database;
 mod audio_player;
+mod file_scanner;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]

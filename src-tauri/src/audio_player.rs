@@ -1,8 +1,6 @@
-use std::{collections::VecDeque, fs::File, io::BufReader, ops::DerefMut, sync::{Mutex, MutexGuard}};
-
-use log::log;
+use std::{collections::VecDeque, fs::File, io::BufReader, sync::{Mutex, MutexGuard}};
 use rodio::{Sink, OutputStream, OutputStreamHandle, Decoder};
-use tauri::{App, AppHandle, Emitter};
+use tauri::{AppHandle, Emitter};
 
 use crate::{music_database::Track, NowPlayingData};
 

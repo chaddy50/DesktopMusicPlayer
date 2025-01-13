@@ -1,13 +1,11 @@
-use std::{
-    fs::{self, DirEntry}, io::Error, os::linux::raw::stat, path::{Path, PathBuf}
-};
+use std::path::PathBuf;
 
-use audiotags::{Picture, Tag};
 use base64::{engine::general_purpose, Engine as _};
 use serde::{Deserialize, Serialize};
 use sqlite::{Connection, State, Statement};
+use audiotags::{Picture, Tag};
 
-const DATABASE_PATH_MUSIC: &str = "music_database.db";
+pub const DATABASE_PATH_MUSIC: &str = "music_database.db";
 
 const TABLE_SONGS: &str = "songs";
 const TABLE_ALBUMS: &str = "albums";
@@ -29,7 +27,7 @@ const COLUMN_DISC_NUMBER: &str = "disc_number";
 
 #[derive(Clone, Copy)]
 #[allow(dead_code)]
-struct TrackToProcess<'a> {
+pub struct TrackToProcess<'a> {
     title: &'a String,
     album: &'a String,
     album_artist: &'a String,
@@ -72,40 +70,7 @@ pub struct Album {
     duration_in_seconds: i64,
 }
 
-#[allow(dead_code)]
-pub fn build_music_database() {
-    if Path::new(DATABASE_PATH_MUSIC).exists() {
-        return;
-    }
-
-    let database_connection = sqlite::open(DATABASE_PATH_MUSIC);
-    match database_connection {
-        Ok(database_connection) => {
-            create_database_tables(&database_connection);
-
-            retrieve_audio_files_from_directory(
-                &database_connection,
-                "/home/nathan/Music/Video Game",
-            );
-            retrieve_audio_files_from_directory(&database_connection, "/home/nathan/Music/Rock");
-            retrieve_audio_files_from_directory(&database_connection, "/home/nathan/Music/Jazz");
-            retrieve_audio_files_from_directory(
-                &database_connection,
-                "/home/nathan/Music/Classic Rock",
-            );
-            retrieve_audio_files_from_directory(&database_connection, "/home/nathan/Music/Ambient");
-            retrieve_audio_files_from_directory(
-                &database_connection,
-                "/home/nathan/Music/Electronic",
-            );
-        }
-        Err(error) => {
-            println!("Error connecting to database: {}", error);
-        }
-    }
-}
-
-fn create_database_tables(database_connection: &Connection) {
+pub fn create_tables(database_connection: &Connection) {
     let query = format!("
     CREATE TABLE IF NOT EXISTS {TABLE_GENRES} ({COLUMN_NAME} TEXT PRIMARY KEY);
 
@@ -118,72 +83,7 @@ fn create_database_tables(database_connection: &Connection) {
     database_connection.execute(query).unwrap();
 }
 
-fn retrieve_audio_files_from_directory(database_connection: &Connection, path: &str) {
-    let paths = fs::read_dir(path);
-    match paths {
-        Ok(paths) => {
-            for path in paths {
-                match path {
-                    Ok(directory) => {
-                        read_directory(database_connection, directory);
-                    }
-                    Err(error) => println!("There was an error reading path: {}", error),
-                }
-            }
-        }
-        Err(error) => println!("There was an error retrieving audio files: {}", error),
-    }
-}
-
-fn read_directory(database_connection: &Connection, directory: DirEntry) {
-    if directory.file_type().unwrap().is_dir() {
-        let directory_path = directory.path();
-        let directory_path = directory_path.to_str();
-        match directory_path {
-            Some(directory_path) => {
-                read_files_in_directory(database_connection, directory_path);
-
-                // After reading the files, see if we need to traverse further down the file tree
-                retrieve_audio_files_from_directory(database_connection, directory_path);
-            }
-            None => println!("There was an error"),
-        }
-    }
-}
-
-fn read_files_in_directory(database_connection: &Connection, directory_path: &str) {
-    let files = fs::read_dir(directory_path);
-
-    match files {
-        Ok(files) => {
-            for file in files {
-                read_file(database_connection, file);
-            }
-        }
-        Err(error) => println!("There was an error reading files in a directory: {}", error),
-    }
-}
-
-fn read_file<'a>(database_connection: &Connection, file: Result<DirEntry, Error>) {
-    match file {
-        Ok(file) => {
-            let file_path = file.path();
-            let file_name = file.file_name();
-            let file_name = file_name.to_str();
-            match file_name {
-                Some(file_name) => {
-                    if file_name.ends_with(".flac") {
-                        process_song(database_connection, file_path);
-                    }
-                }
-                None => println!("No file name"),
-            }
-        }
-        Err(error) => println!("There was an error reading a file: {}", error),
-    }
-}
-
-fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
+pub fn process_song(database_connection: &Connection, song_file_path: PathBuf) {
     let metadata = Tag::new().read_from_path(&song_file_path);
     match metadata {
         Ok(metadata) => {
@@ -403,7 +303,7 @@ pub fn get_albums_for_album_artist(album_artist: String, genre: String) -> Vec<S
                         r#"
                         SELECT * FROM {TABLE_ALBUMS}
                         WHERE {COLUMN_ALBUM_ARTIST} = '{}'
-                        ORDER BY {COLUMN_YEAR}
+                        ORDER BY {COLUMN_YEAR}, {COLUMN_NAME}
                         "#,
                         escape_string_for_sql(&album_artist)
                     ))
@@ -417,7 +317,7 @@ pub fn get_albums_for_album_artist(album_artist: String, genre: String) -> Vec<S
                         FROM {TABLE_ALBUMS}
                         INNER JOIN {TABLE_ALBUM_ARTISTS} ON {TABLE_ALBUMS}.{COLUMN_ALBUM_ARTIST} = {TABLE_ALBUM_ARTISTS}.{COLUMN_NAME}
                         WHERE {TABLE_ALBUMS}.{COLUMN_GENRE} = '{}'
-                        ORDER BY {TABLE_ALBUM_ARTISTS}.{COLUMN_ALBUM_ARTIST_SORT_NAME}, {TABLE_ALBUMS}.{COLUMN_YEAR}
+                        ORDER BY {TABLE_ALBUM_ARTISTS}.{COLUMN_ALBUM_ARTIST_SORT_NAME}, {TABLE_ALBUMS}.{COLUMN_YEAR}, {TABLE_ALBUMS}.{COLUMN_NAME}
                         "#,
                         escape_string_for_sql(&genre)
                     )).unwrap()
