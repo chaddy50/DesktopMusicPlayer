@@ -76,10 +76,10 @@ body {
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid black;
+    border-right: 1px solid darkgray;
 }
 
 .albumHeaderImage {
-    border-right: 1px solid darkgray;
     border-bottom: 1px solid darkgray;
 }
 
