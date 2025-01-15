@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "../../MusicPlayer.css";
 import { AlbumData } from "../TrackBrowser/TrackBrowser";
@@ -14,6 +14,16 @@ function AlbumCard(props: AlbumCardProps) {
     const { album, isSelected, selectAlbum } = props;
     const [albumData, setAlbumData] = useState<AlbumData>();
 
+    const albumRef = useRef<HTMLDivElement>(null);
+
+    if (isSelected && document.getElementById("trackBrowser")) {
+        // We only want to do the scrolling after the trackBrowser has been rendered to avoid the scroll jumping around
+        albumRef?.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+        });
+    }
+
     useEffect(() => {
         async function getAlbumData(album: string): Promise<void> {
             const albumData: AlbumData = await invoke("get_album_data", {
@@ -27,7 +37,7 @@ function AlbumCard(props: AlbumCardProps) {
 
     const playAlbum = useCallback(() => {
         invoke("on_album_double_clicked", { album: albumData });
-    }, [album, albumData, selectAlbum]);
+    }, [albumData]);
 
     const handleClicks = useSingleAndDoubleClick(selectAlbum, playAlbum);
 
@@ -39,6 +49,7 @@ function AlbumCard(props: AlbumCardProps) {
                 key={album}
                 className="albumCardContainer"
                 onClick={handleClicks}
+                ref={albumRef}
             >
                 <div
                     className={

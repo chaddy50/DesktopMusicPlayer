@@ -45,7 +45,7 @@ function TrackBrowser(props: TrackBrowserProps) {
 
     if (albumData) {
         return (
-            <div className="trackBrowserContainer">
+            <div id="trackBrowser" className="trackBrowserContainer">
                 <AlbumHeader albumData={albumData} />
                 <div className="trackListContainer">
                     {albumData.tracks.map((track) => {
