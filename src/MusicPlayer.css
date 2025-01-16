@@ -91,7 +91,7 @@ body {
 }
 
 .albumTitle {
-    font-size: 1.25em;
+    font-weight: bold;
     flex-wrap: wrap;
     text-align: center;
 }
