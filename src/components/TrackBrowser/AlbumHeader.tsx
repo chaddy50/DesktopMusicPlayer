@@ -11,12 +11,7 @@ function AlbumHeader(props: AlbumHeaderProps) {
 
     return (
         <div className="albumHeaderContainer">
-            <img
-                src={albumData.artwork_source}
-                className="albumHeaderImage"
-                height="300px"
-                width="300px"
-            />
+            <img src={albumData.artwork_source} className="albumHeaderImage" />
             <div className="albumHeaderDetails">
                 <span className="albumTitle">{albumData.name}</span>
                 <span>{albumData.year}</span>

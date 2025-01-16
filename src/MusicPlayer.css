@@ -80,6 +80,8 @@ body {
 }
 
 .albumHeaderImage {
+    height: calc(100vh / 3 / 2);
+    width: calc(100vh / 3 / 2);
     border-bottom: 1px solid darkgray;
 }
 
@@ -87,7 +89,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 300px;
+    max-width: calc(100vh / 3 / 2);
 }
 
 .albumTitle {
@@ -107,10 +109,10 @@ body {
 .trackBrowserContainer {
     display: flex;
     flex: 1;
-    height: calc(100vh / 3);
     flex-direction: row;
     justify-content: flex-end;
     border-top: 1px solid black;
+    overflow-y: hidden;
 }
 
 .trackListContainer {
