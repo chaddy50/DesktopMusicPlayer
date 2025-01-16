@@ -1,5 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import {
+    Dispatch,
+    RefObject,
+    SetStateAction,
+    useEffect,
+    useState,
+} from "react";
 import TrackBrowser from "../TrackBrowser/TrackBrowser";
 import AlbumBrowser from "../AlbumBrowser/AlbumBrowser";
 
@@ -8,6 +14,7 @@ interface MainPaneProps {
     selectedAlbumIndex: number;
     setSelectedAlbumIndex: Dispatch<SetStateAction<number>>;
     selectedGenre: string;
+    albumListContainerRef: RefObject<HTMLDivElement>;
 }
 
 function MainPane(props: MainPaneProps) {
@@ -16,6 +23,7 @@ function MainPane(props: MainPaneProps) {
         selectedAlbumIndex,
         setSelectedAlbumIndex,
         selectedGenre,
+        albumListContainerRef,
     } = props;
 
     const [albums, setAlbums] = useState([""]);
@@ -37,6 +45,7 @@ function MainPane(props: MainPaneProps) {
     return (
         <div className="mainPaneContainer">
             <AlbumBrowser
+                albumListContainerRef={albumListContainerRef}
                 albums={albums}
                 selectedAlbumIndex={selectedAlbumIndex}
                 setSelectedAlbumIndex={setSelectedAlbumIndex}

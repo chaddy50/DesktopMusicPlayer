@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import "./MusicPlayer.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TopBar from "./components/Layout/TopBar";
 import LeftSidebar from "./components/Layout/LeftSidebar";
 import RightSidebar from "./components/Layout/RightSidebar";
@@ -12,6 +12,8 @@ function MusicPlayer() {
     const [albumArtists, setAlbumArtists] = useState([""]);
     const [selectedAlbumArtistIndex, setSelectedAlbumArtistIndex] = useState(0);
     const [selectedAlbumIndex, setSelectedAlbumIndex] = useState(-1);
+
+    const albumListContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         async function getGenres(): Promise<void> {
@@ -25,6 +27,7 @@ function MusicPlayer() {
     useEffect(() => {
         setSelectedAlbumArtistIndex(0);
         setSelectedAlbumIndex(-1);
+        albumListContainerRef.current?.scrollTo(0, 0);
     }, [selectedGenreIndex]);
 
     useEffect(() => {
@@ -63,6 +66,7 @@ function MusicPlayer() {
                     selectedAlbumIndex={selectedAlbumIndex}
                     setSelectedAlbumIndex={setSelectedAlbumIndex}
                     selectedGenre={genres[selectedGenreIndex]}
+                    albumListContainerRef={albumListContainerRef}
                 />
 
                 <RightSidebar />
