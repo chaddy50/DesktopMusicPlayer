@@ -26,7 +26,6 @@ const COLUMN_ALBUM_ARTIST_SORT_NAME: &str = "album_artist_sort_name";
 const COLUMN_DISC_NUMBER: &str = "disc_number";
 
 #[derive(Clone, Copy)]
-#[allow(dead_code)]
 pub struct TrackToProcess<'a> {
     title: &'a str,
     album: &'a str,
@@ -207,7 +206,6 @@ fn add_genre_to_database(database_connection: &Connection, song: &TrackToProcess
     }
 }
 
-#[allow(dead_code)]
 pub fn get_genres() -> Vec<String> {
     let database_connection = open_database_connection();
 
@@ -228,7 +226,6 @@ pub fn get_genres() -> Vec<String> {
     genres
 }
 
-#[allow(dead_code)]
 pub fn get_album_artists_for_genre(genre: String) -> Vec<String> {
     let database_connection = open_database_connection();
 
@@ -252,7 +249,6 @@ pub fn get_album_artists_for_genre(genre: String) -> Vec<String> {
     album_artists
 }
 
-#[allow(dead_code)]
 pub fn get_albums_for_album_artist(album_artist: String, genre: String) -> Vec<String> {
     let database_connection = open_database_connection();
 
@@ -290,7 +286,6 @@ pub fn get_albums_for_album_artist(album_artist: String, genre: String) -> Vec<S
     albums
 }
 
-#[allow(dead_code)]
 pub fn get_album_data(album: &str) -> Album {
     let database_connection = open_database_connection();
 

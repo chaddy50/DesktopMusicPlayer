@@ -1,9 +1,8 @@
 use std::fs::{self, DirEntry};
 
-use crate::music_database;
+use music_player_lib::music_database;
 use sqlite::Connection;
 
-#[allow(dead_code)]
 pub fn build_music_database() {
     if music_database::does_database_already_exist() {
         return;
