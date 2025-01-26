@@ -1,4 +1,5 @@
-import GenreCard, { GenreData } from "./GenreCard";
+import GenreData from "../../dataObjects/GenreData";
+import GenreCard from "./GenreCard";
 
 interface TabStripProps {
     genres: GenreData[];

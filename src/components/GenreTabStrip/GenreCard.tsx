@@ -1,14 +1,10 @@
+import GenreData from "../../dataObjects/GenreData";
 import "../../MusicPlayer.css";
 
 interface GenreCardProps {
     genreData: GenreData;
     isSelected: boolean;
     selectTab: () => void;
-}
-
-export interface GenreData {
-    id: number;
-    name: string;
 }
 
 function GenreCard(props: GenreCardProps) {

@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "../../MusicPlayer.css";
-import { AlbumData } from "../TrackBrowser/TrackBrowser";
 import { useSingleAndDoubleClick } from "../../hooks/SingleAndDoubleClick";
 import { useAlbumArtwork } from "../../utilities/Utilities";
+import AlbumData from "../../dataObjects/AlbumData";
 
 interface AlbumCardProps {
     albumData: AlbumData;

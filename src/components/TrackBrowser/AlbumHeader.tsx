@@ -1,4 +1,4 @@
-import { AlbumData } from "./TrackBrowser";
+import AlbumData from "../../dataObjects/AlbumData";
 import "../../MusicPlayer.css";
 import { formatTimeDuration, useAlbumArtwork } from "../../utilities/Utilities";
 
@@ -15,7 +15,7 @@ function AlbumHeader(props: AlbumHeaderProps) {
             <div className="albumHeaderDetails">
                 <span className="albumTitle">{albumData.name}</span>
                 <span>{albumData.year}</span>
-                <span>{albumData.album_artist}</span>
+                <span>{albumData.album_artist_name}</span>
                 <span>{formatTimeDuration(albumData.duration_in_seconds)}</span>
             </div>
         </div>

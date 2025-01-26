@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import GenreTabStrip from "../GenreTabStrip/GenreTabStrip";
-import { GenreData } from "../GenreTabStrip/GenreCard";
+import GenreData from "../../dataObjects/GenreData";
 
 interface TopBarProps {
     genres: GenreData[];

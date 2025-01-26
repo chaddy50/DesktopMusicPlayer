@@ -3,7 +3,7 @@ import NowPlaying from "../NowPlaying/NowPlaying";
 import PlayerControls from "../PlayerControls/PlayerControls";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { TrackData } from "../TrackBrowser/TrackBrowser";
+import TrackData from "../../dataObjects/TrackData";
 
 interface RightSidebarProps {}
 

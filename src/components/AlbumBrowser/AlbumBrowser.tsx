@@ -1,6 +1,6 @@
 import { Dispatch, RefObject, SetStateAction } from "react";
 import AlbumCard from "./AlbumCard";
-import { AlbumData } from "../TrackBrowser/TrackBrowser";
+import AlbumData from "../../dataObjects/AlbumData";
 
 interface AlbumBrowserProps {
     albums: AlbumData[];

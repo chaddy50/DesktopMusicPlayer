@@ -5,9 +5,9 @@ import TopBar from "./components/Layout/TopBar";
 import LeftSidebar from "./components/Layout/LeftSidebar";
 import RightSidebar from "./components/Layout/RightSidebar";
 import MainPane from "./components/Layout/MainPane";
-import { AlbumArtistData } from "./components/AlbumArtistBrowser/AlbumArtistCard";
-import { GenreData } from "./components/GenreTabStrip/GenreCard";
-import { AlbumData } from "./components/TrackBrowser/TrackBrowser";
+import AlbumArtistData from "./dataObjects/AlbumArtistData";
+import GenreData from "./dataObjects/GenreData";
+import AlbumData from "./dataObjects/AlbumData";
 
 function MusicPlayer() {
     const [genres, setGenres] = useState<GenreData[]>([]);

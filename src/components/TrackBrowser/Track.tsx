@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import { TrackData } from "./TrackBrowser";
 import { invoke } from "@tauri-apps/api/core";
 import { formatTimeDuration } from "../../utilities/Utilities";
+import TrackData from "../../dataObjects/TrackData";
 
 interface TrackProps {
     track: TrackData;

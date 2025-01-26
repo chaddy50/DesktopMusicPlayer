@@ -1,14 +1,10 @@
+import AlbumArtistData from "../../dataObjects/AlbumArtistData";
 import "../../MusicPlayer.css";
 
 interface AlbumArtistCardProps {
     albumArtistData: AlbumArtistData;
     isSelected: boolean;
     selectArtist(): void;
-}
-
-export interface AlbumArtistData {
-    id: number;
-    name: string;
 }
 
 function AlbumArtistCard(props: AlbumArtistCardProps) {
