@@ -65,34 +65,27 @@ pub fn create_tables(database_connection: &Connection) {
     database_connection.execute(query).unwrap();
 }
 
-pub fn add_track_to_database(database_connection: &Connection, song: &TrackToProcess, genre_id: &i64, album_artist_id: &i64, album_id: &i64, artist_id: &i64) {
+pub fn add_track_to_database(database_connection: &Connection, track_to_process: &TrackToProcess, genre_id: &i64, album_artist_id: &i64, album_id: &i64, artist_id: &i64) {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_SONGS} ({COLUMN_NAME}, {COLUMN_GENRE_ID}, {COLUMN_ALBUM_ARTIST_ID}, {COLUMN_ALBUM_ID}, {COLUMN_TRACK_NUMBER}, {COLUMN_ARTIST_ID}, {COLUMN_FILE_PATH}, {COLUMN_DURATION}, {COLUMN_DISC_NUMBER}) VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');
         "#,
-        song.title,
+        track_to_process.title,
         genre_id,
         album_artist_id,
         album_id,
-        song.track_number,
+        track_to_process.track_number,
         artist_id,
-        song.file_path,
-        song.duration,
-        song.disc_number,
+        track_to_process.file_path,
+        track_to_process.duration,
+        track_to_process.disc_number,
     );
-    let result = database_connection.execute(query);
-    match result {
-        Ok(_result) => {}
-        Err(error) => {
-            println!("Error adding song to database: {} - {}", song.title, song.file_path);
-            println!("     ERROR: {}", error);
-        }
-    }
+    try_execute_insert_query(database_connection, &query, "track", format!("{}: {}", track_to_process.title, track_to_process.file_path).as_str());
 }
 
-pub fn add_album_to_database(database_connection: &Connection, song: &TrackToProcess, genre_id: &i64, album_artist_id: &i64) -> i64 {
-    let mime_type = song.artwork.mime_type;
-    let cover_data = song.artwork.data;
+pub fn add_album_to_database(database_connection: &Connection, track_to_process: &TrackToProcess, genre_id: &i64, album_artist_id: &i64) -> i64 {
+    let mime_type = track_to_process.artwork.mime_type;
+    let cover_data = track_to_process.artwork.data;
 
     let mut artwork_data = "NO_ARTWORK".to_string();
     if cover_data != &[1] {
@@ -104,87 +97,46 @@ pub fn add_album_to_database(database_connection: &Connection, song: &TrackToPro
         r#"
         INSERT OR IGNORE INTO {TABLE_ALBUMS} ({COLUMN_NAME},{COLUMN_GENRE_ID},{COLUMN_ALBUM_ARTIST_ID},{COLUMN_ARTWORK_DATA},{COLUMN_YEAR}) VALUES ('{}', '{}', '{}', '{}', '{}');
         "#,
-        song.album,
+        track_to_process.album,
         genre_id,
         album_artist_id,
         artwork_data,
-        song.year,
+        track_to_process.year,
     );
-
-    let result = database_connection.execute(query);
-    match result {
-        Ok(_result) => {
-            get_id_of_last_inserted_row(database_connection)
-        }
-        Err(error) => {
-            println!("Error adding album to database: {}", song.album);
-            println!("     ERROR: {}", error);
-            -1
-        }
-    }
+    try_execute_insert_query(database_connection, &query, "album", &track_to_process.album)
 }
 
-pub fn add_album_artist_to_database(database_connection: &Connection, song: &TrackToProcess, genre_id: &i64) -> i64 {
-    let sort_name = get_sort_value_for_string(&song.album_artist);
+pub fn add_album_artist_to_database(database_connection: &Connection, track_to_process: &TrackToProcess, genre_id: &i64) -> i64 {
+    let sort_name = get_sort_value_for_string(&track_to_process.album_artist);
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_ALBUM_ARTISTS} ({COLUMN_NAME}, {COLUMN_GENRE_ID}, {COLUMN_ALBUM_ARTIST_SORT_NAME}) VALUES ('{}', '{}','{}');
         "#,
-        song.album_artist,
+        track_to_process.album_artist,
         genre_id,
         sort_name
     );
-    let result = database_connection.execute(query);
-    match result {
-        Ok(_result) => {
-            get_id_of_last_inserted_row(database_connection)
-        }
-        Err(error) => {
-            println!("Error adding album artist to database: {}", song.album_artist);
-            println!("     ERROR: {}", error);
-            -1
-        }
-    }
+    try_execute_insert_query(database_connection, &query, "album artist", &track_to_process.album_artist)
 }
 
-pub fn add_genre_to_database(database_connection: &Connection, song: &TrackToProcess) -> i64 {
+pub fn add_genre_to_database(database_connection: &Connection, track_to_process: &TrackToProcess) -> i64 {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_GENRES} ({COLUMN_NAME}) VALUES ('{}');
         "#,
-        song.genre
+        track_to_process.genre
     );
-    let result = database_connection.execute(query);
-    match result {
-        Ok(_result) => {
-            get_id_of_last_inserted_row(database_connection)
-        }
-        Err(error) => {
-            println!("Error adding genre to database: {}", song.genre);
-            println!("     ERROR: {}", error);
-            -1
-        }
-    }
+    try_execute_insert_query(database_connection, &query, "genre", &track_to_process.genre)
 }
 
-pub fn add_artist_to_database(database_connection: &Connection, song: &TrackToProcess) -> i64 {
+pub fn add_artist_to_database(database_connection: &Connection, track_to_process: &TrackToProcess) -> i64 {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_ARTISTS} ({COLUMN_NAME}) VALUES ('{}');
         "#,
-        song.artist
+        track_to_process.artist
     );
-    let result = database_connection.execute(query);
-    match result {
-        Ok(_result) => {
-            get_id_of_last_inserted_row(database_connection)
-        }
-        Err(error) => {
-            println!("Error adding artist to database: {}", song.genre);
-            println!("     ERROR: {}", error);
-            -1
-        }
-    }
+    try_execute_insert_query(database_connection, &query, "artist", &track_to_process.artist)
 }
 
 pub fn get_genres() -> Vec<Genre> {
@@ -292,23 +244,6 @@ pub fn get_albums_for_album_artist(album_artist_id: &i64, genre_id: &i64) -> Vec
     albums
 }
 
-fn get_id_of_last_inserted_row(database_connection: &Connection) -> i64 {
-    let mut statement = database_connection
-        .prepare(format!(
-            r#"
-            SELECT last_insert_rowid()
-            "#
-        ))
-        .unwrap();
-
-    let mut last_id = -1;
-    while let Ok(State::Row) = statement.next() {
-        last_id = statement.read::<i64, _>("last_insert_rowid()").unwrap();
-    }
-
-    last_id
-}
-
 fn get_tracks_for_album(database_connection: &Connection, album_id: &i64) -> Vec<Track> {
     let mut tracks = Vec::new();
     let mut statement = database_connection
@@ -354,6 +289,37 @@ fn get_tracks_for_album(database_connection: &Connection, album_id: &i64) -> Vec
         ));
     }
     tracks
+}
+
+fn try_execute_insert_query(database_connection: &Connection, query: &str, row_descriptor: &str, row_details: &str) -> i64 {
+    let result = database_connection.execute(query);
+    match result {
+        Ok(_result) => {
+            get_id_of_last_inserted_row(&database_connection)
+        }
+        Err(error) => {
+            println!("Error adding {row_descriptor} to database: {row_details}");
+            println!("     ERROR: {}", error);
+            -1
+        }
+    }
+}
+
+fn get_id_of_last_inserted_row(database_connection: &Connection) -> i64 {
+    let mut statement = database_connection
+        .prepare(format!(
+            r#"
+            SELECT last_insert_rowid()
+            "#
+        ))
+        .unwrap();
+
+    let mut last_id = -1;
+    while let Ok(State::Row) = statement.next() {
+        last_id = statement.read::<i64, _>("last_insert_rowid()").unwrap();
+    }
+
+    last_id
 }
 
 fn get_genre_name(genre_id: &i64) -> String {
