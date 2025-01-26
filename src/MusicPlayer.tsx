@@ -93,6 +93,7 @@ function MusicPlayer() {
 
                 <MainPane
                     albums={albums}
+                    albumArtistData={albumArtists[selectedAlbumArtistIndex]}
                     selectedAlbumIndex={selectedAlbumIndex}
                     setSelectedAlbumIndex={setSelectedAlbumIndex}
                     albumListContainerRef={albumListContainerRef}

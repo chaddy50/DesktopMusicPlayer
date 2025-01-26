@@ -1,9 +1,11 @@
 import { Dispatch, RefObject, SetStateAction } from "react";
 import AlbumCard from "./AlbumCard";
 import AlbumData from "../../dataObjects/AlbumData";
+import AlbumArtistData from "../../dataObjects/AlbumArtistData";
 
 interface AlbumBrowserProps {
     albums: AlbumData[];
+    albumArtistData: AlbumArtistData;
     selectedAlbumIndex: number;
     setSelectedAlbumIndex: Dispatch<SetStateAction<number>>;
     albumListContainerRef: RefObject<HTMLDivElement>;
@@ -12,6 +14,7 @@ interface AlbumBrowserProps {
 function AlbumBrowser(props: AlbumBrowserProps) {
     const {
         albums,
+        albumArtistData,
         selectedAlbumIndex,
         setSelectedAlbumIndex,
         albumListContainerRef,
@@ -25,6 +28,7 @@ function AlbumBrowser(props: AlbumBrowserProps) {
                     <AlbumCard
                         key={albumData.id}
                         albumData={albumData}
+                        albumArtistData={albumArtistData}
                         isSelected={index === selectedAlbumIndex}
                         selectAlbum={() => setSelectedAlbumIndex(indexToSelect)}
                     />

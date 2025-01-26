@@ -4,15 +4,17 @@ import "../../MusicPlayer.css";
 import { useSingleAndDoubleClick } from "../../hooks/SingleAndDoubleClick";
 import { useAlbumArtwork } from "../../utilities/Utilities";
 import AlbumData from "../../dataObjects/AlbumData";
+import AlbumArtistData from "../../dataObjects/AlbumArtistData";
 
 interface AlbumCardProps {
+    albumArtistData: AlbumArtistData;
     albumData: AlbumData;
     isSelected: boolean;
     selectAlbum: () => void;
 }
 
 function AlbumCard(props: AlbumCardProps) {
-    const { albumData, isSelected, selectAlbum } = props;
+    const { albumData, albumArtistData, isSelected, selectAlbum } = props;
 
     const albumRef = useRef<HTMLDivElement>(null);
 
@@ -63,6 +65,9 @@ function AlbumCard(props: AlbumCardProps) {
             >
                 <span className="albumTitle">{albumData.name}</span>
                 <span>{albumData.year}</span>
+                {albumArtistData?.id === 0 && (
+                    <span>{albumData.album_artist_name}</span>
+                )}
             </div>
         </div>
     );
