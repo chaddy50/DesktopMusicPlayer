@@ -7,6 +7,7 @@ import RightSidebar from "./components/Layout/RightSidebar";
 import MainPane from "./components/Layout/MainPane";
 import { AlbumArtistData } from "./components/AlbumArtistBrowser/AlbumArtistCard";
 import { GenreData } from "./components/GenreTabStrip/GenreCard";
+import { AlbumData } from "./components/TrackBrowser/TrackBrowser";
 
 function MusicPlayer() {
     const [genres, setGenres] = useState<GenreData[]>([]);
@@ -14,9 +15,10 @@ function MusicPlayer() {
     const [albumArtists, setAlbumArtists] = useState<AlbumArtistData[]>([]);
     const [selectedAlbumArtistIndex, setSelectedAlbumArtistIndex] = useState(0);
     const [selectedAlbumIndex, setSelectedAlbumIndex] = useState(-1);
-
+    const [albums, setAlbums] = useState<AlbumData[]>([]);
     const albumListContainerRef = useRef<HTMLDivElement>(null);
 
+    //#region Fetch data from database
     useEffect(() => {
         async function getGenres(): Promise<void> {
             const genres: GenreData[] = await invoke("get_genres");
@@ -25,16 +27,6 @@ function MusicPlayer() {
 
         getGenres();
     }, []);
-
-    useEffect(() => {
-        setSelectedAlbumArtistIndex(0);
-        setSelectedAlbumIndex(-1);
-        albumListContainerRef.current?.scrollTo(0, 0);
-    }, [selectedGenreIndex]);
-
-    useEffect(() => {
-        setSelectedAlbumIndex(-1);
-    }, [selectedAlbumArtistIndex]);
 
     useEffect(() => {
         async function getAlbumArtists(genreId: number): Promise<void> {
@@ -50,6 +42,42 @@ function MusicPlayer() {
             getAlbumArtists(selectedGenre.id);
         }
     }, [genres, selectedGenreIndex, setAlbumArtists]);
+
+    useEffect(() => {
+        async function getAlbums(
+            albumArtistId: number,
+            genreId: number
+        ): Promise<void> {
+            const albums: AlbumData[] = await invoke(
+                "get_albums_for_album_artist",
+                { albumArtistId, genreId }
+            );
+            setAlbums(albums);
+        }
+        getAlbums(
+            albumArtists[selectedAlbumArtistIndex]?.id,
+            genres[selectedGenreIndex]?.id
+        );
+    }, [
+        albumArtists,
+        selectedAlbumArtistIndex,
+        setAlbums,
+        genres,
+        selectedGenreIndex,
+    ]);
+    //#endregion
+
+    //#region Respond to user selections
+    useEffect(() => {
+        setSelectedAlbumArtistIndex(0);
+        setSelectedAlbumIndex(-1);
+        albumListContainerRef.current?.scrollTo(0, 0);
+    }, [selectedGenreIndex]);
+
+    useEffect(() => {
+        setSelectedAlbumIndex(-1);
+    }, [selectedAlbumArtistIndex]);
+    //#endregion
 
     return (
         <div className="appContainer">
@@ -67,12 +95,9 @@ function MusicPlayer() {
                 />
 
                 <MainPane
-                    selectedAlbumArtistId={
-                        albumArtists[selectedAlbumArtistIndex]?.id
-                    }
+                    albums={albums}
                     selectedAlbumIndex={selectedAlbumIndex}
                     setSelectedAlbumIndex={setSelectedAlbumIndex}
-                    selectedGenreID={genres[selectedGenreIndex]?.id}
                     albumListContainerRef={albumListContainerRef}
                 />
 
