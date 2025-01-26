@@ -12,8 +12,10 @@ import { AlbumData } from "./components/TrackBrowser/TrackBrowser";
 function MusicPlayer() {
     const [genres, setGenres] = useState<GenreData[]>([]);
     const [selectedGenreIndex, setSelectedGenreIndex] = useState(0);
+    const [selectedGenreId, setSelectedGenreId] = useState(-1);
     const [albumArtists, setAlbumArtists] = useState<AlbumArtistData[]>([]);
     const [selectedAlbumArtistIndex, setSelectedAlbumArtistIndex] = useState(0);
+    const [selectedAlbumArtistId, setSelectedAlbumArtistId] = useState(-1);
     const [selectedAlbumIndex, setSelectedAlbumIndex] = useState(-1);
     const [albums, setAlbums] = useState<AlbumData[]>([]);
     const albumListContainerRef = useRef<HTMLDivElement>(null);
@@ -37,11 +39,10 @@ function MusicPlayer() {
             setAlbumArtists(albumArtists);
         }
 
-        const selectedGenre = genres[selectedGenreIndex];
-        if (selectedGenre) {
-            getAlbumArtists(selectedGenre.id);
+        if (selectedGenreId) {
+            getAlbumArtists(selectedGenreId);
         }
-    }, [genres, selectedGenreIndex, setAlbumArtists]);
+    }, [selectedGenreId, setAlbumArtists]);
 
     useEffect(() => {
         async function getAlbums(
@@ -54,17 +55,11 @@ function MusicPlayer() {
             );
             setAlbums(albums);
         }
-        getAlbums(
-            albumArtists[selectedAlbumArtistIndex]?.id,
-            genres[selectedGenreIndex]?.id
-        );
-    }, [
-        albumArtists,
-        selectedAlbumArtistIndex,
-        setAlbums,
-        genres,
-        selectedGenreIndex,
-    ]);
+
+        if (selectedAlbumArtistId >= 0 && selectedGenreId > 0) {
+            getAlbums(selectedAlbumArtistId, selectedGenreId);
+        }
+    }, [selectedAlbumArtistId, selectedGenreId, setAlbums]);
     //#endregion
 
     //#region Respond to user selections
@@ -72,11 +67,13 @@ function MusicPlayer() {
         setSelectedAlbumArtistIndex(0);
         setSelectedAlbumIndex(-1);
         albumListContainerRef.current?.scrollTo(0, 0);
-    }, [selectedGenreIndex]);
+        setSelectedGenreId(genres[selectedGenreIndex]?.id);
+    }, [genres, selectedGenreIndex]);
 
     useEffect(() => {
         setSelectedAlbumIndex(-1);
-    }, [selectedAlbumArtistIndex]);
+        setSelectedAlbumArtistId(albumArtists[selectedAlbumArtistIndex]?.id);
+    }, [albumArtists, selectedAlbumArtistIndex]);
     //#endregion
 
     return (
