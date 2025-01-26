@@ -2,7 +2,7 @@ use std::{collections::VecDeque, fs::File, io::BufReader, sync::{Mutex, MutexGua
 use rodio::{Sink, OutputStream, OutputStreamHandle, Decoder};
 use tauri::{AppHandle, Emitter};
 
-use crate::{music_database::Track, NowPlayingData};
+use crate::{music_database::track::Track, NowPlayingData};
 
 pub struct AppState {
     pub audio_player: AudioPlayer

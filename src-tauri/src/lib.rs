@@ -1,4 +1,4 @@
-use music_database::{Album, AlbumArtist, Genre, Track};
+use music_database::{genre::Genre, album::Album, album_artist::AlbumArtist, track::Track};
 use audio_player::{AppState, AudioPlayer};
 use serde::{Deserialize, Serialize};
 use tauri::{State, Builder, Manager, AppHandle};
