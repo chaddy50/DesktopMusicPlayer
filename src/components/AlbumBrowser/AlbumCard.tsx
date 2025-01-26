@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import "../../MusicPlayer.css";
 import { AlbumData } from "../TrackBrowser/TrackBrowser";
 import { useSingleAndDoubleClick } from "../../hooks/SingleAndDoubleClick";
+import { useAlbumArtwork } from "../../utilities/Utilities";
 
 interface AlbumCardProps {
     album: string;
@@ -42,6 +43,7 @@ function AlbumCard(props: AlbumCardProps) {
     const handleClicks = useSingleAndDoubleClick(selectAlbum, playAlbum);
 
     const imageSize = 300;
+    const imageSource = useAlbumArtwork(albumData?.artwork_source ?? "");
 
     if (albumData) {
         return (
@@ -59,7 +61,7 @@ function AlbumCard(props: AlbumCardProps) {
                     }
                 >
                     <img
-                        src={albumData.artwork_source}
+                        src={imageSource}
                         width={imageSize + "px"}
                         height={imageSize + "px"}
                     />

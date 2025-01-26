@@ -21,3 +21,10 @@ export function formatTimeDuration(timeDurationInSeconds: number): string {
         return `${minutes}:${secondsAsString}`;
     }
 }
+
+export function useAlbumArtwork(artworkSource: string): string {
+    if (artworkSource === "NO_ARTWORK") {
+        return "/default_cover.jpg";
+    }
+    return artworkSource;
+}

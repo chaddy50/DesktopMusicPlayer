@@ -1,6 +1,6 @@
 import { AlbumData } from "./TrackBrowser";
 import "../../MusicPlayer.css";
-import { formatTimeDuration } from "../../utilities/Utilities";
+import { formatTimeDuration, useAlbumArtwork } from "../../utilities/Utilities";
 
 interface AlbumHeaderProps {
     albumData: AlbumData;
@@ -8,10 +8,10 @@ interface AlbumHeaderProps {
 
 function AlbumHeader(props: AlbumHeaderProps) {
     const { albumData } = props;
-
+    const imageSource = useAlbumArtwork(albumData?.artwork_source ?? "");
     return (
         <div className="albumHeaderContainer">
-            <img src={albumData.artwork_source} className="albumHeaderImage" />
+            <img src={imageSource} className="albumHeaderImage" />
             <div className="albumHeaderDetails">
                 <span className="albumTitle">{albumData.name}</span>
                 <span>{albumData.year}</span>

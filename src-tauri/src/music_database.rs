@@ -92,7 +92,7 @@ pub fn create_tables(database_connection: &Connection) {
 
 pub fn process_track(database_connection: &Connection, track_file_path: &PathBuf) {
     let metadata = Tag::new().read_from_path(&track_file_path).expect("Metadata should have been read for track");
-    
+
     let track_to_process = TrackToProcess {
         title: &escape_string_for_sql(metadata.title().unwrap_or_default()),
         album: &escape_string_for_sql(metadata.album().unwrap().title),
@@ -144,8 +144,12 @@ fn add_track_to_database(database_connection: &Connection, song: &TrackToProcess
 fn add_album_to_database(database_connection: &Connection, song: &TrackToProcess) {
     let mime_type = song.artwork.mime_type;
     let cover_data = song.artwork.data;
-    let cover_data = convert_artwork_data_to_base_64(cover_data);
-    let artwork_data = format!("data:image/{:?};base64,{}", mime_type, &cover_data);
+
+    let mut artwork_data = "NO_ARTWORK".to_string();
+    if cover_data != &[1] {
+        let cover_data = convert_artwork_data_to_base_64(cover_data);
+        artwork_data = format!("data:image/{:?};base64,{}", mime_type, &cover_data);
+    }
 
     let query = format!(
         r#"
