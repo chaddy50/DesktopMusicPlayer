@@ -5,11 +5,13 @@ import TopBar from "./components/Layout/TopBar";
 import LeftSidebar from "./components/Layout/LeftSidebar";
 import RightSidebar from "./components/Layout/RightSidebar";
 import MainPane from "./components/Layout/MainPane";
+import { AlbumArtistData } from "./components/AlbumArtistBrowser/AlbumArtistCard";
+import { GenreData } from "./components/GenreTabStrip/GenreCard";
 
 function MusicPlayer() {
-    const [genres, setGenres] = useState([""]);
+    const [genres, setGenres] = useState<GenreData[]>([]);
     const [selectedGenreIndex, setSelectedGenreIndex] = useState(0);
-    const [albumArtists, setAlbumArtists] = useState([""]);
+    const [albumArtists, setAlbumArtists] = useState<AlbumArtistData[]>([]);
     const [selectedAlbumArtistIndex, setSelectedAlbumArtistIndex] = useState(0);
     const [selectedAlbumIndex, setSelectedAlbumIndex] = useState(-1);
 
@@ -17,7 +19,7 @@ function MusicPlayer() {
 
     useEffect(() => {
         async function getGenres(): Promise<void> {
-            const genres: string[] = await invoke("get_genres");
+            const genres: GenreData[] = await invoke("get_genres");
             setGenres(genres);
         }
 
@@ -35,15 +37,18 @@ function MusicPlayer() {
     }, [selectedAlbumArtistIndex]);
 
     useEffect(() => {
-        async function getAlbumArtists(genre: string): Promise<void> {
-            const albumArtists: string[] = await invoke(
+        async function getAlbumArtists(genreId: number): Promise<void> {
+            const albumArtists: AlbumArtistData[] = await invoke(
                 "get_album_artists_for_genre",
-                { genre }
+                { genreId }
             );
             setAlbumArtists(albumArtists);
         }
 
-        getAlbumArtists(genres[selectedGenreIndex]);
+        const selectedGenre = genres[selectedGenreIndex];
+        if (selectedGenre) {
+            getAlbumArtists(selectedGenre.id);
+        }
     }, [genres, selectedGenreIndex, setAlbumArtists]);
 
     return (
@@ -62,10 +67,12 @@ function MusicPlayer() {
                 />
 
                 <MainPane
-                    selectedAlbumArtist={albumArtists[selectedAlbumArtistIndex]}
+                    selectedAlbumArtistId={
+                        albumArtists[selectedAlbumArtistIndex]?.id
+                    }
                     selectedAlbumIndex={selectedAlbumIndex}
                     setSelectedAlbumIndex={setSelectedAlbumIndex}
-                    selectedGenre={genres[selectedGenreIndex]}
+                    selectedGenreID={genres[selectedGenreIndex]?.id}
                     albumListContainerRef={albumListContainerRef}
                 />
 

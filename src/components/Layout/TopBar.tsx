@@ -1,8 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
-import TabStrip from "../TabStrip/TabStrip";
+import GenreTabStrip from "../GenreTabStrip/GenreTabStrip";
+import { GenreData } from "../GenreTabStrip/GenreCard";
 
 interface TopBarProps {
-    genres: string[];
+    genres: GenreData[];
     selectedGenreIndex: number;
     setSelectedGenreIndex: Dispatch<SetStateAction<number>>;
 }
@@ -12,8 +13,8 @@ function TopBar(props: TopBarProps) {
 
     return (
         <div className="topBar">
-            <TabStrip
-                tabOptions={genres}
+            <GenreTabStrip
+                genres={genres}
                 selectedTab={selectedGenreIndex}
                 selectTab={setSelectedGenreIndex}
             />

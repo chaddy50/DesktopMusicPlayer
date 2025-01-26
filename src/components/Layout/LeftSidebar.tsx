@@ -1,8 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
-import ArtistBrowser from "../ArtistBrowser/ArtistBrowser";
+import AlbumArtistBrowser from "../AlbumArtistBrowser/AlbumArtistBrowser";
+import { AlbumArtistData } from "../AlbumArtistBrowser/AlbumArtistCard";
 
 interface LeftSidebarProps {
-    albumArtists: string[];
+    albumArtists: AlbumArtistData[];
     selectedAlbumArtistIndex: number;
     setSelectedAlbumArtistIndex: Dispatch<SetStateAction<number>>;
 }
@@ -16,7 +17,7 @@ function LeftSidebar(props: LeftSidebarProps) {
 
     return (
         <div className="leftSideBar">
-            <ArtistBrowser
+            <AlbumArtistBrowser
                 albumArtists={albumArtists}
                 selectedAlbumArtistIndex={selectedAlbumArtistIndex}
                 setSelectedAlbumArtistIndex={setSelectedAlbumArtistIndex}

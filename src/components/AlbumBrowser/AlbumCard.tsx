@@ -6,14 +6,13 @@ import { useSingleAndDoubleClick } from "../../hooks/SingleAndDoubleClick";
 import { useAlbumArtwork } from "../../utilities/Utilities";
 
 interface AlbumCardProps {
-    album: string;
+    albumData: AlbumData;
     isSelected: boolean;
     selectAlbum: () => void;
 }
 
 function AlbumCard(props: AlbumCardProps) {
-    const { album, isSelected, selectAlbum } = props;
-    const [albumData, setAlbumData] = useState<AlbumData>();
+    const { albumData, isSelected, selectAlbum } = props;
 
     const albumRef = useRef<HTMLDivElement>(null);
 
@@ -25,17 +24,6 @@ function AlbumCard(props: AlbumCardProps) {
         });
     }
 
-    useEffect(() => {
-        async function getAlbumData(album: string): Promise<void> {
-            const albumData: AlbumData = await invoke("get_album_data", {
-                album,
-            });
-            setAlbumData(albumData);
-        }
-
-        getAlbumData(album);
-    }, [album]);
-
     const playAlbum = useCallback(() => {
         invoke("on_album_double_clicked", { album: albumData });
     }, [albumData]);
@@ -45,41 +33,39 @@ function AlbumCard(props: AlbumCardProps) {
     const imageSize = 300;
     const imageSource = useAlbumArtwork(albumData?.artwork_source ?? "");
 
-    if (albumData) {
-        return (
+    return (
+        <div
+            key={albumData.id}
+            className="albumCardContainer"
+            onClick={handleClicks}
+            ref={albumRef}
+        >
             <div
-                key={album}
-                className="albumCardContainer"
-                onClick={handleClicks}
-                ref={albumRef}
+                className={
+                    isSelected
+                        ? "albumArtworkContainerSelected"
+                        : "albumArtworkContainer"
+                }
             >
-                <div
-                    className={
-                        isSelected
-                            ? "albumArtworkContainerSelected"
-                            : "albumArtworkContainer"
-                    }
-                >
-                    <img
-                        src={imageSource}
-                        width={imageSize + "px"}
-                        height={imageSize + "px"}
-                    />
-                </div>
-                <div
-                    style={{
-                        maxWidth: imageSize + "px",
-                        height: "75px",
-                        display: "flex",
-                        flexDirection: "column",
-                    }}
-                >
-                    <span className="albumTitle">{album}</span>
-                    <span>{albumData.year}</span>
-                </div>
+                <img
+                    src={imageSource}
+                    width={imageSize + "px"}
+                    height={imageSize + "px"}
+                />
             </div>
-        );
-    }
+            <div
+                style={{
+                    maxWidth: imageSize + "px",
+                    height: "75px",
+                    display: "flex",
+                    flexDirection: "column",
+                }}
+            >
+                <span className="albumTitle">{albumData.name}</span>
+                <span>{albumData.year}</span>
+            </div>
+        </div>
+    );
 }
 
 export default AlbumCard;

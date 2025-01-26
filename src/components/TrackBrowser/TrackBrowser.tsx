@@ -5,13 +5,16 @@ import AlbumHeader from "./AlbumHeader";
 import Track from "./Track";
 
 interface TrackBrowserProps {
-    album: string;
+    albumData: AlbumData;
 }
 
 export interface AlbumData {
+    id: number;
     name: string;
-    genre: string;
-    album_artist: string;
+    genre_id: number;
+    genre_name: string;
+    album_artist_id: number;
+    album_artist_name: string;
     artwork_source: string;
     tracks: TrackData[];
     year: number;
@@ -20,9 +23,12 @@ export interface AlbumData {
 
 export interface TrackData {
     name: string;
-    album_artist: string;
-    artist: string;
-    genre: string;
+    album_artist_id: number;
+    album_artist_name: string;
+    artist_id: number;
+    artist_name: string;
+    genre_id: number;
+    genre_name: string;
     artwork_source: string;
     file_path: string;
     track_number: number;
@@ -30,31 +36,18 @@ export interface TrackData {
 }
 
 function TrackBrowser(props: TrackBrowserProps) {
-    const { album } = props;
-    const [albumData, setAlbumData] = useState<AlbumData>();
+    const { albumData } = props;
 
-    useEffect(() => {
-        async function getAlbumData(album: string): Promise<void> {
-            const albumData: AlbumData = await invoke("get_album_data", {
-                album,
-            });
-            setAlbumData(albumData);
-        }
-        getAlbumData(album);
-    }, [album]);
-
-    if (albumData) {
-        return (
-            <div id="trackBrowser" className="trackBrowserContainer">
-                <AlbumHeader albumData={albumData} />
-                <div className="trackListContainer">
-                    {albumData.tracks.map((track) => {
-                        return <Track key={track.file_path} track={track} />;
-                    })}
-                </div>
+    return (
+        <div id="trackBrowser" className="trackBrowserContainer">
+            <AlbumHeader albumData={albumData} />
+            <div className="trackListContainer">
+                {albumData?.tracks.map((track) => {
+                    return <Track key={track.file_path} track={track} />;
+                })}
             </div>
-        );
-    }
+        </div>
+    );
 }
 
 export default TrackBrowser;

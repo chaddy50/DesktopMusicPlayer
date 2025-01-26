@@ -1,13 +1,18 @@
 import "../../MusicPlayer.css";
 
-interface ArtistCardProps {
-    artist: string;
+interface AlbumArtistCardProps {
+    albumArtistData: AlbumArtistData;
     isSelected: boolean;
     selectArtist(): void;
 }
 
-function ArtistCard(props: ArtistCardProps) {
-    const { artist, isSelected, selectArtist } = props;
+export interface AlbumArtistData {
+    id: number;
+    name: string;
+}
+
+function AlbumArtistCard(props: AlbumArtistCardProps) {
+    const { albumArtistData, isSelected, selectArtist } = props;
 
     return (
         <div className="artistCard" onClick={selectArtist}>
@@ -16,10 +21,10 @@ function ArtistCard(props: ArtistCardProps) {
                     isSelected ? "selectedArtistCard" : "unselectedArtistCard"
                 }
             >
-                {artist}
+                {albumArtistData.name}
             </p>
         </div>
     );
 }
 
-export default ArtistCard;
+export default AlbumArtistCard;

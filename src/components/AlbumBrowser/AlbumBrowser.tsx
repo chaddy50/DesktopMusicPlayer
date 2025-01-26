@@ -1,8 +1,9 @@
 import { Dispatch, RefObject, SetStateAction } from "react";
 import AlbumCard from "./AlbumCard";
+import { AlbumData } from "../TrackBrowser/TrackBrowser";
 
 interface AlbumBrowserProps {
-    albums: string[];
+    albums: AlbumData[];
     selectedAlbumIndex: number;
     setSelectedAlbumIndex: Dispatch<SetStateAction<number>>;
     albumListContainerRef: RefObject<HTMLDivElement>;
@@ -18,11 +19,12 @@ function AlbumBrowser(props: AlbumBrowserProps) {
 
     return (
         <div className="albumListContainer" ref={albumListContainerRef}>
-            {albums.map((album, index) => {
+            {albums.map((albumData, index) => {
                 const indexToSelect = index === selectedAlbumIndex ? -1 : index;
                 return (
                     <AlbumCard
-                        album={album}
+                        key={albumData.id}
+                        albumData={albumData}
                         isSelected={index === selectedAlbumIndex}
                         selectAlbum={() => setSelectedAlbumIndex(indexToSelect)}
                     />

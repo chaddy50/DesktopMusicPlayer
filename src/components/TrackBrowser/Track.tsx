@@ -20,7 +20,7 @@ function Track(props: TrackProps) {
                 {track.track_number}
             </span>
             <span className="trackInfoColumn">{track.name}</span>
-            <span className="trackInfoColumn">{track.artist}</span>
+            <span className="trackInfoColumn">{track.artist_name}</span>
             <span className="trackInfoColumnDuration">
                 {formatTimeDuration(track.duration_in_seconds)}
             </span>

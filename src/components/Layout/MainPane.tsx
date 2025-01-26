@@ -6,41 +6,41 @@ import {
     useEffect,
     useState,
 } from "react";
-import TrackBrowser from "../TrackBrowser/TrackBrowser";
+import TrackBrowser, { AlbumData } from "../TrackBrowser/TrackBrowser";
 import AlbumBrowser from "../AlbumBrowser/AlbumBrowser";
 
 interface MainPaneProps {
-    selectedAlbumArtist: string;
+    selectedAlbumArtistId: number;
     selectedAlbumIndex: number;
     setSelectedAlbumIndex: Dispatch<SetStateAction<number>>;
-    selectedGenre: string;
+    selectedGenreID: number;
     albumListContainerRef: RefObject<HTMLDivElement>;
 }
 
 function MainPane(props: MainPaneProps) {
     const {
-        selectedAlbumArtist,
+        selectedAlbumArtistId,
         selectedAlbumIndex,
         setSelectedAlbumIndex,
-        selectedGenre,
+        selectedGenreID: selectedGenre,
         albumListContainerRef,
     } = props;
 
-    const [albums, setAlbums] = useState([""]);
+    const [albums, setAlbums] = useState<AlbumData[]>([]);
 
     useEffect(() => {
         async function getAlbums(
-            albumArtist: string,
-            genre: string
+            albumArtistId: number,
+            genreId: number
         ): Promise<void> {
-            const albums: string[] = await invoke(
+            const albums: AlbumData[] = await invoke(
                 "get_albums_for_album_artist",
-                { albumArtist, genre }
+                { albumArtistId, genreId }
             );
             setAlbums(albums);
         }
-        getAlbums(selectedAlbumArtist, selectedGenre);
-    }, [selectedAlbumArtist, setAlbums, selectedGenre]);
+        getAlbums(selectedAlbumArtistId, selectedGenre);
+    }, [selectedAlbumArtistId, setAlbums, selectedGenre]);
 
     return (
         <div className="mainPaneContainer">
@@ -52,7 +52,7 @@ function MainPane(props: MainPaneProps) {
             />
 
             {selectedAlbumIndex > -1 && (
-                <TrackBrowser album={albums[selectedAlbumIndex]} />
+                <TrackBrowser albumData={albums[selectedAlbumIndex]} />
             )}
         </div>
     );

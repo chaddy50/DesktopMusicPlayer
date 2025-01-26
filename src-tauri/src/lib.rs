@@ -1,4 +1,4 @@
-use music_database::{Album, Track};
+use music_database::{Album, AlbumArtist, Genre, Track};
 use audio_player::{AppState, AudioPlayer};
 use serde::{Deserialize, Serialize};
 use tauri::{State, Builder, Manager, AppHandle};
@@ -8,23 +8,18 @@ pub mod audio_player;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
-fn get_genres() -> Vec<String> {
+fn get_genres() -> Vec<Genre> {
     music_database::get_genres()
 }
 
 #[tauri::command]
-fn get_album_artists_for_genre(genre: String) -> Vec<String> {
-    music_database::get_album_artists_for_genre(genre)
+fn get_album_artists_for_genre(genre_id: i64) -> Vec<AlbumArtist> {
+    music_database::get_album_artists_for_genre(&genre_id)
 }
 
 #[tauri::command]
-fn get_albums_for_album_artist(album_artist: String, genre: String) -> Vec<String> {
-    music_database::get_albums_for_album_artist(album_artist, genre)
-}
-
-#[tauri::command]
-fn get_album_data(album: String) -> music_database::Album {
-    music_database::get_album_data(album.as_str())
+fn get_albums_for_album_artist(album_artist_id: i64, genre_id: i64) -> Vec<Album> {
+    music_database::get_albums_for_album_artist(&album_artist_id, &genre_id)
 }
 
 #[tauri::command]
@@ -85,7 +80,6 @@ pub fn run() {
             get_genres,
             get_album_artists_for_genre,
             get_albums_for_album_artist,
-            get_album_data,
             on_track_double_clicked,
             on_album_double_clicked,
             on_pause_button_clicked,
