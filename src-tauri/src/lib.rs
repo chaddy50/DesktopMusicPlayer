@@ -1,7 +1,7 @@
 use music_database::{genre::Genre, album::Album, album_artist::AlbumArtist, track::Track};
 use audio_player::{AppState, AudioPlayer};
 use serde::{Deserialize, Serialize};
-use tauri::{State, Builder, Manager, AppHandle};
+use tauri::{State, Builder, Manager};
 
 pub mod music_database;
 pub mod audio_player;
@@ -23,32 +23,32 @@ fn get_albums_for_album_artist(album_artist_id: i64, genre_id: i64) -> Vec<Album
 }
 
 #[tauri::command]
-async fn on_track_double_clicked(app: AppHandle, state: State<'_, AppState>, track: Track) -> Result<i32, ()> {
+fn on_track_double_clicked(state: State<'_, AppState>, track: Track) -> Result<i32, ()> {
     state.audio_player.stop();
     state.audio_player.add_track_to_queue(track);
-    state.audio_player.play(app);
+    state.audio_player.play_next_track();
 
     Ok(1)
 }
 
 #[tauri::command]
-async fn on_album_double_clicked(app: AppHandle, state: State<'_, AppState>, album: Album) -> Result<i32,()> {
+fn on_album_double_clicked(state: State<'_, AppState>, album: Album) -> Result<i32,()> {
     state.audio_player.stop();
     for track in album.tracks {
         state.audio_player.add_track_to_queue(track);
     }
-    state.audio_player.play(app);
+    state.audio_player.play_next_track();
     Ok(1)
 }
 
 #[tauri::command]
-fn on_pause_button_clicked(app: AppHandle, state: State<'_, AppState>) {
-    state.audio_player.pause(app);
+fn on_pause_button_clicked(state: State<'_, AppState>) {
+    state.audio_player.pause();
 }
 
 #[tauri::command]
-fn on_play_button_clicked(app: AppHandle, state: State<'_, AppState>) {
-    state.audio_player.play(app);
+fn on_play_button_clicked(state: State<'_, AppState>) {
+    state.audio_player.play();
 }
 
 #[derive(Serialize, Deserialize, Clone)]

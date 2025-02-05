@@ -3,7 +3,6 @@ use std::path::Path;
 use album::Album;
 use album_artist::AlbumArtist;
 use base64::{engine::general_purpose, Engine as _};
-use serde::{Deserialize, Serialize};
 use sqlite::{Connection, State, Statement};
 use genre::Genre;
 use track::Track;
@@ -36,11 +35,6 @@ const COLUMN_FILE_PATH: &str = "file_path";
 const COLUMN_DURATION: &str = "duration";
 const COLUMN_ALBUM_ARTIST_SORT_NAME: &str = "album_artist_sort_name";
 const COLUMN_DISC_NUMBER: &str = "disc_number";
-
-#[derive(Serialize, Deserialize)]
-pub struct NowPlayingQueue {
-    pub now_playing_tracks: Vec<Track>,
-}
 
 pub fn open_database_connection() -> Connection {
     sqlite::open(DATABASE_PATH_MUSIC).expect("Database connection should have been opened")
