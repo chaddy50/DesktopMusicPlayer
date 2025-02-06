@@ -1,10 +1,14 @@
 use music_database::{genre::Genre, album::Album, album_artist::AlbumArtist, track::Track};
-use audio_player::{AppState, AudioPlayer};
+use audio_player::AudioPlayer;
 use tauri::{State, Builder, Manager};
 use std::sync::mpsc;
 
 pub mod music_database;
 pub mod audio_player;
+
+pub struct AppState {
+    pub audio_player: AudioPlayer
+}
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]

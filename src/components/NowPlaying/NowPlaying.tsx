@@ -1,16 +1,27 @@
-import { TrackData } from "../TrackBrowser/TrackBrowser";
+import TrackData from "../../dataObjects/TrackData";
 
 interface NowPlayingProps {
-    trackQueue: TrackData[];
+    playingTracks: TrackData[];
+    playingTrackIndex: number;
 }
 
 function NowPlaying(props: NowPlayingProps) {
-    const { trackQueue } = props;
+    const { playingTracks, playingTrackIndex } = props;
 
     return (
         <div>
-            {trackQueue?.map((track) => {
-                return <p>{track.name}</p>;
+            {playingTracks?.map((track, index) => {
+                return (
+                    <p
+                        className={
+                            index === playingTrackIndex
+                                ? "selectedArtistCard"
+                                : "unselectedArtistCard"
+                        }
+                    >
+                        {track.name}
+                    </p>
+                );
             })}
         </div>
     );
