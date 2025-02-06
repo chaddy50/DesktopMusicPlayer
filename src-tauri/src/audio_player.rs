@@ -1,7 +1,16 @@
-use std::{collections::VecDeque, fs::File, io::BufReader, sync::{mpsc, Mutex, MutexGuard}, thread};
-use rodio::{Sink, OutputStream, Decoder};
-
+use std::{collections::VecDeque, fs::File, io::BufReader, sync::{mpsc::{self, Receiver}, Mutex, MutexGuard}};
+use rodio::{Decoder, OutputStream, Sink};
+use tauri::{AppHandle, Manager};
+use std::thread;
 use crate::music_database::track::Track;
+
+#[derive(Debug)]
+pub enum AudioPlaybackCommand {
+    Play(String),
+    Pause,
+    Stop,
+    Resume,
+}
 
 pub struct AppState {
     pub audio_player: AudioPlayer
@@ -9,65 +18,73 @@ pub struct AppState {
 
 pub struct AudioPlayer {
     audio_command_sender: mpsc::Sender<AudioPlaybackCommand>,
-    pub music_queue: Mutex<VecDeque<Track>>,
+    music_queue: Mutex<VecDeque<Track>>,
 }
-
-#[derive(Debug)]
-enum AudioPlaybackCommand {
-    Play(String),
-    Pause,
-    Stop,
-    Resume,
-}
-
-#[derive(Debug)]
-enum NowPlayingCommand {
-    NothingPlaying,
-}
-
-unsafe impl Sync for AudioPlayer {}
-
-unsafe impl Send for AudioPlayer {}
 
 impl AudioPlayer {
-    pub fn new() -> Self {
-        let (main_thread_sender, audio_thread_receiver) = mpsc::channel();
-        let (audio_thread_sender, now_playing_thread_receiver) = mpsc::channel::<NowPlayingCommand>();
-
-        thread::spawn(move || {
-            let (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap();
-            let sink = Sink::try_new(&output_stream_handle).unwrap();
-
-            loop {
-                if let Ok(command) = audio_thread_receiver.try_recv() {
-                    println!("Command received: {:?}", command);
-                    process_command(command, &sink);
-                }
-
-                if sink.len() == 0 {
-                    audio_thread_sender.send(NowPlayingCommand::NothingPlaying).unwrap();
-                }
-
-                thread::sleep(std::time::Duration::from_millis(100));
-            }
-        });
-
-        thread::spawn(move || {
-            loop {
-                if let Ok(command) = now_playing_thread_receiver.try_recv() {
-                    println!("Command received: {:?}", command);
-                }
-                thread::sleep(std::time::Duration::from_millis(100));
-            }
-        });
-
+    pub fn new(sender: mpsc::Sender<AudioPlaybackCommand>) -> Self {
         Self {
-            audio_command_sender: main_thread_sender,
+            audio_command_sender: sender,
             music_queue: Mutex::new(VecDeque::new()),
         }
     }
 
-    pub fn play(&self) {
+    pub fn run_thread(&self, app_handle: AppHandle, receiver: Receiver<AudioPlaybackCommand>) {
+        thread::spawn(move || {
+            let (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap();
+            let sink = Sink::try_new(&output_stream_handle).unwrap();
+            let state = app_handle.state::<AppState>();
+            let mut should_wait_for_command = true;
+
+            loop {
+                if let Ok(command) = receiver.try_recv() {
+                    println!("Command received: {:?}", command);
+                    match command {
+                        AudioPlaybackCommand::Play(track_file_path) => {
+                            if sink.len() > 0 {
+                                sink.stop();
+                            }
+                            sink.append(decode_track(track_file_path));
+                        },
+                        AudioPlaybackCommand::Resume => {
+                            if sink.is_paused() {
+                                sink.play();
+                            }
+                            else {
+                                println!("Tried to resume while nothing was paused");
+                            }
+                        }
+                        AudioPlaybackCommand::Stop => {
+                            sink.stop();
+                        }
+                        AudioPlaybackCommand::Pause => {
+                            sink.pause();
+                        }
+                    }
+                    should_wait_for_command = false;
+                }
+                else if sink.len() == 0 && !should_wait_for_command {
+                    println!("playing next track");
+                    should_wait_for_command = true;
+                    state.audio_player.play_next_track();
+                }
+
+                thread::sleep(std::time::Duration::from_millis(100));
+            }
+        });
+    }
+
+    pub fn play_next_track(&self) {
+        let mut music_queue = self.get_music_queue();
+        if music_queue.len() > 0 {
+            let next_track = music_queue.pop_front().expect("Queue should have a next track");
+            drop(music_queue);
+
+            self.audio_command_sender.send(AudioPlaybackCommand::Play(next_track.file_path)).unwrap();
+        } 
+    }
+
+    pub fn resume(&self) {
         self.audio_command_sender.send(AudioPlaybackCommand::Resume).unwrap();
     }
 
@@ -94,30 +111,19 @@ impl AudioPlayer {
         music_queue.clear();
     }
 
-    pub fn play_next_track(&self) {
-        let mut music_queue = self.get_music_queue();
-        if music_queue.len() > 0 {
-            let next_track = music_queue.pop_front().expect("Queue should have a next track");
-            self.update_now_playing_data(&music_queue);
-            drop(music_queue);
-
-            self.audio_command_sender.send(AudioPlaybackCommand::Play(next_track.file_path)).unwrap();
-        }
-    }
-
-    fn update_now_playing_data(&self, music_queue: &MutexGuard<VecDeque<Track>>) {
-        let mut now_playing_tracks: Vec<Track> = Vec::new();
-        for track in music_queue.iter() {
-            now_playing_tracks.push(track.clone());
-        }
+    // fn update_now_playing_data(&self, music_queue: &MutexGuard<VecDeque<Track>>) {
+    //     let mut now_playing_tracks: Vec<Track> = Vec::new();
+    //     for track in music_queue.iter() {
+    //         now_playing_tracks.push(track.clone());
+    //     }
         
-        // let now_playing_data = NowPlayingData {
-        //     track_queue: now_playing_tracks,
-        //     is_paused: sink.is_paused(),
-        //     is_playing: *self.get_is_playing(),
-        // };
-        // app.emit("now_playing_changed", now_playing_data).unwrap();
-    }
+    //     let now_playing_data = NowPlayingData {
+    //         track_queue: now_playing_tracks,
+    //         is_paused: sink.is_paused(),
+    //         is_playing: *self.get_is_playing(),
+    //     };
+    //     app.emit("now_playing_changed", now_playing_data).unwrap();
+    // }
 
     fn get_music_queue(&self) -> MutexGuard<'_, VecDeque<Track>> {
         self.music_queue.lock().expect("Queue should have been locked")
@@ -127,22 +133,4 @@ impl AudioPlayer {
 fn decode_track(track_file_path: String) -> Decoder<BufReader<File>> {
     let track_file = BufReader::new(File::open(track_file_path).unwrap());
     Decoder::new(track_file).unwrap()
-}
-
-fn process_command(command: AudioPlaybackCommand, sink: &Sink) {
-    match command {
-        AudioPlaybackCommand::Play(track_file_path) => {
-            if sink.len() > 0 {
-                sink.stop();
-            }
-            sink.append(decode_track(track_file_path));
-        },
-        AudioPlaybackCommand::Stop => {
-            sink.stop();
-        }
-        AudioPlaybackCommand::Pause => {
-            sink.pause();
-        }
-        _ => {}
-    }
 }

@@ -1,7 +1,7 @@
 use music_database::{genre::Genre, album::Album, album_artist::AlbumArtist, track::Track};
 use audio_player::{AppState, AudioPlayer};
-use serde::{Deserialize, Serialize};
 use tauri::{State, Builder, Manager};
+use std::sync::mpsc;
 
 pub mod music_database;
 pub mod audio_player;
@@ -48,23 +48,21 @@ fn on_pause_button_clicked(state: State<'_, AppState>) {
 
 #[tauri::command]
 fn on_play_button_clicked(state: State<'_, AppState>) {
-    state.audio_player.play();
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-struct NowPlayingData {
-    track_queue: Vec<Track>,
-    is_paused: bool,
-    is_playing: bool,
+    state.audio_player.resume();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     Builder::default()
         .setup(|app| {
+            let (sender, receiver) = mpsc::channel();
+
             app.manage(AppState {
-                audio_player: AudioPlayer::new(),
+                audio_player: AudioPlayer::new(sender)
             });
+
+            app.handle().state::<AppState>().audio_player.run_thread(app.handle().clone(), receiver);
+
             Ok(())
         })
         .plugin(
