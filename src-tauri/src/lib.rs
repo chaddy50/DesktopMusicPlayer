@@ -62,10 +62,8 @@ pub fn run() {
             let (sender, receiver) = mpsc::channel();
 
             app.manage(AppState {
-                audio_player: AudioPlayer::new(sender)
+                audio_player: AudioPlayer::new(app.app_handle().clone(), sender, receiver),
             });
-
-            app.handle().state::<AppState>().audio_player.run_thread(app.handle().clone(), receiver);
 
             Ok(())
         })
