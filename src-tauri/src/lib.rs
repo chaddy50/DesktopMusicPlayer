@@ -1,7 +1,6 @@
 use music_database::{genre::Genre, album::Album, album_artist::AlbumArtist, track::Track};
 use audio_player::AudioPlayer;
 use tauri::{State, Builder, Manager};
-use std::sync::mpsc;
 
 pub mod music_database;
 pub mod audio_player;
@@ -27,22 +26,13 @@ fn get_albums_for_album_artist(album_artist_id: i64, genre_id: i64) -> Vec<Album
 }
 
 #[tauri::command]
-fn on_track_double_clicked(state: State<'_, AppState>, track: Track) -> Result<i32, ()> {
-    state.audio_player.stop();
-    state.audio_player.add_track_to_queue(track);
-    state.audio_player.play_next_track();
-
-    Ok(1)
+fn on_track_double_clicked(state: State<'_, AppState>, track: Track) {
+    state.audio_player.play_track(track);
 }
 
 #[tauri::command]
-fn on_album_double_clicked(state: State<'_, AppState>, album: Album) -> Result<i32,()> {
-    state.audio_player.stop();
-    for track in album.tracks {
-        state.audio_player.add_track_to_queue(track);
-    }
-    state.audio_player.play_next_track();
-    Ok(1)
+fn on_album_double_clicked(state: State<'_, AppState>, album: Album) {
+    state.audio_player.play_album(album);
 }
 
 #[tauri::command]
@@ -55,16 +45,23 @@ fn on_play_button_clicked(state: State<'_, AppState>) {
     state.audio_player.resume();
 }
 
+#[tauri::command]
+fn on_next_button_clicked(state: State<'_, AppState>) {
+    state.audio_player.skip_forward();
+}
+
+#[tauri::command]
+fn on_previous_button_clicked(state: State<'_, AppState>) {
+    state.audio_player.skip_backward();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     Builder::default()
         .setup(|app| {
-            let (sender, receiver) = mpsc::channel();
-
             app.manage(AppState {
-                audio_player: AudioPlayer::new(app.app_handle().clone(), sender, receiver),
+                audio_player: AudioPlayer::new(app.app_handle().clone()),
             });
-
             Ok(())
         })
         .plugin(
@@ -84,6 +81,8 @@ pub fn run() {
             on_album_double_clicked,
             on_pause_button_clicked,
             on_play_button_clicked,
+            on_next_button_clicked,
+            on_previous_button_clicked,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

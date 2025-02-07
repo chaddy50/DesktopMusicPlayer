@@ -10,6 +10,13 @@ function PlayerControls(props: PlayerControlsProps) {
 
     return (
         <div>
+            <button
+                onClick={() => {
+                    invoke("on_previous_button_clicked");
+                }}
+            >
+                Previous
+            </button>
             {isPlaying ? (
                 <button
                     onClick={() => {
@@ -27,6 +34,13 @@ function PlayerControls(props: PlayerControlsProps) {
                     Play
                 </button>
             )}
+            <button
+                onClick={() => {
+                    invoke("on_next_button_clicked");
+                }}
+            >
+                Next
+            </button>
         </div>
     );
 }
