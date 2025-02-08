@@ -26,6 +26,11 @@ function RightSidebar(_props: RightSidebarProps) {
                 <PlayerControls
                     isPaused={nowPlayingData.is_paused}
                     isPlaying={nowPlayingData.is_playing}
+                    playing_track={
+                        nowPlayingData.playing_tracks[
+                            nowPlayingData.playing_track_index
+                        ]
+                    }
                 />
                 <NowPlaying
                     playingTracks={nowPlayingData.playing_tracks}

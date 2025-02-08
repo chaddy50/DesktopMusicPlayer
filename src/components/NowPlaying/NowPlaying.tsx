@@ -1,4 +1,5 @@
 import TrackData from "../../dataObjects/TrackData";
+import { formatTimeDuration } from "../../utilities/Utilities";
 
 interface NowPlayingProps {
     playingTracks: TrackData[];
@@ -9,18 +10,27 @@ function NowPlaying(props: NowPlayingProps) {
     const { playingTracks, playingTrackIndex } = props;
 
     return (
-        <div>
+        <div className="trackListContainer">
             {playingTracks?.map((track, index) => {
                 return (
-                    <p
-                        className={
-                            index === playingTrackIndex
-                                ? "selectedArtistCard"
-                                : "unselectedArtistCard"
+                    <div
+                        className="trackContainer"
+                        style={
+                            playingTrackIndex === index
+                                ? {
+                                      fontWeight: "bold",
+                                  }
+                                : {}
                         }
                     >
-                        {track.name}
-                    </p>
+                        <span className="trackInfoColumnTrackNumber">
+                            {index + 1}
+                        </span>
+                        <span className="trackInfoColumn">{track.name}</span>
+                        <span className="trackInfoColumnDuration">
+                            {formatTimeDuration(track.duration_in_seconds)}
+                        </span>
+                    </div>
                 );
             })}
         </div>

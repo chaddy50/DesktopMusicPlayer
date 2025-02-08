@@ -1,46 +1,35 @@
 import { invoke } from "@tauri-apps/api/core";
+import TrackData from "../../dataObjects/TrackData";
+import PlayPauseButton from "./PlayPauseButton";
+import PreviousButton from "./PreviousButton";
+import NextButton from "./NextButton";
 
 interface PlayerControlsProps {
     isPlaying: boolean;
     isPaused: boolean;
+    playing_track: TrackData;
 }
 
 function PlayerControls(props: PlayerControlsProps) {
-    const { isPlaying } = props;
+    const { isPlaying, isPaused, playing_track } = props;
 
     return (
-        <div>
-            <button
-                onClick={() => {
-                    invoke("on_previous_button_clicked");
-                }}
-            >
-                Previous
-            </button>
-            {isPlaying ? (
-                <button
-                    onClick={() => {
-                        invoke("on_pause_button_clicked");
-                    }}
-                >
-                    Pause
-                </button>
-            ) : (
-                <button
-                    onClick={() => {
-                        invoke("on_play_button_clicked");
-                    }}
-                >
-                    Play
-                </button>
-            )}
-            <button
-                onClick={() => {
-                    invoke("on_next_button_clicked");
-                }}
-            >
-                Next
-            </button>
+        <div
+            style={{
+                display: "flex",
+                width: "100%",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                borderBottom: "1px solid black",
+            }}
+        >
+            <p>{playing_track.name}</p>
+            <div>
+                <PreviousButton />
+                <PlayPauseButton isPlaying={isPlaying} />
+                <NextButton />
+            </div>
         </div>
     );
 }
