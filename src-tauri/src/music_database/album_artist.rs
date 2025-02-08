@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct AlbumArtist {
@@ -8,9 +8,6 @@ pub struct AlbumArtist {
 
 impl AlbumArtist {
     pub fn new(id: i64, name: String) -> AlbumArtist {
-        AlbumArtist {
-            id,
-            name
-        }
+        AlbumArtist { id, name }
     }
 }

@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Track {
@@ -16,7 +16,20 @@ pub struct Track {
 }
 
 impl Track {
-    pub fn new(name: String, album_artist_id: i64, album_artist_name: String, artist_id: i64, artist_name: String, genre_id: i64, genre_name: String, file_path: String, track_number: i64, disc_number: i64, duration_in_seconds: i64) -> Track {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        name: String,
+        album_artist_id: i64,
+        album_artist_name: String,
+        artist_id: i64,
+        artist_name: String,
+        genre_id: i64,
+        genre_name: String,
+        file_path: String,
+        track_number: i64,
+        disc_number: i64,
+        duration_in_seconds: i64,
+    ) -> Track {
         Track {
             name,
             album_artist_id,
@@ -28,7 +41,7 @@ impl Track {
             file_path,
             track_number,
             disc_number,
-            duration_in_seconds
+            duration_in_seconds,
         }
     }
 }

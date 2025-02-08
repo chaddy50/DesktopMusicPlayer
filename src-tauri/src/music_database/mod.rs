@@ -3,17 +3,17 @@ use std::path::Path;
 use album::Album;
 use album_artist::AlbumArtist;
 use base64::{engine::general_purpose, Engine as _};
-use sqlite::{Connection, State, Statement};
 use genre::Genre;
+use sqlite::{Connection, State, Statement};
 use track::Track;
 use track_to_process::TrackToProcess;
 
-pub mod genre;
-pub mod track_to_process;
 pub mod album;
-pub mod track;
 pub mod album_artist;
 pub mod artist;
+pub mod genre;
+pub mod track;
+pub mod track_to_process;
 
 const DATABASE_PATH_MUSIC: &str = "music_database.db";
 
@@ -45,7 +45,8 @@ pub fn does_database_already_exist() -> bool {
 }
 
 pub fn create_tables(database_connection: &Connection) {
-    let query = format!(r#"
+    let query = format!(
+        r#"
     CREATE TABLE IF NOT EXISTS {TABLE_GENRES} ({COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT, {COLUMN_NAME} TEXT);
 
     CREATE TABLE IF NOT EXISTS {TABLE_ALBUM_ARTISTS} ({COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT, {COLUMN_NAME} TEXT, {COLUMN_GENRE_ID} INTEGER, {COLUMN_ALBUM_ARTIST_SORT_NAME} TEXT);
@@ -55,11 +56,19 @@ pub fn create_tables(database_connection: &Connection) {
     CREATE TABLE IF NOT EXISTS {TABLE_ALBUMS} ({COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT, {COLUMN_NAME} TEXT, {COLUMN_GENRE_ID} INTEGER, {COLUMN_ALBUM_ARTIST_ID} INTEGER, {COLUMN_ARTWORK_DATA} TEXT, {COLUMN_YEAR} INT);
 
     CREATE TABLE IF NOT EXISTS {TABLE_SONGS} ({COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT, {COLUMN_NAME} TEXT, {COLUMN_GENRE_ID} INTEGER, {COLUMN_ALBUM_ARTIST_ID} INTEGER, {COLUMN_ALBUM_ID} INTEGER, {COLUMN_TRACK_NUMBER} INT, {COLUMN_ARTIST_ID} TEXT, {COLUMN_FILE_PATH} TEXT, {COLUMN_DURATION} INT, {COLUMN_DISC_NUMBER} INT);
-    "#);
+    "#
+    );
     database_connection.execute(query).unwrap();
 }
 
-pub fn add_track_to_database(database_connection: &Connection, track_to_process: &TrackToProcess, genre_id: &i64, album_artist_id: &i64, album_id: &i64, artist_id: &i64) {
+pub fn add_track_to_database(
+    database_connection: &Connection,
+    track_to_process: &TrackToProcess,
+    genre_id: &i64,
+    album_artist_id: &i64,
+    album_id: &i64,
+    artist_id: &i64,
+) {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_SONGS} ({COLUMN_NAME}, {COLUMN_GENRE_ID}, {COLUMN_ALBUM_ARTIST_ID}, {COLUMN_ALBUM_ID}, {COLUMN_TRACK_NUMBER}, {COLUMN_ARTIST_ID}, {COLUMN_FILE_PATH}, {COLUMN_DURATION}, {COLUMN_DISC_NUMBER}) VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');
@@ -74,15 +83,25 @@ pub fn add_track_to_database(database_connection: &Connection, track_to_process:
         track_to_process.duration,
         track_to_process.disc_number,
     );
-    try_execute_insert_query(database_connection, &query, "track", format!("{}: {}", track_to_process.title, track_to_process.file_path).as_str());
+    try_execute_insert_query(
+        database_connection,
+        &query,
+        "track",
+        format!("{}: {}", track_to_process.title, track_to_process.file_path).as_str(),
+    );
 }
 
-pub fn add_album_to_database(database_connection: &Connection, track_to_process: &TrackToProcess, genre_id: &i64, album_artist_id: &i64) -> i64 {
+pub fn add_album_to_database(
+    database_connection: &Connection,
+    track_to_process: &TrackToProcess,
+    genre_id: &i64,
+    album_artist_id: &i64,
+) -> i64 {
     let mime_type = track_to_process.artwork.mime_type;
     let cover_data = track_to_process.artwork.data;
 
     let mut artwork_data = "NO_ARTWORK".to_string();
-    if cover_data != &[1] {
+    if cover_data != [1] {
         let cover_data = convert_artwork_data_to_base_64(cover_data);
         artwork_data = format!("data:image/{:?};base64,{}", mime_type, &cover_data);
     }
@@ -91,46 +110,70 @@ pub fn add_album_to_database(database_connection: &Connection, track_to_process:
         r#"
         INSERT OR IGNORE INTO {TABLE_ALBUMS} ({COLUMN_NAME},{COLUMN_GENRE_ID},{COLUMN_ALBUM_ARTIST_ID},{COLUMN_ARTWORK_DATA},{COLUMN_YEAR}) VALUES ('{}', '{}', '{}', '{}', '{}');
         "#,
-        track_to_process.album,
-        genre_id,
-        album_artist_id,
-        artwork_data,
-        track_to_process.year,
+        track_to_process.album, genre_id, album_artist_id, artwork_data, track_to_process.year,
     );
-    try_execute_insert_query(database_connection, &query, "album", &track_to_process.album)
+    try_execute_insert_query(
+        database_connection,
+        &query,
+        "album",
+        &track_to_process.album,
+    )
 }
 
-pub fn add_album_artist_to_database(database_connection: &Connection, track_to_process: &TrackToProcess, genre_id: &i64) -> i64 {
+pub fn add_album_artist_to_database(
+    database_connection: &Connection,
+    track_to_process: &TrackToProcess,
+    genre_id: &i64,
+) -> i64 {
     let sort_name = get_sort_value_for_string(&track_to_process.album_artist);
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_ALBUM_ARTISTS} ({COLUMN_NAME}, {COLUMN_GENRE_ID}, {COLUMN_ALBUM_ARTIST_SORT_NAME}) VALUES ('{}', '{}','{}');
         "#,
-        track_to_process.album_artist,
-        genre_id,
-        sort_name
+        track_to_process.album_artist, genre_id, sort_name
     );
-    try_execute_insert_query(database_connection, &query, "album artist", &track_to_process.album_artist)
+    try_execute_insert_query(
+        database_connection,
+        &query,
+        "album artist",
+        &track_to_process.album_artist,
+    )
 }
 
-pub fn add_genre_to_database(database_connection: &Connection, track_to_process: &TrackToProcess) -> i64 {
+pub fn add_genre_to_database(
+    database_connection: &Connection,
+    track_to_process: &TrackToProcess,
+) -> i64 {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_GENRES} ({COLUMN_NAME}) VALUES ('{}');
         "#,
         track_to_process.genre
     );
-    try_execute_insert_query(database_connection, &query, "genre", &track_to_process.genre)
+    try_execute_insert_query(
+        database_connection,
+        &query,
+        "genre",
+        &track_to_process.genre,
+    )
 }
 
-pub fn add_artist_to_database(database_connection: &Connection, track_to_process: &TrackToProcess) -> i64 {
+pub fn add_artist_to_database(
+    database_connection: &Connection,
+    track_to_process: &TrackToProcess,
+) -> i64 {
     let query = format!(
         r#"
         INSERT OR IGNORE INTO {TABLE_ARTISTS} ({COLUMN_NAME}) VALUES ('{}');
         "#,
         track_to_process.artist
     );
-    try_execute_insert_query(database_connection, &query, "artist", &track_to_process.artist)
+    try_execute_insert_query(
+        database_connection,
+        &query,
+        "artist",
+        &track_to_process.artist,
+    )
 }
 
 pub fn get_genres() -> Vec<Genre> {
@@ -148,7 +191,7 @@ pub fn get_genres() -> Vec<Genre> {
     let mut genres = Vec::new();
     while let Ok(State::Row) = statement.next() {
         let id = statement.read::<i64, _>(COLUMN_ID).unwrap_or(-1);
-        let name = statement.read::<String,_>(COLUMN_NAME).unwrap_or_default();
+        let name = statement.read::<String, _>(COLUMN_NAME).unwrap_or_default();
         genres.push(Genre::new(id, name));
     }
 
@@ -172,11 +215,14 @@ pub fn get_album_artists_for_genre(genre_id: &i64) -> Vec<AlbumArtist> {
 
     let mut album_artists = Vec::new();
     let genre_name = get_genre_name(genre_id);
-    album_artists.push(AlbumArtist::new(0, get_all_artists_name(&genre_name).to_string()));
+    album_artists.push(AlbumArtist::new(
+        0,
+        get_all_artists_name(&genre_name).to_string(),
+    ));
 
     while let Ok(State::Row) = statement.next() {
         let id = statement.read::<i64, _>(COLUMN_ID).unwrap_or(-1);
-        let name = statement.read::<String,_>(COLUMN_NAME).unwrap_or_default();
+        let name = statement.read::<String, _>(COLUMN_NAME).unwrap_or_default();
         album_artists.push(AlbumArtist::new(id, name));
     }
     album_artists
@@ -200,8 +246,7 @@ pub fn get_albums_for_album_artist(album_artist_id: &i64, genre_id: &i64) -> Vec
                 album_artist_id
             ))
             .unwrap();
-    }
-    else {
+    } else {
         statement = database_connection
             .prepare(format!(
                 r#"
@@ -221,18 +266,35 @@ pub fn get_albums_for_album_artist(album_artist_id: &i64, genre_id: &i64) -> Vec
         let id = statement.read::<i64, _>(COLUMN_ID).unwrap_or(-1);
         let name = statement.read::<String, _>(COLUMN_NAME).unwrap_or_default();
         let year = statement.read::<i64, _>(COLUMN_YEAR).unwrap_or(-1);
-        let artwork_source = statement.read::<String, _>(COLUMN_ARTWORK_DATA).unwrap_or_default();
-        let genre_name = statement.read::<String, _>("genre_name").unwrap_or_default();
-        let album_artist_name = statement.read::<String, _>("album_artist_name").unwrap_or_default();
+        let artwork_source = statement
+            .read::<String, _>(COLUMN_ARTWORK_DATA)
+            .unwrap_or_default();
+        let genre_name = statement
+            .read::<String, _>("genre_name")
+            .unwrap_or_default();
+        let album_artist_name = statement
+            .read::<String, _>("album_artist_name")
+            .unwrap_or_default();
 
         let tracks = get_tracks_for_album(&database_connection, &id);
-    
+
         let mut duration_in_seconds = 0;
         for track in &tracks {
             duration_in_seconds += track.duration_in_seconds
         }
 
-        albums.push(Album::new(id, name, *album_artist_id, album_artist_name, *genre_id, genre_name, artwork_source, year, tracks, duration_in_seconds));
+        albums.push(Album::new(
+            id,
+            name,
+            *album_artist_id,
+            album_artist_name,
+            *genre_id,
+            genre_name,
+            artwork_source,
+            year,
+            tracks,
+            duration_in_seconds,
+        ));
     }
 
     albums
@@ -257,26 +319,40 @@ fn get_tracks_for_album(database_connection: &Connection, album_id: &i64) -> Vec
 
     while let Ok(State::Row) = statement.next() {
         let name = statement.read::<String, _>(COLUMN_NAME).unwrap_or_default();
-        let album_artist_id = statement.read::<i64, _>(COLUMN_ALBUM_ARTIST_ID).unwrap_or_default();
-        let album_artist_name = statement.read::<String, _>("album_artist_name").unwrap_or_default();
-        let artist_id = statement.read::<i64, _>(COLUMN_ARTIST_ID).unwrap_or_default();
-        let artist_name = statement.read::<String,_>("artist_name").unwrap_or_default();
-        let genre_id = statement.read::<i64, _>(COLUMN_GENRE_ID).unwrap_or_default();
-        let genre_name = statement.read::<String,_>("genre_name").unwrap_or_default();
-        let file_path = statement.read::<String, _>(COLUMN_FILE_PATH).unwrap_or_default();
+        let album_artist_id = statement
+            .read::<i64, _>(COLUMN_ALBUM_ARTIST_ID)
+            .unwrap_or_default();
+        let album_artist_name = statement
+            .read::<String, _>("album_artist_name")
+            .unwrap_or_default();
+        let artist_id = statement
+            .read::<i64, _>(COLUMN_ARTIST_ID)
+            .unwrap_or_default();
+        let artist_name = statement
+            .read::<String, _>("artist_name")
+            .unwrap_or_default();
+        let genre_id = statement
+            .read::<i64, _>(COLUMN_GENRE_ID)
+            .unwrap_or_default();
+        let genre_name = statement
+            .read::<String, _>("genre_name")
+            .unwrap_or_default();
+        let file_path = statement
+            .read::<String, _>(COLUMN_FILE_PATH)
+            .unwrap_or_default();
         let track_number = statement.read::<i64, _>(COLUMN_TRACK_NUMBER).unwrap_or(-1);
         let duration_in_seconds = statement.read::<i64, _>(COLUMN_DURATION).unwrap_or(-1);
-        let disc_number = statement.read::<i64,_>(COLUMN_DISC_NUMBER).unwrap_or(-1);
+        let disc_number = statement.read::<i64, _>(COLUMN_DISC_NUMBER).unwrap_or(-1);
 
         tracks.push(Track::new(
-            name, 
-            album_artist_id, 
+            name,
+            album_artist_id,
             album_artist_name,
-            artist_id, 
+            artist_id,
             artist_name,
             genre_id,
             genre_name,
-            file_path, 
+            file_path,
             track_number,
             disc_number,
             duration_in_seconds,
@@ -285,12 +361,15 @@ fn get_tracks_for_album(database_connection: &Connection, album_id: &i64) -> Vec
     tracks
 }
 
-fn try_execute_insert_query(database_connection: &Connection, query: &str, row_descriptor: &str, row_details: &str) -> i64 {
+fn try_execute_insert_query(
+    database_connection: &Connection,
+    query: &str,
+    row_descriptor: &str,
+    row_details: &str,
+) -> i64 {
     let result = database_connection.execute(query);
     match result {
-        Ok(_result) => {
-            get_id_of_last_inserted_row(&database_connection)
-        }
+        Ok(_result) => get_id_of_last_inserted_row(database_connection),
         Err(error) => {
             println!("Error adding {row_descriptor} to database: {row_details}");
             println!("     ERROR: {}", error);
@@ -301,11 +380,11 @@ fn try_execute_insert_query(database_connection: &Connection, query: &str, row_d
 
 fn get_id_of_last_inserted_row(database_connection: &Connection) -> i64 {
     let mut statement = database_connection
-        .prepare(format!(
+        .prepare(
             r#"
             SELECT last_insert_rowid()
-            "#
-        ))
+            "#,
+        )
         .unwrap();
 
     let mut last_id = -1;
@@ -326,31 +405,28 @@ fn get_genre_name(genre_id: &i64) -> String {
             FROM {TABLE_GENRES} 
             WHERE {COLUMN_ID} = '{}'
         "#,
-        genre_id
+            genre_id
         ))
         .unwrap();
 
     let mut name = "".to_string();
     while let Ok(State::Row) = statement.next() {
-        name = statement.read::<String,_>(COLUMN_NAME).unwrap_or_default();
+        name = statement.read::<String, _>(COLUMN_NAME).unwrap_or_default();
     }
 
     name
 }
 
 fn get_sort_value_for_string(string: &str) -> String {
-    let lowercase = &string.to_lowercase();
+    let lowercase = string.to_lowercase();
     if lowercase.starts_with("the ") {
-        lowercase[4..].to_string()
-    }
-    else if lowercase.starts_with("a ") {
-        lowercase[2..].to_string()
-    }
-    else if lowercase.starts_with("an ") {
-        lowercase[3..].to_string()
-    }
-    else {
-        lowercase.clone()
+        lowercase.strip_prefix("the ").unwrap().to_string()
+    } else if lowercase.starts_with("a ") {
+        lowercase.strip_prefix("a ").unwrap().to_string()
+    } else if lowercase.starts_with("an ") {
+        lowercase.strip_prefix("an ").unwrap().to_string()
+    } else {
+        lowercase
     }
 }
 
@@ -364,7 +440,7 @@ pub fn escape_string_for_sql(str: &str) -> String {
 
 fn get_all_artists_name(genre_name: &str) -> &str {
     match genre_name {
-        "Video Game" => return "All Games",
-        _ => return "All Artists"
-    };
+        "Video Game" => "All Games",
+        _ => "All Artists",
+    }
 }

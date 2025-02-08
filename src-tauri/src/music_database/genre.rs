@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Genre {
@@ -8,9 +8,6 @@ pub struct Genre {
 
 impl Genre {
     pub fn new(id: i64, name: String) -> Self {
-        Genre {
-            id,
-            name
-        }
+        Genre { id, name }
     }
 }

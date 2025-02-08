@@ -16,7 +16,20 @@ pub struct TrackToProcess<'a> {
 }
 
 impl<'a> TrackToProcess<'a> {
-    pub fn new(title: &str, album: &str, album_artist: &str, artist: &str, genre: &str, artwork: &Picture<'a>, file_path: &str, year: &i32, track_number: &u16, duration: &f64, disc_number: &u16) -> TrackToProcess<'a> {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        title: &str,
+        album: &str,
+        album_artist: &str,
+        artist: &str,
+        genre: &str,
+        artwork: &Picture<'a>,
+        file_path: &str,
+        year: &i32,
+        track_number: &u16,
+        duration: &f64,
+        disc_number: &u16,
+    ) -> TrackToProcess<'a> {
         TrackToProcess {
             title: super::escape_string_for_sql(title),
             album: super::escape_string_for_sql(album),
@@ -25,10 +38,10 @@ impl<'a> TrackToProcess<'a> {
             genre: super::escape_string_for_sql(genre),
             artwork: artwork.clone(),
             file_path: super::escape_string_for_sql(file_path),
-            year: year.clone(),
-            track_number: track_number.clone(),
-            duration: duration.clone(),
-            disc_number: disc_number.clone(),
+            year: *year,
+            track_number: *track_number,
+            duration: *duration,
+            disc_number: *disc_number,
         }
     }
 }

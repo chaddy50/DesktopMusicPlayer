@@ -1,7 +1,13 @@
-use std::{collections::VecDeque, sync::{mpsc::{self}, Mutex, RwLock}};
-use audio_thread::AudioPlaybackCommand;
-use tauri::AppHandle;
 use crate::music_database::{album::Album, track::Track};
+use audio_thread::AudioPlaybackCommand;
+use std::{
+    collections::VecDeque,
+    sync::{
+        mpsc::{self},
+        Mutex, RwLock,
+    },
+};
+use tauri::AppHandle;
 
 mod audio_thread;
 
@@ -42,29 +48,42 @@ impl AudioPlayer {
     }
 
     pub fn resume(&self) {
-        self.audio_command_sender.send(AudioPlaybackCommand::Resume).unwrap();
+        self.audio_command_sender
+            .send(AudioPlaybackCommand::Resume)
+            .unwrap();
     }
 
     pub fn pause(&self) {
-        self.audio_command_sender.send(AudioPlaybackCommand::Pause).unwrap();
+        self.audio_command_sender
+            .send(AudioPlaybackCommand::Pause)
+            .unwrap();
     }
 
     pub fn skip_forward(&self) {
-        self.audio_command_sender.send(AudioPlaybackCommand::SkipForward).unwrap();
+        self.audio_command_sender
+            .send(AudioPlaybackCommand::SkipForward)
+            .unwrap();
     }
 
     pub fn skip_backward(&self) {
-        self.audio_command_sender.send(AudioPlaybackCommand::SkipBackward).unwrap();
+        self.audio_command_sender
+            .send(AudioPlaybackCommand::SkipBackward)
+            .unwrap();
     }
 
     fn play_next_track(&self) {
-        let mut playing_track_index = self.playing_track_index.write().expect("playing_track_index should have been locked");
-        let mut is_first_play = self.is_first_play.lock().expect("is_first_play should have been locked");
+        let mut playing_track_index = self
+            .playing_track_index
+            .write()
+            .expect("playing_track_index should have been locked");
+        let mut is_first_play = self
+            .is_first_play
+            .lock()
+            .expect("is_first_play should have been locked");
 
         if *is_first_play {
             *is_first_play = false;
-        }
-        else {
+        } else {
             *playing_track_index += 1;
         }
 
@@ -72,8 +91,11 @@ impl AudioPlayer {
     }
 
     fn play_previous_track(&self) {
-        let mut playing_track_index = self.playing_track_index.write().expect("playing_track_index should have been locked");
-        
+        let mut playing_track_index = self
+            .playing_track_index
+            .write()
+            .expect("playing_track_index should have been locked");
+
         if *playing_track_index > 0 {
             *playing_track_index -= 1;
         }
@@ -82,38 +104,70 @@ impl AudioPlayer {
     }
 
     fn restart_track(&self) {
-        let track_index_to_play = *self.playing_track_index.read().expect("playing_track_index should have been read");
+        let track_index_to_play = *self
+            .playing_track_index
+            .read()
+            .expect("playing_track_index should have been read");
         self.try_play_track(track_index_to_play);
     }
 
     fn try_play_track(&self, track_index_to_play: usize) {
-        let music_queue = self.music_queue.read().expect("Music queue should have been read");
+        let music_queue = self
+            .music_queue
+            .read()
+            .expect("Music queue should have been read");
 
         if music_queue.len() > 0 && track_index_to_play < music_queue.len() {
             let next_track = music_queue[track_index_to_play].clone();
-            self.audio_command_sender.send(AudioPlaybackCommand::PlayTrack(next_track.file_path)).unwrap();
+            self.audio_command_sender
+                .send(AudioPlaybackCommand::PlayTrack(next_track.file_path))
+                .unwrap();
         } else {
-            self.audio_command_sender.send(AudioPlaybackCommand::NothingToPlay).unwrap();
+            self.audio_command_sender
+                .send(AudioPlaybackCommand::NothingToPlay)
+                .unwrap();
         }
     }
 
     fn add_track_to_queue(&self, track: Track) {
-        let mut music_queue = self.music_queue.write().expect("music_queue should have been locked");
+        let mut music_queue = self
+            .music_queue
+            .write()
+            .expect("music_queue should have been locked");
         music_queue.push_back(track);
     }
 
     fn stop_playback(&self) {
-        self.audio_command_sender.send(AudioPlaybackCommand::Stop).unwrap();
+        self.audio_command_sender
+            .send(AudioPlaybackCommand::Stop)
+            .unwrap();
     }
 
     pub fn clear_queue(&self) {
-        let mut music_queue = self.music_queue.write().expect("music_queue should have been locked");
+        let mut music_queue = self
+            .music_queue
+            .write()
+            .expect("music_queue should have been locked");
         music_queue.clear();
 
-        let mut playing_track_index = self.playing_track_index.write().expect("playing_track_index should have been locked");
+        let mut playing_track_index = self
+            .playing_track_index
+            .write()
+            .expect("playing_track_index should have been locked");
         *playing_track_index = 0;
 
-        let mut is_first_play = self.is_first_play.lock().expect("is_first_play should have been locked");
+        let mut is_first_play = self
+            .is_first_play
+            .lock()
+            .expect("is_first_play should have been locked");
         *is_first_play = true;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_fails() {
+        assert_eq!(1, 1);
     }
 }
