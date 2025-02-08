@@ -22,54 +22,25 @@ pub fn build_music_database() {
     let mut processed_album_artists: HashMap<String, i64> = HashMap::new();
     let mut processed_genres: HashMap<String, i64> = HashMap::new();
 
-    scan_directory(
-        &database_connection,
-        "/home/nathan/Music/Video Game",
-        &mut processed_albums,
-        &mut processed_album_artists,
-        &mut processed_genres,
-        &mut processed_artists,
-    );
-    scan_directory(
-        &database_connection,
-        "/home/nathan/Music/Rock",
-        &mut processed_albums,
-        &mut processed_album_artists,
-        &mut processed_genres,
-        &mut processed_artists,
-    );
-    scan_directory(
-        &database_connection,
-        "/home/nathan/Music/Jazz",
-        &mut processed_albums,
-        &mut processed_album_artists,
-        &mut processed_genres,
-        &mut processed_artists,
-    );
-    scan_directory(
-        &database_connection,
-        "/home/nathan/Music/Classic Rock",
-        &mut processed_albums,
-        &mut processed_album_artists,
-        &mut processed_genres,
-        &mut processed_artists,
-    );
-    scan_directory(
-        &database_connection,
-        "/home/nathan/Music/Ambient",
-        &mut processed_albums,
-        &mut processed_album_artists,
-        &mut processed_genres,
-        &mut processed_artists,
-    );
-    scan_directory(
-        &database_connection,
-        "/home/nathan/Music/Electronic",
-        &mut processed_albums,
-        &mut processed_album_artists,
-        &mut processed_genres,
-        &mut processed_artists,
-    );
+    let music_directories = vec![
+        "Video Game",
+        "Rock",
+        "Jazz",
+        "Classic Rock",
+        "Ambient",
+        "Electronic",
+    ];
+
+    for directory in music_directories {
+        scan_directory(
+            &database_connection,
+            format!("/home/nathan/Music/{directory}").as_str(),
+            &mut processed_albums,
+            &mut processed_album_artists,
+            &mut processed_genres,
+            &mut processed_artists,
+        );
+    }
 }
 
 fn scan_directory(
@@ -90,6 +61,7 @@ fn scan_directory(
     for directory_entry_result in directory_entries {
         let directory_entry =
             directory_entry_result.expect("Directory entry should have been read");
+
         scan_directory_entry(
             database_connection,
             &directory_entry,
