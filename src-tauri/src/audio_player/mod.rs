@@ -76,6 +76,7 @@ impl AudioPlayer {
             .playing_track_index
             .write()
             .expect("playing_track_index should have been locked");
+
         let mut is_first_play = self
             .is_first_play
             .lock()

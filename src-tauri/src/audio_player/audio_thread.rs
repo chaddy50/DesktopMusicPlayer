@@ -70,7 +70,11 @@ impl<'a> AudioThread<'a> {
                 if sink.len() > 0 {
                     sink.stop();
                 }
-                sink.append(self.decode_track(track_file_path))
+                sink.append(self.decode_track(track_file_path));
+
+                if sink.is_paused() {
+                    sink.play();
+                }
             }
             AudioPlaybackCommand::Resume => {
                 if sink.is_paused() {
@@ -86,10 +90,13 @@ impl<'a> AudioThread<'a> {
                 sink.pause();
             }
             AudioPlaybackCommand::SkipForward => {
+                sink.stop();
                 self.state.audio_player.play_next_track();
             }
             AudioPlaybackCommand::SkipBackward => {
-                if sink.get_pos() > Duration::from_secs(5) {
+                let track_position = sink.get_pos();
+                sink.stop();
+                if track_position > Duration::from_secs(5) {
                     self.state.audio_player.restart_track();
                 } else {
                     self.state.audio_player.play_previous_track();
