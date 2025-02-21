@@ -122,11 +122,11 @@ impl AudioPlayer {
             let next_track = music_queue[track_index_to_play].clone();
             self.audio_command_sender
                 .send(AudioPlaybackCommand::PlayTrack(next_track.file_path))
-                .unwrap();
+                .expect("PlayTrack command should have been sent");
         } else {
             self.audio_command_sender
                 .send(AudioPlaybackCommand::NothingToPlay)
-                .unwrap();
+                .expect("NothingToPlay command should have been sent");
         }
     }
 
@@ -162,13 +162,5 @@ impl AudioPlayer {
             .lock()
             .expect("is_first_play should have been locked");
         *is_first_play = true;
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_fails() {
-        assert_eq!(1, 1);
     }
 }
