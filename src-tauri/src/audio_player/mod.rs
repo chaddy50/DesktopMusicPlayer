@@ -171,8 +171,8 @@ mod tests {
 
     use super::*;
 
-    const TEST_TRACK_1: &str = "test_files/alone-296348.mp3";
-    const TEST_TRACK_2: &str = "test_files/gardens-stylish-chill-303261.mp3";
+    pub const TEST_TRACK_1: &str = "test_files/alone-296348.mp3";
+    pub const TEST_TRACK_2: &str = "test_files/gardens-stylish-chill-303261.mp3";
 
     pub fn make_test_audio_player() -> (AudioPlayer, Receiver<AudioPlaybackCommand>) {
         let (sender, receiver) = mpsc::channel();

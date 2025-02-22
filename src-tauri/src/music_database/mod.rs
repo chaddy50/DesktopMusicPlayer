@@ -439,8 +439,49 @@ pub fn escape_string_for_sql(str: &str) -> String {
 }
 
 fn get_all_artists_name(genre_name: &str) -> &str {
-    match genre_name {
-        "Video Game" => "All Games",
+    match genre_name.to_lowercase().as_str() {
+        "video game" => "All Games",
         _ => "All Artists",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn get_sort_value_the() {
+        assert_eq!(get_sort_value_for_string("the beatles"), "beatles");
+        assert_eq!(get_sort_value_for_string("THE BEATLES"), "beatles");
+    }
+
+    #[test]
+    fn get_sort_value_a() {
+        assert_eq!(
+            get_sort_value_for_string("a day to remember"),
+            "day to remember"
+        );
+        assert_eq!(
+            get_sort_value_for_string("A DAY TO REMEMBER"),
+            "day to remember"
+        );
+    }
+
+    #[test]
+    fn get_sort_value_an() {
+        assert_eq!(get_sort_value_for_string("an orchestra"), "orchestra");
+        assert_eq!(get_sort_value_for_string("AN ORCHESTRA"), "orchestra");
+    }
+
+    #[test]
+    fn get_all_artists_name_rock() {
+        assert_eq!(get_all_artists_name("rock"), "All Artists");
+        assert_eq!(get_all_artists_name("Rock"), "All Artists");
+    }
+
+    #[test]
+    fn get_all_artists_name_video_game() {
+        assert_eq!(get_all_artists_name("video game"), "All Games");
+        assert_eq!(get_all_artists_name("Video Game"), "All Games");
     }
 }

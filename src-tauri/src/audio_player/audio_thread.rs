@@ -184,12 +184,11 @@ fn decode_track(track_file_path: &String) -> Decoder<BufReader<File>> {
 
 #[cfg(test)]
 mod tests {
-    use crate::audio_player::tests::{make_test_audio_player, make_test_track};
+    use crate::audio_player::tests::{
+        make_test_audio_player, make_test_track, TEST_TRACK_1, TEST_TRACK_2,
+    };
 
     use super::*;
-
-    const TEST_TRACK_1: &str = "test_files/alone-296348.mp3";
-    const TEST_TRACK_2: &str = "test_files/gardens-stylish-chill-303261.mp3";
 
     #[test]
     fn stop_clears_queue() {
