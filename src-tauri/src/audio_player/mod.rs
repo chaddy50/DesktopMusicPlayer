@@ -164,3 +164,127 @@ impl AudioPlayer {
         *is_first_play = true;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::sync::mpsc::Receiver;
+
+    use super::*;
+
+    const TEST_TRACK_1: &str = "test_files/alone-296348.mp3";
+    const TEST_TRACK_2: &str = "test_files/gardens-stylish-chill-303261.mp3";
+
+    pub fn make_test_audio_player() -> (AudioPlayer, Receiver<AudioPlaybackCommand>) {
+        let (sender, receiver) = mpsc::channel();
+        (
+            AudioPlayer {
+                audio_command_sender: sender,
+                music_queue: RwLock::new(VecDeque::new()),
+                playing_track_index: RwLock::new(0),
+                is_first_play: Mutex::new(false),
+            },
+            receiver,
+        )
+    }
+
+    pub fn make_test_track(name: &str, file_path: &str) -> Track {
+        Track::new(
+            name.to_string(),
+            0,
+            "".to_string(),
+            0,
+            "".to_string(),
+            0,
+            "".to_string(),
+            file_path.to_string(),
+            0,
+            0,
+            0,
+        )
+    }
+
+    #[test]
+    fn clear_queue_clears_queue() {
+        let (audio_player, _) = make_test_audio_player();
+
+        let mut music_queue = audio_player.music_queue.write().unwrap();
+        music_queue.push_back(make_test_track("Test1", TEST_TRACK_1));
+        music_queue.push_back(make_test_track("Test2", TEST_TRACK_2));
+
+        assert_eq!(music_queue.len(), 2);
+        drop(music_queue);
+
+        audio_player.clear_queue();
+
+        let music_queue = audio_player.music_queue.read().unwrap();
+        assert_eq!(music_queue.len(), 0);
+    }
+
+    #[test]
+    fn clear_queue_resets_playing_track_index() {
+        let (audio_player, _) = make_test_audio_player();
+
+        *audio_player.playing_track_index.write().unwrap() = 4;
+        audio_player.clear_queue();
+        assert_eq!(*audio_player.playing_track_index.read().unwrap(), 0);
+    }
+
+    #[test]
+    fn clear_queue_resets_is_first_play() {
+        let (audio_player, _) = make_test_audio_player();
+
+        assert!(!*audio_player.is_first_play.lock().unwrap());
+        audio_player.clear_queue();
+        assert!(*audio_player.is_first_play.lock().unwrap());
+    }
+
+    #[test]
+    fn add_track_to_queue_adds_track_to_queue() {
+        let (audio_player, _) = make_test_audio_player();
+
+        assert_eq!(audio_player.music_queue.read().unwrap().len(), 0);
+        audio_player.add_track_to_queue(make_test_track("Test1", TEST_TRACK_1));
+        assert_eq!(audio_player.music_queue.read().unwrap().len(), 1);
+        audio_player.add_track_to_queue(make_test_track("Test2", TEST_TRACK_2));
+        assert_eq!(audio_player.music_queue.read().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn play_next_track_does_not_increment_playing_track_index_first_time() {
+        let (audio_player, _receiver) = make_test_audio_player();
+        *audio_player.is_first_play.lock().unwrap() = true;
+
+        assert_eq!(*audio_player.playing_track_index.read().unwrap(), 0);
+        audio_player.play_next_track();
+        assert_eq!(*audio_player.playing_track_index.read().unwrap(), 0);
+    }
+
+    #[test]
+    fn play_next_track_increments_playing_track_index() {
+        let (audio_player, _receiver) = make_test_audio_player();
+
+        assert_eq!(*audio_player.playing_track_index.read().unwrap(), 0);
+        audio_player.play_next_track();
+        assert_eq!(*audio_player.playing_track_index.read().unwrap(), 1);
+    }
+
+    #[test]
+    fn play_previous_track_decrements_playing_track_index() {
+        let (audio_player, _receiver) = make_test_audio_player();
+        *audio_player.playing_track_index.write().unwrap() = 1;
+
+        assert_eq!(*audio_player.playing_track_index.read().unwrap(), 1);
+        audio_player.play_previous_track();
+        assert_eq!(*audio_player.playing_track_index.read().unwrap(), 0);
+    }
+
+    #[test]
+    fn play_previous_track_does_not_decrement_playing_track_index_if_zero() {
+        let (audio_player, _receiver) = make_test_audio_player();
+        *audio_player.playing_track_index.write().unwrap() = 0;
+
+        assert_eq!(*audio_player.playing_track_index.read().unwrap(), 0);
+        audio_player.play_previous_track();
+        assert_eq!(*audio_player.playing_track_index.read().unwrap(), 0);
+    }
+}

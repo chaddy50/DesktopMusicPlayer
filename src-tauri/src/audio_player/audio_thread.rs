@@ -184,31 +184,12 @@ fn decode_track(track_file_path: &String) -> Decoder<BufReader<File>> {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        collections::VecDeque,
-        sync::{mpsc, Mutex, RwLock},
-    };
+    use crate::audio_player::tests::{make_test_audio_player, make_test_track};
 
     use super::*;
 
     const TEST_TRACK_1: &str = "test_files/alone-296348.mp3";
     const TEST_TRACK_2: &str = "test_files/gardens-stylish-chill-303261.mp3";
-
-    fn make_test_track(name: &str, file_path: &str) -> Track {
-        Track::new(
-            name.to_string(),
-            0,
-            "".to_string(),
-            0,
-            "".to_string(),
-            0,
-            "".to_string(),
-            file_path.to_string(),
-            0,
-            0,
-            0,
-        )
-    }
 
     #[test]
     fn stop_clears_queue() {
@@ -301,13 +282,7 @@ mod tests {
         let (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap();
         let sink = Sink::try_new(&output_stream_handle).unwrap();
 
-        let (sender, _receiver) = mpsc::channel();
-        let audio_player = AudioPlayer {
-            audio_command_sender: sender,
-            music_queue: RwLock::new(VecDeque::new()),
-            playing_track_index: RwLock::new(0),
-            is_first_play: Mutex::new(false),
-        };
+        let (audio_player, _receiver) = make_test_audio_player();
 
         let mut music_queue = audio_player.music_queue.write().unwrap();
         music_queue.push_back(make_test_track("Test1", TEST_TRACK_1));
@@ -328,13 +303,7 @@ mod tests {
         let (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap();
         let sink = Sink::try_new(&output_stream_handle).unwrap();
 
-        let (sender, _receiver) = mpsc::channel();
-        let audio_player = AudioPlayer {
-            audio_command_sender: sender,
-            music_queue: RwLock::new(VecDeque::new()),
-            playing_track_index: RwLock::new(0),
-            is_first_play: Mutex::new(false),
-        };
+        let (audio_player, _receiver) = make_test_audio_player();
 
         sink.append(decode_track(&TEST_TRACK_1.to_string()));
         *audio_player.playing_track_index.write().unwrap() = 1;
@@ -348,13 +317,7 @@ mod tests {
         let (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap();
         let sink = Sink::try_new(&output_stream_handle).unwrap();
 
-        let (sender, _receiver) = mpsc::channel();
-        let audio_player = AudioPlayer {
-            audio_command_sender: sender,
-            music_queue: RwLock::new(VecDeque::new()),
-            playing_track_index: RwLock::new(0),
-            is_first_play: Mutex::new(false),
-        };
+        let (audio_player, _receiver) = make_test_audio_player();
 
         sink.set_volume(0.0);
         sink.append(decode_track(&TEST_TRACK_1.to_string()));
