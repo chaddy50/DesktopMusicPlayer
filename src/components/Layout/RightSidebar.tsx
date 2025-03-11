@@ -24,7 +24,6 @@ function RightSidebar(_props: RightSidebarProps) {
         return (
             <div className="rightSidebar">
                 <PlayerControls
-                    isPaused={nowPlayingData.is_paused}
                     isPlaying={nowPlayingData.is_playing}
                     playing_track={
                         nowPlayingData.playing_tracks[

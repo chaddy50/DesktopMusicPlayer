@@ -24,7 +24,6 @@ struct NowPlayingData {
     playing_tracks: Vec<Track>,
     playing_track_index: i32,
     is_playing: bool,
-    is_paused: bool,
 }
 
 pub fn run(app_handle: AppHandle, receiver: Receiver<AudioPlaybackCommand>) {
@@ -124,7 +123,6 @@ impl<'a> AudioThread<'a> {
         let now_playing_data = NowPlayingData {
             playing_tracks,
             is_playing: self.sink.len() > 0 && !self.sink.is_paused(),
-            is_paused: self.sink.len() > 0 && self.sink.is_paused(),
             playing_track_index: *playing_track_index as i32,
         };
         self.app_handle
