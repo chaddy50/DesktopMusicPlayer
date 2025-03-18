@@ -4,18 +4,18 @@ import AlbumHeader from "./AlbumHeader";
 import Track from "./Track";
 
 interface TrackBrowserProps {
-    albumData: AlbumData;
+    album: AlbumData;
 }
 
 function TrackBrowser(props: TrackBrowserProps) {
-    const { albumData } = props;
+    const { album } = props;
 
     return (
         <div id="trackBrowser" className="trackBrowserContainer">
-            <AlbumHeader albumData={albumData} />
+            <AlbumHeader albumData={album} />
             <div className="trackListContainer">
-                {albumData?.tracks.map((track) => {
-                    return <Track key={track.file_path} track={track} />;
+                {album?.tracks.map((track) => {
+                    return <Track key={track.file_path} track={track} album={album}/>;
                 })}
             </div>
         </div>

@@ -26,8 +26,8 @@ fn get_albums_for_album_artist(album_artist_id: i64, genre_id: i64) -> Vec<Album
 }
 
 #[tauri::command]
-fn on_track_double_clicked(state: State<'_, AppState>, track: Track) {
-    state.audio_player.play_track(track);
+fn on_track_double_clicked(state: State<'_, AppState>, track: Track, album: Album) {
+    state.audio_player.play_track(track, album);
 }
 
 #[tauri::command]

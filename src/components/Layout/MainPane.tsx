@@ -1,8 +1,8 @@
 import { Dispatch, RefObject, SetStateAction } from "react";
-import TrackBrowser from "../TrackBrowser/TrackBrowser";
-import AlbumBrowser from "../AlbumBrowser/AlbumBrowser";
-import AlbumData from "../../dataObjects/AlbumData";
 import AlbumArtistData from "../../dataObjects/AlbumArtistData";
+import AlbumData from "../../dataObjects/AlbumData";
+import AlbumBrowser from "../AlbumBrowser/AlbumBrowser";
+import TrackBrowser from "../TrackBrowser/TrackBrowser";
 
 interface MainPaneProps {
     albums: AlbumData[];
@@ -32,7 +32,7 @@ function MainPane(props: MainPaneProps) {
             />
 
             {selectedAlbumIndex > -1 && (
-                <TrackBrowser albumData={albums[selectedAlbumIndex]} />
+                <TrackBrowser album={albums[selectedAlbumIndex]} />
             )}
         </div>
     );

@@ -40,10 +40,14 @@ impl AudioPlayer {
         self.play_next_track();
     }
 
-    pub fn play_track(&self, track: Track) {
+    pub fn play_track(&self, track: Track, album: Album) {
         self.stop_playback();
         self.clear_queue();
-        self.add_track_to_queue(track);
+        for track_to_add in album.tracks {
+            if track_to_add.track_number >= track.track_number {
+                self.add_track_to_queue(track_to_add);
+            }
+        }
         self.play_next_track();
     }
 
