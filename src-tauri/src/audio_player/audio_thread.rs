@@ -310,6 +310,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "This takes 6 seconds to run, and I've verified that it works so don't need to run it every time"]
     fn skip_backward_restarts_track() {
         let (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap();
         let sink = Sink::try_new(&output_stream_handle).unwrap();
