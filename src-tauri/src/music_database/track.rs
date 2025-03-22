@@ -13,6 +13,7 @@ pub struct Track {
     pub track_number: i64,
     disc_number: i64,
     pub duration_in_seconds: i64,
+    album_name: String,
 }
 
 impl Track {
@@ -29,6 +30,7 @@ impl Track {
         track_number: i64,
         disc_number: i64,
         duration_in_seconds: i64,
+        album_name: String,
     ) -> Track {
         Track {
             name,
@@ -42,6 +44,7 @@ impl Track {
             track_number,
             disc_number,
             duration_in_seconds,
+            album_name,
         }
     }
 }

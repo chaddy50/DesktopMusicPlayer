@@ -1,4 +1,5 @@
-interface TrackData {
+interface TrackData
+{
     name: string;
     album_artist_id: number;
     album_artist_name: string;
@@ -10,6 +11,7 @@ interface TrackData {
     file_path: string;
     track_number: number;
     duration_in_seconds: number;
+    album_name: string;
 }
 
 export default TrackData;

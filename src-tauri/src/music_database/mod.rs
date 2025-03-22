@@ -305,11 +305,12 @@ fn get_tracks_for_album(database_connection: &Connection, album_id: &i64) -> Vec
     let mut statement = database_connection
         .prepare(format!(
             r#"
-            SELECT {TABLE_SONGS}.{COLUMN_NAME}, {TABLE_SONGS}.{COLUMN_ALBUM_ARTIST_ID}, {TABLE_SONGS}.{COLUMN_ARTIST_ID}, {TABLE_SONGS}.{COLUMN_GENRE_ID}, {TABLE_SONGS}.{COLUMN_FILE_PATH}, {TABLE_SONGS}.{COLUMN_TRACK_NUMBER}, {TABLE_SONGS}.{COLUMN_DURATION}, {TABLE_SONGS}.{COLUMN_DISC_NUMBER}, {TABLE_ALBUM_ARTISTS}.{COLUMN_NAME} AS album_artist_name, {TABLE_ARTISTS}.{COLUMN_NAME} AS artist_name, {TABLE_GENRES}.{COLUMN_NAME} AS genre_name
+            SELECT {TABLE_SONGS}.{COLUMN_NAME}, {TABLE_SONGS}.{COLUMN_ALBUM_ARTIST_ID}, {TABLE_SONGS}.{COLUMN_ARTIST_ID}, {TABLE_SONGS}.{COLUMN_GENRE_ID}, {TABLE_SONGS}.{COLUMN_FILE_PATH}, {TABLE_SONGS}.{COLUMN_TRACK_NUMBER}, {TABLE_SONGS}.{COLUMN_DURATION}, {TABLE_SONGS}.{COLUMN_DISC_NUMBER}, {TABLE_ALBUM_ARTISTS}.{COLUMN_NAME} AS album_artist_name, {TABLE_ARTISTS}.{COLUMN_NAME} AS artist_name, {TABLE_GENRES}.{COLUMN_NAME} AS genre_name, {TABLE_ALBUMS}.{COLUMN_NAME} as album_name
             FROM {TABLE_SONGS}
             INNER JOIN {TABLE_ALBUM_ARTISTS} ON {TABLE_SONGS}.{COLUMN_ALBUM_ARTIST_ID} = {TABLE_ALBUM_ARTISTS}.{COLUMN_ID}
             INNER JOIN {TABLE_ARTISTS} ON {TABLE_SONGS}.{COLUMN_ARTIST_ID} = {TABLE_ARTISTS}.{COLUMN_ID}
             INNER JOIN {TABLE_GENRES} ON {TABLE_SONGS}.{COLUMN_GENRE_ID} = {TABLE_GENRES}.{COLUMN_ID}
+            INNER JOIN {TABLE_ALBUMS} ON {TABLE_SONGS}.{COLUMN_ALBUM_ID} = {TABLE_ALBUMS}.{COLUMN_ID}
             WHERE {COLUMN_ALBUM_ID} = '{}'
             ORDER BY {COLUMN_DISC_NUMBER},{COLUMN_TRACK_NUMBER}
             "#,
@@ -343,6 +344,9 @@ fn get_tracks_for_album(database_connection: &Connection, album_id: &i64) -> Vec
         let track_number = statement.read::<i64, _>(COLUMN_TRACK_NUMBER).unwrap_or(-1);
         let duration_in_seconds = statement.read::<i64, _>(COLUMN_DURATION).unwrap_or(-1);
         let disc_number = statement.read::<i64, _>(COLUMN_DISC_NUMBER).unwrap_or(-1);
+        let album_name = statement
+            .read::<String, _>("album_name")
+            .unwrap_or_default();
 
         tracks.push(Track::new(
             name,
@@ -356,6 +360,7 @@ fn get_tracks_for_album(database_connection: &Connection, album_id: &i64) -> Vec
             track_number,
             disc_number,
             duration_in_seconds,
+            album_name,
         ));
     }
     tracks
