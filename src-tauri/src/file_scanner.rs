@@ -29,6 +29,8 @@ pub fn build_music_database() {
         "Classic Rock",
         "Ambient",
         "Electronic",
+        "Mariachi",
+        "Movie",
     ];
 
     for directory in music_directories {
