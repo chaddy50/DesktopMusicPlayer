@@ -1,9 +1,11 @@
+import { formatTimeDuration } from '@/common/Utilities';
 import TrackData from '@/dataObjects/TrackData';
 import './TrackInfo.css';
 
 interface TrackInfoProps {
 	track: TrackData;
 	isPlaying: boolean;
+	imageSize?: string;
 }
 
 function TrackInfo(props: TrackInfoProps) {
@@ -15,11 +17,16 @@ function TrackInfo(props: TrackInfoProps) {
 	}
 
 	return (
-		<div className={containerClassName}>
-			<span className='trackInfoColumn'>{track.name}</span>
-			<span className='trackInfoColumn'>{track.artist_name}</span>
-			<span className='trackInfoColumn'>{track.album_name}</span>
-		</div>
+		<>
+			<div className={containerClassName}>
+				<span className='trackInfoColumn'>{track.name}</span>
+				<span className='trackInfoColumn'>{track.artist_name}</span>
+				<span className='trackInfoColumn'>{track.album_name}</span>
+			</div>
+			<span className='trackInfoColumnDuration'>
+				{formatTimeDuration(track.duration_in_seconds)}
+			</span>
+		</>
 	);
 }
 

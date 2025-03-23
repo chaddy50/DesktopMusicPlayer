@@ -10,7 +10,7 @@ function PlayingTrack(props: PlayingTrackProps) {
 
 	if (playingTrack) {
 		return (
-			<div>
+			<div className='playingTrackContainer'>
 				<TrackInfo track={playingTrack} isPlaying />
 			</div>
 		);

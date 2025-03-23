@@ -1,4 +1,3 @@
-import { formatTimeDuration } from '@/common/Utilities';
 import TrackData from '@/dataObjects/TrackData';
 import TrackInfo from '../../../common/components/TrackInfo/TrackInfo';
 import './NowPlaying.css';
@@ -16,13 +15,7 @@ function NowPlaying(props: NowPlayingProps) {
 			{playingTracks?.map((track, index) => {
 				return (
 					<div className='nowPlayingTrackContainer'>
-						<span className='trackInfoColumnTrackNumber'>
-							{track.track_number}
-						</span>
 						<TrackInfo track={track} isPlaying={playingTrackIndex === index} />
-						<span className='trackInfoColumnDuration'>
-							{formatTimeDuration(track.duration_in_seconds)}
-						</span>
 					</div>
 				);
 			})}
