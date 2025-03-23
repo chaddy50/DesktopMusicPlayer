@@ -1,4 +1,4 @@
-import TrackInfo from '@/components/Common/TrackInfo/TrackInfo';
+import TrackInfo from '@/components/MusicBrowser/RightSidebar/NowPlaying/TrackInfo/TrackInfo';
 import TrackData from '@/dataObjects/TrackData';
 import './NowPlaying.css';
 

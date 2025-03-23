@@ -5,6 +5,5 @@
 	align-items: center;
 	overflow-y: scroll;
 	overflow-x: hidden;
-	max-height: calc(100vh - 52px);
 	border-left: 1px solid black;
 }

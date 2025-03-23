@@ -1,17 +1,5 @@
-body {
-	margin: 0;
-}
-
-.appContainer {
+.musicBrowserContainer {
 	display: flex;
-	flex: 1;
-	flex-direction: column;
-	height: -webkit-fill-available;
-	margin: 0;
-}
-
-.mainViewContainer {
-	display: flex;
-	flex: 1;
 	flex-direction: row;
+	height: calc(100vh - 10em);
 }

@@ -1,4 +1,3 @@
-import TrackInfo from '@/components/Common/TrackInfo/TrackInfo';
 import TrackData from '@/dataObjects/TrackData';
 
 interface PlayingTrackProps {
@@ -9,11 +8,7 @@ function PlayingTrack(props: PlayingTrackProps) {
 	const { playingTrack } = props;
 
 	if (playingTrack) {
-		return (
-			<div className='playingTrackContainer'>
-				<TrackInfo track={playingTrack} isPlaying />
-			</div>
-		);
+		return <div className='playingTrackContainer'>{playingTrack.name}</div>;
 	} else {
 		return <p>No track</p>;
 	}

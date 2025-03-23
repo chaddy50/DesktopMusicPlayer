@@ -1,10 +1,12 @@
+import Home from '@/components/Home/Home';
 import MusicBrowser from '@/components/MusicBrowser/MusicBrowser';
 import { Route, Routes } from 'react-router';
 
 function MusicPlayerRoutes() {
 	return (
 		<Routes>
-			<Route path='/' element={<MusicBrowser />} />
+			<Route path='/' element={<Home />} />
+			<Route path='/musicBrowser/:selectedGenreId' element={<MusicBrowser />} />
 		</Routes>
 	);
 }

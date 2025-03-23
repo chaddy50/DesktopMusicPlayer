@@ -1,0 +1,22 @@
+.topBar {
+	display: flex;
+	height: 10em;
+	border-bottom: 1px solid black;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.backButton {
+	margin-left: 20px;
+}
+
+.playerControls {
+	position: absolute; /* Ensure the element is centered on screen */
+	left: 50%;
+	transform: translateX(-50%); /* Shift it back by half of its width */
+}
+
+.playingTrack {
+	margin-right: 20px;
+}

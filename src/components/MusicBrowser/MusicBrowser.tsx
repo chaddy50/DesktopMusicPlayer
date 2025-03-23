@@ -1,20 +1,22 @@
 import AlbumArtistData from '@/dataObjects/AlbumArtistData';
 import AlbumData from '@/dataObjects/AlbumData';
-import GenreData from '@/dataObjects/GenreData';
 import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router';
 import LeftSidebar from './LeftSidebar/LeftSidebar';
 import MainPane from './MainPane/MainPane';
 import './MusicBrowser.css';
 import RightSidebar from './RightSidebar/RightSidebar';
-import TopBar from './TopBar/TopBar';
 
-interface MusicBrowserProps {}
+interface MusicBrowserParams {
+	selectedGenreId: string;
 
-function MusicBrowser(props: MusicBrowserProps) {
-	const [genres, setGenres] = useState<GenreData[]>([]);
-	const [selectedGenreIndex, setSelectedGenreIndex] = useState(0);
-	const [selectedGenreId, setSelectedGenreId] = useState(-1);
+	[key: string]: string | undefined;
+}
+
+function MusicBrowser() {
+	const { selectedGenreId } = useParams<MusicBrowserParams>();
+
 	const [albumArtists, setAlbumArtists] = useState<AlbumArtistData[]>([]);
 	const [selectedAlbumArtistIndex, setSelectedAlbumArtistIndex] = useState(0);
 	const [selectedAlbumArtistId, setSelectedAlbumArtistId] = useState(-1);
@@ -24,16 +26,8 @@ function MusicBrowser(props: MusicBrowserProps) {
 
 	//#region Fetch data from database
 	useEffect(() => {
-		async function getGenres(): Promise<void> {
-			const genres: GenreData[] = await invoke('get_genres');
-			setGenres(genres);
-		}
-
-		getGenres();
-	}, []);
-
-	useEffect(() => {
-		async function getAlbumArtists(genreId: number): Promise<void> {
+		async function getAlbumArtists(genreIdAsString: string): Promise<void> {
+			const genreId = Number(genreIdAsString);
 			const albumArtists: AlbumArtistData[] = await invoke(
 				'get_album_artists_for_genre',
 				{ genreId }
@@ -49,8 +43,9 @@ function MusicBrowser(props: MusicBrowserProps) {
 	useEffect(() => {
 		async function getAlbums(
 			albumArtistId: number,
-			genreId: number
+			genreIdAsString: string
 		): Promise<void> {
+			const genreId = Number(genreIdAsString);
 			const albums: AlbumData[] = await invoke('get_albums_for_album_artist', {
 				albumArtistId,
 				genreId,
@@ -58,7 +53,7 @@ function MusicBrowser(props: MusicBrowserProps) {
 			setAlbums(albums);
 		}
 
-		if (selectedAlbumArtistId >= 0 && selectedGenreId > 0) {
+		if (selectedAlbumArtistId >= 0 && selectedGenreId) {
 			getAlbums(selectedAlbumArtistId, selectedGenreId);
 		}
 	}, [selectedAlbumArtistId, selectedGenreId, setAlbums]);
@@ -69,8 +64,7 @@ function MusicBrowser(props: MusicBrowserProps) {
 		setSelectedAlbumArtistIndex(0);
 		setSelectedAlbumIndex(-1);
 		albumListContainerRef.current?.scrollTo(0, 0);
-		setSelectedGenreId(genres[selectedGenreIndex]?.id);
-	}, [genres, selectedGenreIndex]);
+	}, [selectedGenreId]);
 
 	useEffect(() => {
 		setSelectedAlbumIndex(-1);
@@ -79,30 +73,22 @@ function MusicBrowser(props: MusicBrowserProps) {
 	//#endregion
 
 	return (
-		<div className='appContainer'>
-			<TopBar
-				genres={genres}
-				selectedGenreIndex={selectedGenreIndex}
-				setSelectedGenreIndex={setSelectedGenreIndex}
+		<div className='musicBrowserContainer'>
+			<LeftSidebar
+				albumArtists={albumArtists}
+				selectedAlbumArtistIndex={selectedAlbumArtistIndex}
+				setSelectedAlbumArtistIndex={setSelectedAlbumArtistIndex}
 			/>
 
-			<div className='mainViewContainer'>
-				<LeftSidebar
-					albumArtists={albumArtists}
-					selectedAlbumArtistIndex={selectedAlbumArtistIndex}
-					setSelectedAlbumArtistIndex={setSelectedAlbumArtistIndex}
-				/>
+			<MainPane
+				albums={albums}
+				albumArtistData={albumArtists[selectedAlbumArtistIndex]}
+				selectedAlbumIndex={selectedAlbumIndex}
+				setSelectedAlbumIndex={setSelectedAlbumIndex}
+				albumListContainerRef={albumListContainerRef}
+			/>
 
-				<MainPane
-					albums={albums}
-					albumArtistData={albumArtists[selectedAlbumArtistIndex]}
-					selectedAlbumIndex={selectedAlbumIndex}
-					setSelectedAlbumIndex={setSelectedAlbumIndex}
-					albumListContainerRef={albumListContainerRef}
-				/>
-
-				<RightSidebar />
-			</div>
+			<RightSidebar />
 		</div>
 	);
 }

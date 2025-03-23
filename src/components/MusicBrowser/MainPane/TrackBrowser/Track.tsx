@@ -1,5 +1,5 @@
 import { formatTimeDuration } from '@/common/Utilities';
-import '@/components/Common/TrackInfo/TrackInfo.css';
+import '@/components/MusicBrowser/RightSidebar/NowPlaying/TrackInfo/TrackInfo.css';
 import AlbumData from '@/dataObjects/AlbumData';
 import TrackData from '@/dataObjects/TrackData';
 import { invoke } from '@tauri-apps/api/core';
