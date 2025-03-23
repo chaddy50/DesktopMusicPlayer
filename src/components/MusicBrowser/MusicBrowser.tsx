@@ -1,15 +1,17 @@
-import LeftSidebar from '@/components/LeftSidebar/LeftSidebar';
-import MainPane from '@/components/MainPane/MainPane';
-import RightSidebar from '@/components/RightSidebar/RightSidebar';
-import TopBar from '@/components/TopBar/TopBar';
 import AlbumArtistData from '@/dataObjects/AlbumArtistData';
 import AlbumData from '@/dataObjects/AlbumData';
 import GenreData from '@/dataObjects/GenreData';
 import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useRef, useState } from 'react';
-import './MusicPlayer.css';
+import LeftSidebar from './LeftSidebar/LeftSidebar';
+import MainPane from './MainPane/MainPane';
+import './MusicBrowser.css';
+import RightSidebar from './RightSidebar/RightSidebar';
+import TopBar from './TopBar/TopBar';
 
-function MusicPlayer() {
+interface MusicBrowserProps {}
+
+function MusicBrowser(props: MusicBrowserProps) {
 	const [genres, setGenres] = useState<GenreData[]>([]);
 	const [selectedGenreIndex, setSelectedGenreIndex] = useState(0);
 	const [selectedGenreId, setSelectedGenreId] = useState(-1);
@@ -105,4 +107,4 @@ function MusicPlayer() {
 	);
 }
 
-export default MusicPlayer;
+export default MusicBrowser;

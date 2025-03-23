@@ -1,5 +1,5 @@
+import TrackInfo from '@/components/Common/TrackInfo/TrackInfo';
 import TrackData from '@/dataObjects/TrackData';
-import TrackInfo from '../../../common/components/TrackInfo/TrackInfo';
 
 interface PlayingTrackProps {
 	playingTrack: TrackData;
