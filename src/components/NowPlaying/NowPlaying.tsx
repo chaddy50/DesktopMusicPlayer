@@ -1,5 +1,5 @@
-import TrackData from '../../dataObjects/TrackData';
-import { formatTimeDuration } from '../../utilities/Utilities';
+import { formatTimeDuration } from '@/common/Utilities';
+import TrackData from '@/dataObjects/TrackData';
 
 interface NowPlayingProps {
 	playingTracks: TrackData[];
