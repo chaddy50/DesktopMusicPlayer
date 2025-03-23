@@ -1,0 +1,15 @@
+.artistBrowserContainer {
+	width: 100%;
+}
+
+.artistCard {
+	display: flex;
+	width: 100%;
+	border-bottom: 1px solid black;
+	justify-content: center;
+	cursor: pointer;
+}
+
+.selectedArtistCard {
+	font-weight: bold;
+}

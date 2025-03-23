@@ -1,8 +1,9 @@
 import AlbumArtistData from '@/dataObjects/AlbumArtistData';
 import AlbumData from '@/dataObjects/AlbumData';
 import { Dispatch, RefObject, SetStateAction } from 'react';
-import AlbumBrowser from '../AlbumBrowser/AlbumBrowser';
-import TrackBrowser from '../TrackBrowser/TrackBrowser';
+import AlbumBrowser from './AlbumBrowser/AlbumBrowser';
+import './MainPane.css';
+import TrackBrowser from './TrackBrowser/TrackBrowser';
 
 interface MainPaneProps {
 	albums: AlbumData[];

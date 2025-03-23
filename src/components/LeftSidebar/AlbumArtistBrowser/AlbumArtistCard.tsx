@@ -1,5 +1,5 @@
 import AlbumArtistData from '@/dataObjects/AlbumArtistData';
-import '../../MusicPlayer.css';
+import './AlbumArtistBrowser.css';
 
 interface AlbumArtistCardProps {
 	albumArtistData: AlbumArtistData;

@@ -1,7 +1,7 @@
 import AlbumData from '@/dataObjects/AlbumData';
-import '../../MusicPlayer.css';
 import AlbumHeader from './AlbumHeader';
 import Track from './Track';
+import './TrackBrowser.css';
 
 interface TrackBrowserProps {
 	album: AlbumData;

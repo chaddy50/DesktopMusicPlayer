@@ -1,0 +1,10 @@
+.leftSideBar {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	align-items: center;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	max-height: calc(100vh - 52px);
+	border-right: 1px solid black;
+}

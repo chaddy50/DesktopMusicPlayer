@@ -1,5 +1,6 @@
 import GenreData from '@/dataObjects/GenreData';
 import GenreCard from './GenreCard';
+import './GenreTabStrip.css';
 
 interface TabStripProps {
 	genres: GenreData[];
@@ -11,7 +12,7 @@ function GenreTabStrip(props: TabStripProps) {
 	const { genres, selectedTab, selectTab } = props;
 
 	return (
-		<div style={{ display: 'flex', flexDirection: 'row' }}>
+		<div className='genreTabStrip'>
 			{genres.map((genreData, index) => {
 				return (
 					<GenreCard

@@ -1,0 +1,6 @@
+.topBar {
+	display: flex;
+	max-height: 50px;
+	border-bottom: 1px solid black;
+	border-top: 1px solid black;
+}

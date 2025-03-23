@@ -1,7 +1,7 @@
 import { useAlbumArtwork } from '@/common/Hooks';
 import { formatTimeDuration } from '@/common/Utilities';
 import AlbumData from '@/dataObjects/AlbumData';
-import '../../MusicPlayer.css';
+import './TrackBrowser.css';
 
 interface AlbumHeaderProps {
 	albumData: AlbumData;

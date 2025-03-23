@@ -1,0 +1,14 @@
+.nowPlayingTrackListContainer {
+	overflow-y: scroll;
+	width: 100%;
+}
+
+.nowPlayingTrackContainer {
+	display: flex;
+	height: 5em;
+	padding-left: 10px;
+	padding-right: 10px;
+	cursor: pointer;
+	align-items: center;
+	border-bottom: 1px solid black;
+}

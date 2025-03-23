@@ -1,0 +1,62 @@
+.albumHeaderContainer {
+	display: flex;
+	flex-direction: column;
+	border-bottom: 1px solid black;
+	border-right: 1px solid darkgray;
+}
+
+.albumHeaderImage {
+	height: calc(100vh / 3 / 2);
+	width: calc(100vh / 3 / 2);
+	border-bottom: 1px solid darkgray;
+}
+
+.albumHeaderDetails {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	max-width: calc(100vh / 3 / 2);
+}
+
+.trackContainer {
+	display: flex;
+	padding-left: 10px;
+	padding-right: 10px;
+	cursor: pointer;
+	height: 2em;
+	align-items: center;
+	overflow-x: hidden;
+}
+
+.trackContainer:hover {
+	background-color: lightgray;
+}
+
+.trackInfoColumn {
+	flex: 1;
+	max-height: 1.5em;
+	overflow-x: hidden;
+}
+
+.trackInfoColumnTrackNumber {
+	width: 30px;
+}
+
+.trackInfoColumnDuration {
+	width: 50px;
+	text-align: right;
+}
+
+.trackBrowserContainer {
+	display: flex;
+	flex: 1;
+	flex-direction: row;
+	justify-content: flex-end;
+	border-top: 1px solid black;
+	overflow-y: hidden;
+}
+
+.trackListContainer {
+	overflow-y: scroll;
+	width: 100%;
+}

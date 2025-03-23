@@ -1,5 +1,6 @@
 import { formatTimeDuration } from '@/common/Utilities';
 import TrackData from '@/dataObjects/TrackData';
+import './NowPlaying.css';
 
 interface NowPlayingProps {
 	playingTracks: TrackData[];
@@ -10,7 +11,7 @@ function NowPlaying(props: NowPlayingProps) {
 	const { playingTracks, playingTrackIndex } = props;
 
 	return (
-		<div className='trackListContainer'>
+		<div className='nowPlayingTrackListContainer'>
 			{playingTracks?.map((track, index) => {
 				return (
 					<div

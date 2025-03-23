@@ -1,6 +1,7 @@
 import GenreData from '@/dataObjects/GenreData';
 import { Dispatch, SetStateAction } from 'react';
-import GenreTabStrip from '../GenreTabStrip/GenreTabStrip';
+import GenreTabStrip from './GenreTabStrip/GenreTabStrip';
+import './TopBar.css';
 
 interface TopBarProps {
 	genres: GenreData[];

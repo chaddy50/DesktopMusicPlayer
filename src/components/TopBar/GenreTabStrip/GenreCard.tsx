@@ -1,5 +1,5 @@
 import GenreData from '@/dataObjects/GenreData';
-import '../../MusicPlayer.css';
+import './GenreTabStrip.css';
 
 interface GenreCardProps {
 	genreData: GenreData;
@@ -11,7 +11,7 @@ function GenreCard(props: GenreCardProps) {
 	const { genreData, isSelected, selectTab } = props;
 
 	return (
-		<div className='tab' onClick={selectTab}>
+		<div className='genreTab' onClick={selectTab}>
 			<p className={isSelected ? 'selectedTab' : 'unselectedTab'}>
 				{genreData.name}
 			</p>

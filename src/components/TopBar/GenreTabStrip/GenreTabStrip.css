@@ -1,0 +1,19 @@
+.genreTab {
+	padding-left: 10px;
+	padding-right: 10px;
+	border-left: 1px solid black;
+	border-right: 1px solid black;
+	cursor: pointer;
+}
+
+.genreTabStrip {
+	display: flex;
+	flex-direction: row;
+}
+
+.selectedTab {
+	font-weight: bold;
+}
+
+.unselectedTab {
+}

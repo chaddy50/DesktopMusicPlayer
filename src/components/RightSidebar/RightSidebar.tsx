@@ -1,8 +1,9 @@
 import TrackData from '@/dataObjects/TrackData';
 import { listen } from '@tauri-apps/api/event';
 import { useState } from 'react';
-import NowPlaying from '../NowPlaying/NowPlaying';
-import PlayerControls from '../PlayerControls/PlayerControls';
+import NowPlaying from './NowPlaying/NowPlaying';
+import PlayerControls from './PlayerControls/PlayerControls';
+import './RightSidebar.css';
 
 interface RightSidebarProps {}
 

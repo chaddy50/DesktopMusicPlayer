@@ -1,6 +1,7 @@
 import AlbumArtistData from '@/dataObjects/AlbumArtistData';
 import { Dispatch, SetStateAction } from 'react';
-import AlbumArtistBrowser from '../AlbumArtistBrowser/AlbumArtistBrowser';
+import AlbumArtistBrowser from './AlbumArtistBrowser/AlbumArtistBrowser';
+import './LeftSidebar.css';
 
 interface LeftSidebarProps {
 	albumArtists: AlbumArtistData[];

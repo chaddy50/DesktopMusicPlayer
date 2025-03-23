@@ -3,7 +3,7 @@ import AlbumArtistData from '@/dataObjects/AlbumArtistData';
 import AlbumData from '@/dataObjects/AlbumData';
 import { invoke } from '@tauri-apps/api/core';
 import { useCallback, useRef } from 'react';
-import '../../MusicPlayer.css';
+import './AlbumBrowser.css';
 
 interface AlbumCardProps {
 	albumArtistData: AlbumArtistData;
