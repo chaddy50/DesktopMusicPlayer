@@ -32,21 +32,6 @@
 	background-color: lightgray;
 }
 
-.trackInfoColumn {
-	flex: 1;
-	max-height: 1.5em;
-	overflow-x: hidden;
-}
-
-.trackInfoColumnTrackNumber {
-	width: 30px;
-}
-
-.trackInfoColumnDuration {
-	width: 50px;
-	text-align: right;
-}
-
 .trackBrowserContainer {
 	display: flex;
 	flex: 1;

@@ -1,6 +1,7 @@
 import TrackData from '@/dataObjects/TrackData';
 import NextButton from './NextButton';
 import './PlayerControls.css';
+import PlayingTrack from './PlayingTrack';
 import PlayPauseButton from './PlayPauseButton';
 import PreviousButton from './PreviousButton';
 
@@ -14,7 +15,7 @@ function PlayerControls(props: PlayerControlsProps) {
 
 	return (
 		<div className='playerControlsContainer'>
-			<p>{playing_track ? playing_track.name : 'No track'}</p>
+			<PlayingTrack playingTrack={playing_track} />
 			<div>
 				<PreviousButton />
 				<PlayPauseButton isPlaying={isPlaying} />

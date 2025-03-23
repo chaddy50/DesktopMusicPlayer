@@ -1,0 +1,30 @@
+.playingTrack {
+	font-weight: bold;
+}
+
+.trackInfoContainer {
+	display: flex;
+	flex: 1;
+	height: 5em;
+	padding-left: 10px;
+	padding-right: 10px;
+	cursor: pointer;
+	align-items: center;
+	flex-direction: column;
+	align-items: center;
+}
+
+.trackInfoColumn {
+	flex: 1;
+	max-height: 1.5em;
+	overflow-x: hidden;
+}
+
+.trackInfoColumnTrackNumber {
+	width: 30px;
+}
+
+.trackInfoColumnDuration {
+	width: 50px;
+	text-align: right;
+}

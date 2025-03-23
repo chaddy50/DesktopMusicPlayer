@@ -1,3 +1,4 @@
+import '@/common/components/TrackInfo/TrackInfo.css';
 import { formatTimeDuration } from '@/common/Utilities';
 import AlbumData from '@/dataObjects/AlbumData';
 import TrackData from '@/dataObjects/TrackData';
