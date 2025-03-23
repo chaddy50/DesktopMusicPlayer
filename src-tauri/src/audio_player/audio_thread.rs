@@ -17,6 +17,7 @@ pub enum AudioPlaybackCommand {
     SkipForward,
     SkipBackward,
     NothingToPlay,
+    RefreshNowPlayingData,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -90,6 +91,7 @@ impl<'a> AudioThread<'a> {
 
                 self.state.audio_player.clear_queue();
             }
+            AudioPlaybackCommand::RefreshNowPlayingData => {}
         }
 
         self.update_now_playing_data();

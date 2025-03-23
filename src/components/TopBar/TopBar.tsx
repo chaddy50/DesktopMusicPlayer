@@ -1,6 +1,7 @@
 import NowPlayingData from '@/dataObjects/NowPlayingData';
+import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import PlayerControls from './PlayerControls/PlayerControls';
 import PlayingTrack from './PlayerControls/PlayingTrack';
@@ -13,6 +14,17 @@ function TopBar(_props: TopBarProps) {
 	const navigate = useNavigate();
 
 	const [nowPlayingData, setNowPlayingData] = useState<NowPlayingData>();
+
+	useEffect(() => {
+		async function getNowPlayingData() {
+			const nowPlayingData: NowPlayingData = await invoke(
+				'refresh_now_playing_data'
+			);
+			setNowPlayingData(nowPlayingData);
+		}
+
+		getNowPlayingData();
+	}, [setNowPlayingData]);
 
 	listen<NowPlayingData>('now_playing_changed', (event) => {
 		setNowPlayingData(event.payload);

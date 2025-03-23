@@ -75,6 +75,12 @@ impl AudioPlayer {
             .unwrap();
     }
 
+    pub fn refresh_now_playing_data(&self) {
+        self.audio_command_sender
+            .send(AudioPlaybackCommand::RefreshNowPlayingData)
+            .unwrap()
+    }
+
     fn play_next_track(&self) {
         let mut playing_track_index = self
             .playing_track_index
