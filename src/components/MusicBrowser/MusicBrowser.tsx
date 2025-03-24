@@ -26,10 +26,6 @@ function MusicBrowser() {
 
 	//#region Fetch data from database
 	useEffect(() => {
-		invoke('refresh_now_playing_data');
-	}, []);
-
-	useEffect(() => {
 		async function getAlbumArtists(genreIdAsString: string): Promise<void> {
 			const genreId = Number(genreIdAsString);
 			const albumArtists: AlbumArtistData[] = await invoke(

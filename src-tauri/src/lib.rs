@@ -55,11 +55,6 @@ fn on_previous_button_clicked(state: State<'_, AppState>) {
     state.audio_player.skip_backward();
 }
 
-#[tauri::command]
-fn refresh_now_playing_data(state: State<'_, AppState>) {
-    state.audio_player.refresh_now_playing_data();
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     Builder::default()
@@ -88,7 +83,6 @@ pub fn run() {
             on_play_button_clicked,
             on_next_button_clicked,
             on_previous_button_clicked,
-            refresh_now_playing_data,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
