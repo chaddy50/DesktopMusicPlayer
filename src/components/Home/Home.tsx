@@ -1,4 +1,5 @@
 import GenreData from '@/dataObjects/GenreData';
+import { selectedGenreStore } from '@/state/SelectedGenreStore';
 import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -18,14 +19,16 @@ function Home() {
 
 	const navigate = useNavigate();
 
+	const selectGenre = (selectedGenre: GenreData) => {
+		selectedGenreStore.update(selectedGenre);
+		navigate('musicBrowser');
+	};
+
 	return (
 		<div className='genreBrowserContainer'>
 			{genres.map((genre) => {
 				return (
-					<div
-						className='genreBrowserCard'
-						onClick={() => navigate(`musicBrowser/${genre.id}`)}
-					>
+					<div className='genreBrowserCard' onClick={() => selectGenre(genre)}>
 						<p>{genre.name}</p>
 					</div>
 				);

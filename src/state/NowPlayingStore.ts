@@ -10,7 +10,7 @@ class NowPlayingStore {
 		});
 	}
 
-	data: NowPlayingData | null = null;
+	data: NowPlayingData | undefined = undefined;
 
 	update(newNowPlayingData: NowPlayingData) {
 		this.data = newNowPlayingData;

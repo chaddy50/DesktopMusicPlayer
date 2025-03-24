@@ -1,21 +1,17 @@
 import AlbumArtistData from '@/dataObjects/AlbumArtistData';
 import AlbumData from '@/dataObjects/AlbumData';
+import { selectedGenreStore } from '@/state/SelectedGenreStore';
 import { invoke } from '@tauri-apps/api/core';
+import { observer } from 'mobx-react';
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router';
 import LeftSidebar from './LeftSidebar/LeftSidebar';
 import MainPane from './MainPane/MainPane';
 import './MusicBrowser.css';
 import RightSidebar from './RightSidebar/RightSidebar';
 
-interface MusicBrowserParams {
-	selectedGenreId: string;
-
-	[key: string]: string | undefined;
-}
-
-function MusicBrowser() {
-	const { selectedGenreId } = useParams<MusicBrowserParams>();
+const MusicBrowser = observer(() => {
+	const selectedGenre = selectedGenreStore.genre;
+	console.log('genre: ' + selectedGenre?.name);
 
 	const [albumArtists, setAlbumArtists] = useState<AlbumArtistData[]>([]);
 	const [selectedAlbumArtistIndex, setSelectedAlbumArtistIndex] = useState(0);
@@ -26,8 +22,7 @@ function MusicBrowser() {
 
 	//#region Fetch data from database
 	useEffect(() => {
-		async function getAlbumArtists(genreIdAsString: string): Promise<void> {
-			const genreId = Number(genreIdAsString);
+		async function getAlbumArtists(genreId: number): Promise<void> {
 			const albumArtists: AlbumArtistData[] = await invoke(
 				'get_album_artists_for_genre',
 				{ genreId }
@@ -35,17 +30,16 @@ function MusicBrowser() {
 			setAlbumArtists(albumArtists);
 		}
 
-		if (selectedGenreId) {
-			getAlbumArtists(selectedGenreId);
+		if (selectedGenre?.id) {
+			getAlbumArtists(selectedGenre.id);
 		}
-	}, [selectedGenreId, setAlbumArtists]);
+	}, [selectedGenre, setAlbumArtists]);
 
 	useEffect(() => {
 		async function getAlbums(
 			albumArtistId: number,
-			genreIdAsString: string
+			genreId: number
 		): Promise<void> {
-			const genreId = Number(genreIdAsString);
 			const albums: AlbumData[] = await invoke('get_albums_for_album_artist', {
 				albumArtistId,
 				genreId,
@@ -53,10 +47,10 @@ function MusicBrowser() {
 			setAlbums(albums);
 		}
 
-		if (selectedAlbumArtistId >= 0 && selectedGenreId) {
-			getAlbums(selectedAlbumArtistId, selectedGenreId);
+		if (selectedAlbumArtistId >= 0 && selectedGenre?.id) {
+			getAlbums(selectedAlbumArtistId, selectedGenre.id);
 		}
-	}, [selectedAlbumArtistId, selectedGenreId, setAlbums]);
+	}, [selectedAlbumArtistId, selectedGenre, setAlbums]);
 	//#endregion
 
 	//#region Respond to user selections
@@ -64,7 +58,7 @@ function MusicBrowser() {
 		setSelectedAlbumArtistIndex(0);
 		setSelectedAlbumIndex(-1);
 		albumListContainerRef.current?.scrollTo(0, 0);
-	}, [selectedGenreId]);
+	}, [selectedGenre]);
 
 	useEffect(() => {
 		setSelectedAlbumIndex(-1);
@@ -91,6 +85,6 @@ function MusicBrowser() {
 			<RightSidebar />
 		</div>
 	);
-}
+});
 
 export default MusicBrowser;

@@ -1,7 +1,9 @@
 import NowPlayingData from '@/dataObjects/NowPlayingData';
 import { nowPlayingStore } from '@/state/NowPlayingStore';
+import { selectedGenreStore } from '@/state/SelectedGenreStore';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
+import { observer } from 'mobx-react';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import PlayerControls from './PlayerControls/PlayerControls';
@@ -10,9 +12,11 @@ import './TopBar.css';
 
 interface TopBarProps {}
 
-function TopBar(_props: TopBarProps) {
+const TopBar = observer((_props: TopBarProps) => {
 	const currentLocation = useLocation();
 	const navigate = useNavigate();
+
+	const selectedGenre = selectedGenreStore.genre;
 
 	useEffect(() => {
 		async function getNowPlayingData() {
@@ -33,7 +37,10 @@ function TopBar(_props: TopBarProps) {
 		<div className='topBar'>
 			<div className='backButton'>
 				{currentLocation.pathname !== '/' && (
-					<button onClick={() => navigate(-1)}>Go Back</button>
+					<>
+						<button onClick={() => navigate(-1)}>Go Back</button>
+						<h2>{selectedGenre?.name}</h2>
+					</>
 				)}
 			</div>
 			<div className='playerControls'>
@@ -44,6 +51,6 @@ function TopBar(_props: TopBarProps) {
 			</div>
 		</div>
 	);
-}
+});
 
 export default TopBar;

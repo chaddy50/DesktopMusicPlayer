@@ -6,7 +6,7 @@ function MusicPlayerRoutes() {
 	return (
 		<Routes>
 			<Route path='/' element={<Home />} />
-			<Route path='/musicBrowser/:selectedGenreId' element={<MusicBrowser />} />
+			<Route path='/musicBrowser' element={<MusicBrowser />} />
 		</Routes>
 	);
 }
