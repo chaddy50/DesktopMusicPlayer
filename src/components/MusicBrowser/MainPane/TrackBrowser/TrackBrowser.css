@@ -28,6 +28,10 @@
 	overflow-x: hidden;
 }
 
+.trackContainerSelected {
+	font-weight: bold;
+}
+
 .trackContainer:hover {
 	background-color: lightgray;
 }
