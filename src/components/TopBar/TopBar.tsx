@@ -5,7 +5,7 @@ import { listen } from '@tauri-apps/api/event';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import PlayerControls from './PlayerControls/PlayerControls';
-import PlayingTrack from './PlayerControls/PlayingTrack';
+import PlayingTrack from './PlayingTrack';
 import './TopBar.css';
 
 interface TopBarProps {}

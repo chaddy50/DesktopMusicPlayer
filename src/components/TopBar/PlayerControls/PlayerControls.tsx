@@ -1,7 +1,7 @@
-import NextButton from './NextButton';
+import NextButton from './Buttons/NextButton';
+import PlayPauseButton from './Buttons/PlayPauseButton';
+import PreviousButton from './Buttons/PreviousButton';
 import './PlayerControls.css';
-import PlayPauseButton from './PlayPauseButton';
-import PreviousButton from './PreviousButton';
 
 const PlayerControls = () => {
 	return (
