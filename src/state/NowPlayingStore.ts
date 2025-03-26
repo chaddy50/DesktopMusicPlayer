@@ -33,4 +33,4 @@ class NowPlayingStore {
 	}
 }
 
-export const nowPlayingStore = new NowPlayingStore();
+export default new NowPlayingStore();

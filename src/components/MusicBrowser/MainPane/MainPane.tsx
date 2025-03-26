@@ -7,27 +7,27 @@ import TrackBrowser from './TrackBrowser/TrackBrowser';
 
 interface MainPaneProps {
 	albums: AlbumData[];
-	albumArtistData: AlbumArtistData;
+	albumArtist: AlbumArtistData;
 	selectedAlbumIndex: number;
 	setSelectedAlbumIndex: Dispatch<SetStateAction<number>>;
-	albumListContainerRef: RefObject<HTMLDivElement>;
+	albumListContainerRef: RefObject<HTMLDivElement> | undefined;
 }
 
 function MainPane(props: MainPaneProps) {
 	const {
 		albums,
-		albumArtistData,
+		albumArtist,
 		selectedAlbumIndex,
 		setSelectedAlbumIndex,
 		albumListContainerRef,
 	} = props;
 
 	return (
-		<div className='mainPaneContainer'>
+		<div data-testid='mainPaneContainer' className='mainPaneContainer'>
 			<AlbumBrowser
 				albumListContainerRef={albumListContainerRef}
 				albums={albums}
-				albumArtistData={albumArtistData}
+				albumArtist={albumArtist}
 				selectedAlbumIndex={selectedAlbumIndex}
 				setSelectedAlbumIndex={setSelectedAlbumIndex}
 			/>

@@ -1,7 +1,7 @@
 import AlbumArtistData from '@/dataObjects/AlbumArtistData';
 import { Dispatch, SetStateAction } from 'react';
 import './AlbumArtistBrowser.css';
-import AlbumArtistCard from './AlbumArtistCard';
+import AlbumArtistCard from './AlbumArtistCard/AlbumArtistCard';
 
 interface AlbumArtistBrowserProps {
 	albumArtists: AlbumArtistData[];
@@ -17,12 +17,15 @@ function AlbumArtistBrowser(props: AlbumArtistBrowserProps) {
 	} = props;
 
 	return (
-		<div className='artistBrowserContainer'>
+		<div
+			data-testid='albumArtistBrowserContainer'
+			className='artistBrowserContainer'
+		>
 			{albumArtists.map((albumArtistData, index) => {
 				return (
 					<AlbumArtistCard
 						key={albumArtistData.id}
-						albumArtistData={albumArtistData}
+						albumArtist={albumArtistData}
 						isSelected={selectedAlbumArtistIndex === index}
 						selectArtist={() => setSelectedAlbumArtistIndex(index)}
 					/>

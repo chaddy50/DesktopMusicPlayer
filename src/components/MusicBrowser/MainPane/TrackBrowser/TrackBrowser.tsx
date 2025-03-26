@@ -1,6 +1,6 @@
 import AlbumData from '@/dataObjects/AlbumData';
-import AlbumHeader from './AlbumHeader';
-import Track from './Track';
+import AlbumHeader from './AlbumHeader/AlbumHeader';
+import Track from './Track/Track';
 import './TrackBrowser.css';
 
 interface TrackBrowserProps {
@@ -11,7 +11,7 @@ function TrackBrowser(props: TrackBrowserProps) {
 	const { album } = props;
 
 	return (
-		<div id='trackBrowser' className='trackBrowserContainer'>
+		<div data-testid='trackBrowser' className='trackBrowserContainer'>
 			<AlbumHeader albumData={album} />
 			<div className='trackListContainer'>
 				{album?.tracks.map((track) => {

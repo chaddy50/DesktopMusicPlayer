@@ -1,9 +1,9 @@
-import { nowPlayingStore } from '@/state/NowPlayingStore';
+import NowPlayingStore from '@/state/NowPlayingStore';
 import { invoke } from '@tauri-apps/api/core';
 import { observer } from 'mobx-react';
 
 const PlayPauseButton = observer(() => {
-	const isPlaying = nowPlayingStore.isPlaying;
+	const isPlaying = NowPlayingStore.isPlaying;
 	return (
 		<>
 			{isPlaying ? (

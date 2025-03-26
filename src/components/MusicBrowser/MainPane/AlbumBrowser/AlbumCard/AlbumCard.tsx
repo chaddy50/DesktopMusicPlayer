@@ -3,17 +3,17 @@ import AlbumArtistData from '@/dataObjects/AlbumArtistData';
 import AlbumData from '@/dataObjects/AlbumData';
 import { invoke } from '@tauri-apps/api/core';
 import { useCallback, useRef } from 'react';
-import './AlbumBrowser.css';
+import '../AlbumBrowser.css';
 
 interface AlbumCardProps {
-	albumArtistData: AlbumArtistData;
-	albumData: AlbumData;
+	albumArtist: AlbumArtistData;
+	album: AlbumData;
 	isSelected: boolean;
 	selectAlbum: () => void;
 }
 
 function AlbumCard(props: AlbumCardProps) {
-	const { albumData, albumArtistData, isSelected, selectAlbum } = props;
+	const { album, albumArtist, isSelected, selectAlbum } = props;
 
 	const albumRef = useRef<HTMLDivElement>(null);
 
@@ -26,22 +26,24 @@ function AlbumCard(props: AlbumCardProps) {
 	}
 
 	const playAlbum = useCallback(() => {
-		invoke('on_album_double_clicked', { album: albumData });
-	}, [albumData]);
+		invoke('on_album_double_clicked', { album: album });
+	}, [album]);
 
 	const handleClicks = useSingleAndDoubleClick(selectAlbum, playAlbum);
 
 	const imageSize = 300;
-	const imageSource = useAlbumArtwork(albumData?.artwork_source ?? '');
+	const imageSource = useAlbumArtwork(album?.artwork_source ?? '');
 
 	return (
 		<div
-			key={albumData.id}
+			data-testid={'albumCard' + album.id}
+			key={album.id}
 			className='albumCardContainer'
 			onClick={handleClicks}
 			ref={albumRef}
 		>
 			<div
+				data-testid={'albumImage' + album.id}
 				className={
 					isSelected ? 'albumArtworkContainerSelected' : 'albumArtworkContainer'
 				}
@@ -60,11 +62,9 @@ function AlbumCard(props: AlbumCardProps) {
 					flexDirection: 'column',
 				}}
 			>
-				<span className='albumTitle'>{albumData.name}</span>
-				<span>{albumData.year}</span>
-				{albumArtistData?.id === 0 && (
-					<span>{albumData.album_artist_name}</span>
-				)}
+				<span className='albumTitle'>{album.name}</span>
+				<span>{album.year}</span>
+				{albumArtist?.id === 0 && <span>{album.album_artist_name}</span>}
 			</div>
 		</div>
 	);

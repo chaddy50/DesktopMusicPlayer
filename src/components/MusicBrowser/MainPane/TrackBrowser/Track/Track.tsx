@@ -2,7 +2,7 @@ import { formatTimeDuration } from '@/common/Utilities';
 import '@/components/MusicBrowser/RightSidebar/NowPlaying/TrackInfo/TrackInfo.css';
 import AlbumData from '@/dataObjects/AlbumData';
 import TrackData from '@/dataObjects/TrackData';
-import { nowPlayingStore } from '@/state/NowPlayingStore';
+import NowPlayingStore from '@/state/NowPlayingStore';
 import { invoke } from '@tauri-apps/api/core';
 import { observer } from 'mobx-react';
 import { useCallback } from 'react';
@@ -14,7 +14,7 @@ interface TrackProps {
 
 const Track = observer((props: TrackProps) => {
 	const { track, album } = props;
-	const playingTrack = nowPlayingStore.playingTrack;
+	const playingTrack = NowPlayingStore.playingTrack;
 
 	const playTrack = useCallback(() => {
 		invoke('on_track_double_clicked', { track, album });
@@ -26,7 +26,11 @@ const Track = observer((props: TrackProps) => {
 	}
 
 	return (
-		<div className={containerClassName} onDoubleClick={playTrack}>
+		<div
+			data-testid={'trackContainer' + track.file_path}
+			className={containerClassName}
+			onDoubleClick={playTrack}
+		>
 			<span className='trackInfoColumnTrackNumber'>{track.track_number}</span>
 			<span className='trackInfoColumn'>{track.name}</span>
 			<span className='trackInfoColumn'>{track.artist_name}</span>

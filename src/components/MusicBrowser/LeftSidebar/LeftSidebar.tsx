@@ -17,7 +17,7 @@ function LeftSidebar(props: LeftSidebarProps) {
 	} = props;
 
 	return (
-		<div className='leftSideBar'>
+		<div data-testid='leftSidebar' className='leftSideBar'>
 			<AlbumArtistBrowser
 				albumArtists={albumArtists}
 				selectedAlbumArtistIndex={selectedAlbumArtistIndex}

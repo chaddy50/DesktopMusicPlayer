@@ -1,14 +1,17 @@
 import TrackInfo from '@/components/MusicBrowser/RightSidebar/NowPlaying/TrackInfo/TrackInfo';
-import { nowPlayingStore } from '@/state/NowPlayingStore';
+import NowPlayingStore from '@/state/NowPlayingStore';
 import { observer } from 'mobx-react';
 import './NowPlaying.css';
 
 const NowPlaying = observer(() => {
-	const playingTracks = nowPlayingStore.playingTracks;
-	const playingTrackIndex = nowPlayingStore.playingTrackIndex;
+	const playingTracks = NowPlayingStore.playingTracks;
+	const playingTrackIndex = NowPlayingStore.playingTrackIndex;
 
 	return (
-		<div className='nowPlayingTrackListContainer'>
+		<div
+			data-testid='nowPlayingContainer'
+			className='nowPlayingTrackListContainer'
+		>
 			{playingTracks?.map((track, index) => {
 				return (
 					<div className='nowPlayingTrackContainer'>

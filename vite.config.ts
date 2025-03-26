@@ -34,4 +34,9 @@ export default defineConfig(async () => ({
 			'@': '/src', // Map '@' to the 'src' folder
 		},
 	},
+	test: {
+		globals: true,
+		environment: 'jsdom',
+		setupFiles: './testSetup.ts',
+	},
 }));

@@ -1,8 +1,8 @@
-import { nowPlayingStore } from '@/state/NowPlayingStore';
+import NowPlayingStore from '@/state/NowPlayingStore';
 import { observer } from 'mobx-react';
 
 const PlayingTrack = observer(() => {
-	const playingTrack = nowPlayingStore.playingTrack;
+	const playingTrack = NowPlayingStore.playingTrack;
 
 	if (playingTrack) {
 		return <div className='playingTrackContainer'>{playingTrack.name}</div>;

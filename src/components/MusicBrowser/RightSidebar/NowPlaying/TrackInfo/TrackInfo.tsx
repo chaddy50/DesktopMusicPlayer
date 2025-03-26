@@ -18,7 +18,10 @@ function TrackInfo(props: TrackInfoProps) {
 
 	return (
 		<>
-			<div className={containerClassName}>
+			<div
+				data-testid={'trackInfo' + track.file_path}
+				className={containerClassName}
+			>
 				<span className='trackInfoColumn'>{track.name}</span>
 				<span className='trackInfoColumn'>{track.artist_name}</span>
 				<span className='trackInfoColumn'>{track.album_name}</span>

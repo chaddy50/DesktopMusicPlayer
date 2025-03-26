@@ -1,5 +1,5 @@
 import NowPlayingData from '@/dataObjects/NowPlayingData';
-import { nowPlayingStore } from '@/state/NowPlayingStore';
+import NowPlayingStore from '@/state/NowPlayingStore';
 import { selectedGenreStore } from '@/state/SelectedGenreStore';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
@@ -23,14 +23,14 @@ const TopBar = observer((_props: TopBarProps) => {
 			const nowPlayingData: NowPlayingData = await invoke(
 				'refresh_now_playing_data'
 			);
-			nowPlayingStore.update(nowPlayingData);
+			NowPlayingStore.update(nowPlayingData);
 		}
 
 		getNowPlayingData();
 	}, []);
 
 	listen<NowPlayingData>('now_playing_changed', (event) => {
-		nowPlayingStore.update(event.payload);
+		NowPlayingStore.update(event.payload);
 	});
 
 	return (

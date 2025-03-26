@@ -76,7 +76,7 @@ const MusicBrowser = observer(() => {
 
 			<MainPane
 				albums={albums}
-				albumArtistData={albumArtists[selectedAlbumArtistIndex]}
+				albumArtist={albumArtists[selectedAlbumArtistIndex]}
 				selectedAlbumIndex={selectedAlbumIndex}
 				setSelectedAlbumIndex={setSelectedAlbumIndex}
 				albumListContainerRef={albumListContainerRef}

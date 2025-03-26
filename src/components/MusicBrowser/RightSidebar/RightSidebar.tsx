@@ -5,7 +5,7 @@ interface RightSidebarProps {}
 
 function RightSidebar(_props: RightSidebarProps) {
 	return (
-		<div className='rightSidebar'>
+		<div data-testid='rightSidebar' className='rightSidebar'>
 			<NowPlaying />
 		</div>
 	);

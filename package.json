@@ -1,33 +1,39 @@
 {
-  "name": "music-player",
-  "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "tauri": "tauri"
-  },
-  "dependencies": {
-    "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-fs": "^2.0.2",
-    "@tauri-apps/plugin-log": "^2.0.0",
-    "@tauri-apps/plugin-shell": "^2",
-    "mobx": "^6.13.7",
-    "mobx-react": "^9.2.0",
-    "music-metadata": "^10.5.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router": "^7.4.0",
-    "yarn": "^1.22.22"
-  },
-  "devDependencies": {
-    "@tauri-apps/cli": "^2",
-    "@types/react": "^18.2.15",
-    "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.2.1",
-    "typescript": "^5.2.2",
-    "vite": "^5.3.1"
-  }
+	"name": "music-player",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"tauri": "tauri",
+		"test": "vitest --silent=false",
+		"test-commit": "vitest run"
+	},
+	"dependencies": {
+		"@tauri-apps/api": "^2",
+		"@tauri-apps/plugin-fs": "^2.0.2",
+		"@tauri-apps/plugin-log": "^2.0.0",
+		"@tauri-apps/plugin-shell": "^2",
+		"@testing-library/jest-dom": "^6.6.3",
+		"mobx": "^6.13.7",
+		"mobx-react": "^9.2.0",
+		"music-metadata": "^10.5.1",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"react-router": "^7.4.0",
+		"yarn": "^1.22.22"
+	},
+	"devDependencies": {
+		"@tauri-apps/cli": "^2",
+		"@testing-library/react": "^16.2.0",
+		"@types/react": "^18.2.15",
+		"@types/react-dom": "^18.2.7",
+		"@vitejs/plugin-react": "^4.2.1",
+		"jsdom": "^26.0.0",
+		"typescript": "^5.2.2",
+		"vite": "^5.3.1",
+		"vitest": "^3.0.9"
+	}
 }

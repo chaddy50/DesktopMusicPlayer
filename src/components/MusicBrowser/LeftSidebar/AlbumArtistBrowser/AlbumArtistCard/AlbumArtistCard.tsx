@@ -1,19 +1,23 @@
 import AlbumArtistData from '@/dataObjects/AlbumArtistData';
-import './AlbumArtistBrowser.css';
+import '../AlbumArtistBrowser.css';
 
 interface AlbumArtistCardProps {
-	albumArtistData: AlbumArtistData;
+	albumArtist: AlbumArtistData;
 	isSelected: boolean;
 	selectArtist(): void;
 }
 
 function AlbumArtistCard(props: AlbumArtistCardProps) {
-	const { albumArtistData, isSelected, selectArtist } = props;
+	const { albumArtist, isSelected, selectArtist } = props;
 
 	return (
-		<div className='artistCard' onClick={selectArtist}>
+		<div
+			data-testid={'albumArtistCard' + albumArtist.id}
+			className='artistCard'
+			onClick={selectArtist}
+		>
 			<p className={isSelected ? 'selectedArtistCard' : 'unselectedArtistCard'}>
-				{albumArtistData.name}
+				{albumArtist.name}
 			</p>
 		</div>
 	);
