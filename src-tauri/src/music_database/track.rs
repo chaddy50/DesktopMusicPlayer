@@ -11,7 +11,7 @@ pub struct Track {
     genre_name: String,
     pub file_path: String,
     pub track_number: i64,
-    disc_number: i64,
+    pub disc_number: i64,
     pub duration_in_seconds: i64,
     album_name: String,
 }

@@ -43,8 +43,12 @@ impl AudioPlayer {
     pub fn play_track(&self, track: Track, album: Album) {
         self.stop_playback();
         self.clear_queue();
+
+        let disc_number = track.disc_number;
         for track_to_add in album.tracks {
-            if track_to_add.track_number >= track.track_number {
+            if (track_to_add.track_number >= track.track_number)
+                && (track_to_add.disc_number >= disc_number)
+            {
                 self.add_track_to_queue(track_to_add);
             }
         }
@@ -191,7 +195,7 @@ mod tests {
         )
     }
 
-    pub fn make_test_track(name: &str, file_path: &str) -> Track {
+    pub fn make_test_track(name: &str, file_path: &str, disc_number: Option<i64>) -> Track {
         Track::new(
             name.to_string(),
             0,
@@ -202,7 +206,7 @@ mod tests {
             "".to_string(),
             file_path.to_string(),
             0,
-            0,
+            disc_number.unwrap_or(1),
             0,
             "".to_string(),
         )
@@ -213,8 +217,8 @@ mod tests {
         let (audio_player, _) = make_test_audio_player();
 
         let mut music_queue = audio_player.music_queue.write().unwrap();
-        music_queue.push_back(make_test_track("Test1", TEST_TRACK_1));
-        music_queue.push_back(make_test_track("Test2", TEST_TRACK_2));
+        music_queue.push_back(make_test_track("Test1", TEST_TRACK_1, None));
+        music_queue.push_back(make_test_track("Test2", TEST_TRACK_2, None));
 
         assert_eq!(music_queue.len(), 2);
         drop(music_queue);
@@ -248,9 +252,9 @@ mod tests {
         let (audio_player, _) = make_test_audio_player();
 
         assert_eq!(audio_player.music_queue.read().unwrap().len(), 0);
-        audio_player.add_track_to_queue(make_test_track("Test1", TEST_TRACK_1));
+        audio_player.add_track_to_queue(make_test_track("Test1", TEST_TRACK_1, None));
         assert_eq!(audio_player.music_queue.read().unwrap().len(), 1);
-        audio_player.add_track_to_queue(make_test_track("Test2", TEST_TRACK_2));
+        audio_player.add_track_to_queue(make_test_track("Test2", TEST_TRACK_2, None));
         assert_eq!(audio_player.music_queue.read().unwrap().len(), 2);
     }
 
@@ -291,5 +295,85 @@ mod tests {
         assert_eq!(*audio_player.playing_track_index.read().unwrap(), 0);
         audio_player.play_previous_track();
         assert_eq!(*audio_player.playing_track_index.read().unwrap(), 0);
+    }
+
+    #[test]
+    fn play_track_adds_rest_of_album_to_queue() {
+        let (audio_player, _receiver) = make_test_audio_player();
+
+        let test_track_1 = make_test_track("Track 1", TEST_TRACK_1, None);
+        let test_track_2 = make_test_track("Track 2", TEST_TRACK_2, None);
+
+        let test_album = Album::new(
+            1,
+            "test album".to_string(),
+            1,
+            "artist".to_string(),
+            1,
+            "genre".to_string(),
+            "".to_string(),
+            2000,
+            vec![test_track_1.clone(), test_track_2],
+            1,
+        );
+
+        audio_player.play_track(test_track_1, test_album);
+
+        let music_queue = audio_player.music_queue.read().unwrap();
+        assert_eq!(music_queue.len(), 2);
+    }
+
+    #[test]
+    fn play_track_adds_tracks_from_next_disc() {
+        let (audio_player, _receiver) = make_test_audio_player();
+
+        let test_track_1 = make_test_track("Track 1", TEST_TRACK_1, None);
+        let test_track_2 = make_test_track("Track 2", TEST_TRACK_2, None);
+        let test_track_3 = make_test_track("Track 3", TEST_TRACK_1, Some(2));
+
+        let test_album = Album::new(
+            1,
+            "test album".to_string(),
+            1,
+            "artist".to_string(),
+            1,
+            "genre".to_string(),
+            "".to_string(),
+            2000,
+            vec![test_track_1.clone(), test_track_2, test_track_3],
+            1,
+        );
+
+        audio_player.play_track(test_track_1, test_album);
+
+        let music_queue = audio_player.music_queue.read().unwrap();
+        assert_eq!(music_queue.len(), 3);
+    }
+
+    #[test]
+    fn play_track_does_not_add_tracks_from_previous_disc() {
+        let (audio_player, _receiver) = make_test_audio_player();
+
+        let test_track_1 = make_test_track("Track 1", TEST_TRACK_1, Some(2));
+        let test_track_2 = make_test_track("Track 2", TEST_TRACK_2, Some(2));
+        let test_track_3 = make_test_track("Track 3", TEST_TRACK_1, Some(1));
+
+        let test_album = Album::new(
+            1,
+            "test album".to_string(),
+            1,
+            "artist".to_string(),
+            1,
+            "genre".to_string(),
+            "".to_string(),
+            2000,
+            vec![test_track_1.clone(), test_track_2, test_track_3],
+            1,
+        );
+
+        audio_player.play_track(test_track_1, test_album);
+
+        let music_queue = audio_player.music_queue.read().unwrap();
+        assert_eq!(music_queue.len(), 2);
     }
 }

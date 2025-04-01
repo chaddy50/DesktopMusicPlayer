@@ -282,8 +282,8 @@ mod tests {
         let (audio_player, _receiver) = make_test_audio_player();
 
         let mut music_queue = audio_player.music_queue.write().unwrap();
-        music_queue.push_back(make_test_track("Test1", TEST_TRACK_1));
-        music_queue.push_back(make_test_track("Test2", TEST_TRACK_2));
+        music_queue.push_back(make_test_track("Test1", TEST_TRACK_1, None));
+        music_queue.push_back(make_test_track("Test2", TEST_TRACK_2, None));
         drop(music_queue);
 
         sink.append(decode_track(&TEST_TRACK_1.to_string()));
