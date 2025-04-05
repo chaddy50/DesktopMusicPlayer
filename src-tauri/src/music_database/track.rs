@@ -1,18 +1,24 @@
+use diesel::{
+    prelude::{Insertable, Queryable},
+    Selectable,
+};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone)]
+use crate::schema::tracks;
+
+#[derive(Serialize, Deserialize, Clone, Queryable)]
 pub struct Track {
     pub name: String,
-    album_artist_id: i64,
+    album_artist_id: i32,
     album_artist_name: String,
-    artist_id: i64,
+    artist_id: i32,
     artist_name: String,
-    genre_id: i64,
+    genre_id: i32,
     genre_name: String,
     pub file_path: String,
-    pub track_number: i64,
-    pub disc_number: i64,
-    pub duration_in_seconds: i64,
+    pub track_number: i32,
+    pub disc_number: i32,
+    pub duration_in_seconds: i32,
     album_name: String,
 }
 
@@ -20,16 +26,16 @@ impl Track {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         name: String,
-        album_artist_id: i64,
+        album_artist_id: i32,
         album_artist_name: String,
-        artist_id: i64,
+        artist_id: i32,
         artist_name: String,
-        genre_id: i64,
+        genre_id: i32,
         genre_name: String,
         file_path: String,
-        track_number: i64,
-        disc_number: i64,
-        duration_in_seconds: i64,
+        track_number: i32,
+        disc_number: i32,
+        duration_in_seconds: i32,
         album_name: String,
     ) -> Track {
         Track {
@@ -47,4 +53,32 @@ impl Track {
             album_name,
         }
     }
+}
+
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = tracks)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct TrackDatabaseObject {
+    pub name: String,
+    pub album_artist_id: i32,
+    pub artist_id: i32,
+    pub genre_id: i32,
+    pub file_path: String,
+    pub track_number: Option<i32>,
+    pub disc_number: Option<i32>,
+    pub duration_in_seconds: i32,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = tracks)]
+pub struct NewTrackDatabaseObject<'a> {
+    pub name: String,
+    pub genre_id: &'a i32,
+    pub album_artist_id: &'a i32,
+    pub album_id: &'a i32,
+    pub artist_id: &'a i32,
+    pub track_number: i32,
+    pub disc_number: i32,
+    pub file_path: String,
+    pub duration_in_seconds: i32,
 }

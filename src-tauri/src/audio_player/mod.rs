@@ -34,6 +34,7 @@ impl AudioPlayer {
     pub fn play_album(&self, album: Album) {
         self.stop_playback();
         self.clear_queue();
+
         for track in album.tracks {
             self.add_track_to_queue(track);
         }
@@ -44,11 +45,12 @@ impl AudioPlayer {
         self.stop_playback();
         self.clear_queue();
 
-        let disc_number = track.disc_number;
         for track_to_add in album.tracks {
-            if (track_to_add.track_number >= track.track_number)
-                && (track_to_add.disc_number >= disc_number)
-            {
+            if should_add_album_track_to_queue(
+                &track_to_add,
+                &track.track_number,
+                &track.disc_number,
+            ) {
                 self.add_track_to_queue(track_to_add);
             }
         }
@@ -173,6 +175,20 @@ impl AudioPlayer {
     }
 }
 
+fn should_add_album_track_to_queue(
+    track: &Track,
+    playing_track_track_number: &i32,
+    playing_track_disc_number: &i32,
+) -> bool {
+    if &track.disc_number > playing_track_disc_number {
+        true
+    } else if &track.disc_number < playing_track_disc_number {
+        false
+    } else {
+        &track.track_number >= playing_track_track_number
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::sync::mpsc::Receiver;
@@ -195,7 +211,12 @@ mod tests {
         )
     }
 
-    pub fn make_test_track(name: &str, file_path: &str, disc_number: Option<i64>) -> Track {
+    pub fn make_test_track(
+        name: &str,
+        file_path: &str,
+        track_number: Option<i32>,
+        disc_number: Option<i32>,
+    ) -> Track {
         Track::new(
             name.to_string(),
             0,
@@ -205,7 +226,7 @@ mod tests {
             0,
             "".to_string(),
             file_path.to_string(),
-            0,
+            track_number.unwrap_or(1),
             disc_number.unwrap_or(1),
             0,
             "".to_string(),
@@ -217,8 +238,8 @@ mod tests {
         let (audio_player, _) = make_test_audio_player();
 
         let mut music_queue = audio_player.music_queue.write().unwrap();
-        music_queue.push_back(make_test_track("Test1", TEST_TRACK_1, None));
-        music_queue.push_back(make_test_track("Test2", TEST_TRACK_2, None));
+        music_queue.push_back(make_test_track("Test1", TEST_TRACK_1, Some(1), None));
+        music_queue.push_back(make_test_track("Test2", TEST_TRACK_2, Some(2), None));
 
         assert_eq!(music_queue.len(), 2);
         drop(music_queue);
@@ -252,9 +273,9 @@ mod tests {
         let (audio_player, _) = make_test_audio_player();
 
         assert_eq!(audio_player.music_queue.read().unwrap().len(), 0);
-        audio_player.add_track_to_queue(make_test_track("Test1", TEST_TRACK_1, None));
+        audio_player.add_track_to_queue(make_test_track("Test1", TEST_TRACK_1, Some(1), None));
         assert_eq!(audio_player.music_queue.read().unwrap().len(), 1);
-        audio_player.add_track_to_queue(make_test_track("Test2", TEST_TRACK_2, None));
+        audio_player.add_track_to_queue(make_test_track("Test2", TEST_TRACK_2, Some(2), None));
         assert_eq!(audio_player.music_queue.read().unwrap().len(), 2);
     }
 
@@ -301,8 +322,8 @@ mod tests {
     fn play_track_adds_rest_of_album_to_queue() {
         let (audio_player, _receiver) = make_test_audio_player();
 
-        let test_track_1 = make_test_track("Track 1", TEST_TRACK_1, None);
-        let test_track_2 = make_test_track("Track 2", TEST_TRACK_2, None);
+        let test_track_1 = make_test_track("Track 1", TEST_TRACK_1, Some(1), None);
+        let test_track_2 = make_test_track("Track 2", TEST_TRACK_2, Some(2), None);
 
         let test_album = Album::new(
             1,
@@ -327,9 +348,9 @@ mod tests {
     fn play_track_adds_tracks_from_next_disc() {
         let (audio_player, _receiver) = make_test_audio_player();
 
-        let test_track_1 = make_test_track("Track 1", TEST_TRACK_1, None);
-        let test_track_2 = make_test_track("Track 2", TEST_TRACK_2, None);
-        let test_track_3 = make_test_track("Track 3", TEST_TRACK_1, Some(2));
+        let test_track_1 = make_test_track("Track 1", TEST_TRACK_1, Some(2), None);
+        let test_track_2 = make_test_track("Track 2", TEST_TRACK_2, Some(3), None);
+        let test_track_3 = make_test_track("Track 3", TEST_TRACK_1, Some(1), Some(2));
 
         let test_album = Album::new(
             1,
@@ -354,9 +375,9 @@ mod tests {
     fn play_track_does_not_add_tracks_from_previous_disc() {
         let (audio_player, _receiver) = make_test_audio_player();
 
-        let test_track_1 = make_test_track("Track 1", TEST_TRACK_1, Some(2));
-        let test_track_2 = make_test_track("Track 2", TEST_TRACK_2, Some(2));
-        let test_track_3 = make_test_track("Track 3", TEST_TRACK_1, Some(1));
+        let test_track_1 = make_test_track("Track 1", TEST_TRACK_1, Some(1), Some(2));
+        let test_track_2 = make_test_track("Track 2", TEST_TRACK_2, Some(2), Some(2));
+        let test_track_3 = make_test_track("Track 3", TEST_TRACK_1, Some(1), Some(1));
 
         let test_album = Album::new(
             1,

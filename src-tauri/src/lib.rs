@@ -1,9 +1,13 @@
 use audio_player::AudioPlayer;
 use music_database::{album::Album, album_artist::AlbumArtist, genre::Genre, track::Track};
-use tauri::{Builder, Manager, State};
+use tauri::{
+    menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder},
+    Builder, Manager, State,
+};
 
 pub mod audio_player;
 pub mod music_database;
+pub mod schema;
 
 pub struct AppState {
     pub audio_player: AudioPlayer,
@@ -16,12 +20,12 @@ fn get_genres() -> Vec<Genre> {
 }
 
 #[tauri::command]
-fn get_album_artists_for_genre(genre_id: i64) -> Vec<AlbumArtist> {
+fn get_album_artists_for_genre(genre_id: i32) -> Vec<AlbumArtist> {
     music_database::get_album_artists_for_genre(&genre_id)
 }
 
 #[tauri::command]
-fn get_albums_for_album_artist(album_artist_id: i64, genre_id: i64) -> Vec<Album> {
+fn get_albums_for_album_artist(album_artist_id: i32, genre_id: i32) -> Vec<Album> {
     music_database::get_albums_for_album_artist(&album_artist_id, &genre_id)
 }
 
@@ -62,6 +66,16 @@ pub fn run() {
             app.manage(AppState {
                 audio_player: AudioPlayer::new(app.app_handle().clone()),
             });
+
+            let settings = MenuItemBuilder::new("Settings...")
+                .id("settings")
+                .build(app)?;
+
+            let app_submenu = SubmenuBuilder::new(app, "App").item(&settings).build()?;
+
+            let menu = MenuBuilder::new(app).items(&[&app_submenu]).build()?;
+
+            let _ = app.set_menu(menu);
             Ok(())
         })
         .plugin(

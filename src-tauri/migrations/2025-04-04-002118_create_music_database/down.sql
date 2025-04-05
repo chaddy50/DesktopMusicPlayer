@@ -1,0 +1,1 @@
+DROP TABLE genres, album_artists, artists, albums, tracks
