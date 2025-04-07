@@ -28,9 +28,9 @@ I'm trying to do as much of this from scratch as possible because it's more of a
 <br>
 [dotenv](https://docs.rs/dotenv/latest/dotenv/) to read configuration from local .env file.
 ### Front-end tools
-[React Router](https://reactrouter.com/) for navigating between screens.
+[React Router](https://reactrouter.com/) to navigate between screens.
 <br>
-[mobx](https://github.com/mobxjs/mobx) for managing global state.
+[mobx](https://github.com/mobxjs/mobx) to manage global state.
 <br>
 [vitest](https://vitest.dev/guide/) for automated testing.
 
