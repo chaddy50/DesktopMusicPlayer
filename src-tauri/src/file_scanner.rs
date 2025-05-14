@@ -33,6 +33,7 @@ pub fn build_music_database() {
         "Electronic",
         "Mariachi",
         "Movie",
+        "Emo",
     ];
 
     for directory in music_directories {

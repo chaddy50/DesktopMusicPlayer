@@ -28,7 +28,11 @@ function Home() {
 		<div className='genreBrowserContainer'>
 			{genres.map((genre) => {
 				return (
-					<div className='genreBrowserCard' onClick={() => selectGenre(genre)}>
+					<div
+						key={genre.id}
+						className='genreBrowserCard'
+						onClick={() => selectGenre(genre)}
+					>
 						<p>{genre.name}</p>
 					</div>
 				);

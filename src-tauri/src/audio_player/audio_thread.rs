@@ -63,7 +63,6 @@ impl<'a> AudioThread<'a> {
     }
 
     fn process_command(&mut self, command: &AudioPlaybackCommand) {
-        println!("Command received: {:?}", command);
         self.should_wait_for_command = false;
 
         match command {

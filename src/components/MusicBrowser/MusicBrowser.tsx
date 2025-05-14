@@ -11,7 +11,6 @@ import RightSidebar from './RightSidebar/RightSidebar';
 
 const MusicBrowser = observer(() => {
 	const selectedGenre = selectedGenreStore.genre;
-	console.log('genre: ' + selectedGenre?.name);
 
 	const [albumArtists, setAlbumArtists] = useState<AlbumArtistData[]>([]);
 	const [selectedAlbumArtistIndex, setSelectedAlbumArtistIndex] = useState(0);
