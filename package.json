@@ -12,7 +12,11 @@
 		"test-commit": "vitest run"
 	},
 	"dependencies": {
+		"@emotion/styled": "^11.14.0",
+		"@mui/icons-material": "^7.1.0",
+		"@mui/styled-engine": "^7.1.0",
 		"@tauri-apps/api": "^2",
+		"@tauri-apps/plugin-dialog": "^2.2.1",
 		"@tauri-apps/plugin-fs": "^2.0.2",
 		"@tauri-apps/plugin-log": "^2.0.0",
 		"@tauri-apps/plugin-shell": "^2",

@@ -35,6 +35,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    settings (id) {
+        id -> Integer,
+        key -> Text,
+        value -> Text,
+    }
+}
+
+diesel::table! {
     tracks (id) {
         id -> Integer,
         name -> Text,
@@ -54,5 +62,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     albums,
     artists,
     genres,
+    settings,
     tracks,
 );

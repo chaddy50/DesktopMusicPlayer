@@ -7,48 +7,13 @@ use std::{
 use audiotags::{Picture, Tag};
 use base64::{engine::general_purpose, Engine};
 use diesel::{QueryResult, SqliteConnection};
-use music_player_lib::music_database::{
+
+use super::music_database::{
     self, album::NewAlbumDatabaseObject, album_artist::NewAlbumArtist, artist::NewArtist,
     genre::NewGenre, track_to_process::TrackToProcess,
 };
 
-pub fn build_music_database() {
-    if music_database::does_database_already_exist() {
-        return;
-    }
-
-    let mut database_connection = music_database::open_database_connection();
-
-    let mut processed_artists: HashMap<String, i32> = HashMap::new();
-    let mut processed_albums: HashMap<String, i32> = HashMap::new();
-    let mut processed_album_artists: HashMap<String, i32> = HashMap::new();
-    let mut processed_genres: HashMap<String, i32> = HashMap::new();
-
-    let music_directories = vec![
-        "Video Game",
-        "Rock",
-        "Jazz",
-        "Classic Rock",
-        "Ambient",
-        "Electronic",
-        "Mariachi",
-        "Movie",
-        "Emo",
-    ];
-
-    for directory in music_directories {
-        scan_directory(
-            &mut database_connection,
-            format!("/home/nathan/Music/{directory}").as_str(),
-            &mut processed_albums,
-            &mut processed_album_artists,
-            &mut processed_genres,
-            &mut processed_artists,
-        );
-    }
-}
-
-fn scan_directory(
+pub fn scan_directory(
     database_connection: &mut SqliteConnection,
     directory_path: &str,
     processed_albums: &mut HashMap<String, i32>,

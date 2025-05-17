@@ -1,12 +1,15 @@
 use audio_player::AudioPlayer;
-use music_database::{album::Album, album_artist::AlbumArtist, genre::Genre, track::Track};
+use database::{
+    music_database::{self, album::Album, album_artist::AlbumArtist, genre::Genre, track::Track},
+    settings_database,
+};
 use tauri::{
     menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder},
-    Builder, Manager, State,
+    AppHandle, Builder, Emitter, Manager, State,
 };
 
 pub mod audio_player;
-pub mod music_database;
+pub mod database;
 pub mod schema;
 
 pub struct AppState {
@@ -59,6 +62,21 @@ fn on_previous_button_clicked(state: State<'_, AppState>) {
     state.audio_player.skip_backward();
 }
 
+#[tauri::command]
+fn save_settings(directories: Vec<String>) {
+    settings_database::save_settings(directories);
+}
+
+#[tauri::command]
+fn load_settings(app_handle: AppHandle) {
+    settings_database::load_settings(app_handle);
+}
+
+#[tauri::command]
+fn rebuild_music_database() {
+    music_database::rebuild();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     Builder::default()
@@ -76,6 +94,16 @@ pub fn run() {
             let menu = MenuBuilder::new(app).items(&[&app_submenu]).build()?;
 
             let _ = app.set_menu(menu);
+
+            app.on_menu_event(move |app_handle, event| match event.id().0.as_str() {
+                "settings" => {
+                    app_handle.emit("open_settings", ()).unwrap();
+                }
+                _ => {}
+            });
+
+            load_settings(app.app_handle().clone());
+
             Ok(())
         })
         .plugin(
@@ -87,6 +115,7 @@ pub fn run() {
         )
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             get_genres,
             get_album_artists_for_genre,
@@ -97,6 +126,9 @@ pub fn run() {
             on_play_button_clicked,
             on_next_button_clicked,
             on_previous_button_clicked,
+            save_settings,
+            load_settings,
+            rebuild_music_database,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

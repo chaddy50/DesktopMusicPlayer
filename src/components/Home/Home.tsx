@@ -13,7 +13,7 @@ function Home() {
 			const genres: GenreData[] = await invoke('get_genres');
 			setGenres(genres);
 		}
-
+		invoke('load_settings');
 		getGenres();
 	}, []);
 

@@ -1,12 +1,11 @@
-use dotenv::dotenv;
-use std::env;
+use std::collections::HashMap;
 
 use album::{Album, AlbumDatabaseObject, NewAlbumDatabaseObject};
 use album_artist::{AlbumArtist, NewAlbumArtist};
 use artist::{Artist, NewArtist};
 use diesel::{
-    dsl::count_star, prelude::Queryable, Connection, ExpressionMethods, JoinOnDsl,
-    NullableExpressionMethods, QueryDsl, QueryResult, RunQueryDsl, SqliteConnection,
+    dsl::count_star, prelude::Queryable, ExpressionMethods, JoinOnDsl, NullableExpressionMethods,
+    QueryDsl, QueryResult, RunQueryDsl, SqliteConnection,
 };
 use genre::{Genre, NewGenre};
 use track::{NewTrackDatabaseObject, Track};
@@ -17,6 +16,10 @@ use crate::schema::{
     tracks::{self},
 };
 
+use crate::database;
+
+use super::{file_scanner, settings_database};
+
 pub mod album;
 pub mod album_artist;
 pub mod artist;
@@ -24,15 +27,62 @@ pub mod genre;
 pub mod track;
 pub mod track_to_process;
 
-pub fn open_database_connection() -> SqliteConnection {
-    dotenv().ok();
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    SqliteConnection::establish(&database_url)
-        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+pub fn rebuild() {
+    delete();
+    build();
 }
 
-pub fn does_database_already_exist() -> bool {
-    let mut database_connection = open_database_connection();
+pub fn build() {
+    if does_database_already_exist() {
+        return;
+    }
+
+    let mut database_connection = database::open_database_connection();
+
+    let mut processed_artists: HashMap<String, i32> = HashMap::new();
+    let mut processed_albums: HashMap<String, i32> = HashMap::new();
+    let mut processed_album_artists: HashMap<String, i32> = HashMap::new();
+    let mut processed_genres: HashMap<String, i32> = HashMap::new();
+
+    let directories = settings_database::get_directories();
+    for directory_path in directories {
+        file_scanner::scan_directory(
+            &mut database_connection,
+            directory_path.as_str(),
+            &mut processed_albums,
+            &mut processed_album_artists,
+            &mut processed_genres,
+            &mut processed_artists,
+        );
+    }
+}
+
+fn delete() {
+    let mut database_connection = database::open_database_connection();
+
+    diesel::delete(album_artists::dsl::album_artists)
+        .execute(&mut database_connection)
+        .unwrap();
+
+    diesel::delete(albums::dsl::albums)
+        .execute(&mut database_connection)
+        .unwrap();
+
+    diesel::delete(artists::dsl::artists)
+        .execute(&mut database_connection)
+        .unwrap();
+
+    diesel::delete(genres::dsl::genres)
+        .execute(&mut database_connection)
+        .unwrap();
+
+    diesel::delete(tracks::dsl::tracks)
+        .execute(&mut database_connection)
+        .unwrap();
+}
+
+fn does_database_already_exist() -> bool {
+    let mut database_connection = database::open_database_connection();
 
     let number_of_rows: i64 = tracks::table
         .select(count_star())
@@ -69,7 +119,7 @@ pub fn add_track_to_database(
 }
 
 pub fn add_genre_to_database(new_genre: NewGenre) -> QueryResult<i32> {
-    let mut database_connection = open_database_connection();
+    let mut database_connection = database::open_database_connection();
 
     let genre: Genre = diesel::insert_or_ignore_into(genres::table)
         .values(new_genre)
@@ -79,7 +129,7 @@ pub fn add_genre_to_database(new_genre: NewGenre) -> QueryResult<i32> {
 }
 
 pub fn add_artist_to_database(new_artist: NewArtist) -> QueryResult<i32> {
-    let mut database_connection = open_database_connection();
+    let mut database_connection = database::open_database_connection();
 
     let artist: Artist = diesel::insert_or_ignore_into(artists::table)
         .values(new_artist)
@@ -89,7 +139,7 @@ pub fn add_artist_to_database(new_artist: NewArtist) -> QueryResult<i32> {
 }
 
 pub fn add_album_artist_to_database(new_album_artist: NewAlbumArtist) -> QueryResult<i32> {
-    let mut database_connection = open_database_connection();
+    let mut database_connection = database::open_database_connection();
 
     let album_artist: AlbumArtist = diesel::insert_or_ignore_into(album_artists::table)
         .values(new_album_artist)
@@ -99,7 +149,7 @@ pub fn add_album_artist_to_database(new_album_artist: NewAlbumArtist) -> QueryRe
 }
 
 pub fn add_album_to_database(new_album: NewAlbumDatabaseObject) -> QueryResult<i32> {
-    let mut database_connection = open_database_connection();
+    let mut database_connection = database::open_database_connection();
 
     let album: AlbumDatabaseObject = diesel::insert_or_ignore_into(albums::table)
         .values(new_album)
@@ -109,7 +159,7 @@ pub fn add_album_to_database(new_album: NewAlbumDatabaseObject) -> QueryResult<i
 }
 
 pub fn get_genres() -> Vec<Genre> {
-    let mut database_connection = open_database_connection();
+    let mut database_connection = database::open_database_connection();
 
     genres::dsl::genres
         .select((genres::id, genres::name))
@@ -119,7 +169,7 @@ pub fn get_genres() -> Vec<Genre> {
 }
 
 pub fn get_album_artists_for_genre(genre_id: &i32) -> Vec<AlbumArtist> {
-    let mut database_connection = open_database_connection();
+    let mut database_connection = database::open_database_connection();
 
     let mut album_artists = album_artists::dsl::album_artists
         .select((
@@ -166,7 +216,7 @@ struct AlbumToProcess {
 }
 
 pub fn get_albums_for_album_artist(album_artist_id: &i32, genre_id: &i32) -> Vec<Album> {
-    let mut database_connection = open_database_connection();
+    let mut database_connection = database::open_database_connection();
 
     let albums_to_process: Vec<AlbumToProcess>;
     if *album_artist_id != 0 {
@@ -232,7 +282,7 @@ pub fn get_albums_for_album_artist(album_artist_id: &i32, genre_id: &i32) -> Vec
 }
 
 fn get_tracks_for_album(album_id: &i32) -> Vec<Track> {
-    let mut database_connection = open_database_connection();
+    let mut database_connection = database::open_database_connection();
 
     let tracks: Vec<Track> = tracks::dsl::tracks
         .inner_join(album_artists::table.on(tracks::album_artist_id.eq(album_artists::id)))
