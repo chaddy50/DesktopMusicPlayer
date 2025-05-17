@@ -172,13 +172,16 @@ pub fn get_album_artists_for_genre(genre_id: &i32) -> Vec<AlbumArtist> {
     let mut database_connection = database::open_database_connection();
 
     let mut album_artists = album_artists::dsl::album_artists
+        .inner_join(albums::dsl::albums.on(albums::album_artist_id.eq(album_artists::id)))
+        .inner_join(genres::dsl::genres.on(album_artists::genre_id.eq(genres::id)))
         .select((
             album_artists::id,
             album_artists::name,
             album_artists::genre_id,
             album_artists::sort_name,
         ))
-        .filter(album_artists::genre_id.eq(genre_id))
+        .distinct()
+        .filter(albums::genre_id.eq(genre_id))
         .order_by(album_artists::sort_name)
         .load::<AlbumArtist>(&mut database_connection)
         .unwrap();
@@ -222,7 +225,7 @@ pub fn get_albums_for_album_artist(album_artist_id: &i32, genre_id: &i32) -> Vec
     if *album_artist_id != 0 {
         albums_to_process = albums::dsl::albums
             .inner_join(album_artists::table.on(albums::album_artist_id.eq(album_artists::id)))
-            .inner_join(genres::table.on(genres::id.eq(album_artists::genre_id)))
+            .inner_join(genres::table.on(genres::id.eq(albums::genre_id)))
             .select((
                 albums::id,
                 albums::name,
@@ -234,6 +237,7 @@ pub fn get_albums_for_album_artist(album_artist_id: &i32, genre_id: &i32) -> Vec
                 albums::year,
             ))
             .filter(albums::album_artist_id.eq(album_artist_id))
+            .filter(albums::genre_id.eq(genre_id))
             .order_by((albums::year, albums::name))
             .load(&mut database_connection)
             .unwrap();
