@@ -11,7 +11,11 @@ function TrackBrowser(props: TrackBrowserProps) {
 	const { album } = props;
 
 	return (
-		<div data-testid='trackBrowser' className='trackBrowserContainer'>
+		<div
+			id='trackBrowser'
+			data-testid='trackBrowser'
+			className='trackBrowserContainer'
+		>
 			<AlbumHeader albumData={album} />
 			<div className='trackListContainer'>
 				{album?.tracks.map((track) => {
