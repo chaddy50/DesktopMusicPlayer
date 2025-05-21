@@ -1,3 +1,4 @@
+import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { Provider } from 'mobx-react';
 import React from 'react';
@@ -19,6 +20,13 @@ listen<SettingData[]>('settings_changed', (event) => {
 	SettingsStore.update(event.payload);
 });
 
+listen<string>('theme_changed', (event) => {
+	console.log('theme: ' + event.payload);
+	document
+		.getElementById('root')
+		?.setAttribute('data-theme', event.payload ?? 'light');
+});
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 	<React.StrictMode>
 		<Provider NowPlayingStore={NowPlayingStore} SettingsStore={SettingsStore}>
@@ -29,3 +37,5 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 		</Provider>
 	</React.StrictMode>
 );
+
+invoke('update_theme');

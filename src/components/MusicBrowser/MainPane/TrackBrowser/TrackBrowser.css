@@ -1,14 +1,14 @@
 .albumHeaderContainer {
 	display: flex;
 	flex-direction: column;
-	border-bottom: 1px solid black;
-	border-right: 1px solid darkgray;
+	border-bottom: 1px solid;
+	border-right: 1px solid;
 }
 
 .albumHeaderImage {
 	height: calc(100vh / 3 / 2);
 	width: calc(100vh / 3 / 2);
-	border-bottom: 1px solid darkgray;
+	border-bottom: 1px solid;
 }
 
 .albumHeaderDetails {
@@ -33,7 +33,6 @@
 }
 
 .trackContainer:hover {
-	background-color: lightgray;
 }
 
 .trackBrowserContainer {
@@ -41,7 +40,7 @@
 	flex: 1;
 	flex-direction: row;
 	justify-content: flex-end;
-	border-top: 1px solid black;
+	border-top: 1px solid;
 	overflow-y: hidden;
 }
 

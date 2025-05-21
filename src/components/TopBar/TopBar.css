@@ -1,7 +1,7 @@
 .topBar {
 	display: flex;
 	height: 10em;
-	border-bottom: 1px solid black;
+	border-bottom: 1px solid;
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;

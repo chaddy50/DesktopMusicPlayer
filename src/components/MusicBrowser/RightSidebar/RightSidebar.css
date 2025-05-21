@@ -5,5 +5,5 @@
 	align-items: center;
 	overflow-y: scroll;
 	overflow-x: hidden;
-	border-left: 1px solid black;
+	border-left: 1px solid;
 }

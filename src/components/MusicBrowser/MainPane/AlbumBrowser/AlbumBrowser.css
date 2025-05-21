@@ -18,12 +18,12 @@
 
 .albumArtworkContainer {
 	display: flex;
-	border: 1px solid darkgray;
+	border: 1px solid;
 }
 
 .albumArtworkContainerSelected {
 	display: flex;
-	border: 3px solid black;
+	border: 3px solid;
 }
 
 .albumTitle {

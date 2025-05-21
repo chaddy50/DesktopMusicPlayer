@@ -11,6 +11,7 @@ use tauri::{
 pub mod audio_player;
 pub mod database;
 pub mod schema;
+pub mod theme_thread;
 
 pub struct AppState {
     pub audio_player: AudioPlayer,
@@ -77,6 +78,11 @@ fn rebuild_music_database() {
     music_database::rebuild();
 }
 
+#[tauri::command]
+fn update_theme(app_handle: AppHandle) {
+    theme_thread::update_theme(app_handle);
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     Builder::default()
@@ -104,6 +110,8 @@ pub fn run() {
 
             load_settings(app.app_handle().clone());
 
+            theme_thread::run(app.app_handle().clone());
+
             Ok(())
         })
         .plugin(
@@ -129,6 +137,7 @@ pub fn run() {
             save_settings,
             load_settings,
             rebuild_music_database,
+            update_theme,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
