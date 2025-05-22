@@ -1,4 +1,5 @@
 import { selectedGenreStore } from '@/state/SelectedGenreStore';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { listen } from '@tauri-apps/api/event';
 import { observer } from 'mobx-react';
 import { useCallback, useMemo } from 'react';
@@ -42,8 +43,13 @@ const TopBar = observer((_props: TopBarProps) => {
 			<div className='backButton'>
 				{currentLocation.pathname !== '/' && (
 					<>
-						<button onClick={goBack}>Go Back</button>
-						<h2>{locationHeader}</h2>
+						<div onClick={goBack}>
+							<ArrowBackIosNewIcon
+								className='playerControlsButton'
+								fontSize='large'
+							/>
+						</div>
+						<h2 style={{ marginLeft: '20px' }}>{locationHeader}</h2>
 					</>
 				)}
 			</div>

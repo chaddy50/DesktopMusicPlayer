@@ -1,17 +1,18 @@
-import { invoke } from "@tauri-apps/api/core";
+import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
+import { invoke } from '@tauri-apps/api/core';
 
 interface PreviousButtonProps {}
 
 function PreviousButton(_props: PreviousButtonProps) {
-    return (
-        <button
-            onClick={() => {
-                invoke("on_previous_button_clicked");
-            }}
-        >
-            Previous
-        </button>
-    );
+	return (
+		<div
+			onClick={() => {
+				invoke('on_previous_button_clicked');
+			}}
+		>
+			<SkipPreviousIcon className='playerControlsButton' fontSize='large' />
+		</div>
+	);
 }
 
 export default PreviousButton;
