@@ -154,8 +154,6 @@ fn on_pause_received(sink: &Sink) {
 fn on_resume_received(sink: &Sink) {
     if sink.is_paused() {
         sink.play();
-    } else {
-        panic!("Tried to resume while nothing was paused");
     }
 }
 
@@ -258,19 +256,6 @@ mod tests {
         on_resume_received(&sink);
 
         assert!(!sink.is_paused());
-    }
-
-    #[test]
-    #[should_panic]
-    fn resume_panics_if_not_paused() {
-        let (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap();
-        let sink = Sink::try_new(&output_stream_handle).unwrap();
-
-        sink.append(decode_track(&TEST_TRACK_1.to_string()));
-
-        assert!(!sink.is_paused());
-
-        on_resume_received(&sink);
     }
 
     #[test]
