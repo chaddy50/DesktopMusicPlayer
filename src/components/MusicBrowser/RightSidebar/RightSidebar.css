@@ -1,9 +1,0 @@
-.rightSidebar {
-	display: flex;
-	flex: 1.5;
-	flex-direction: column;
-	align-items: center;
-	overflow-y: scroll;
-	overflow-x: hidden;
-	border-left: 1px solid;
-}

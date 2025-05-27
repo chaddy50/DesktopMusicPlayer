@@ -1,4 +1,4 @@
-import TrackInfo from '@/components/MusicBrowser/RightSidebar/NowPlaying/TrackInfo/TrackInfo';
+import TrackInfo from '@/components/RightSidebar/NowPlaying/TrackInfo/TrackInfo';
 import NowPlayingStore from '@/state/NowPlayingStore';
 import { observer } from 'mobx-react';
 import './NowPlaying.css';

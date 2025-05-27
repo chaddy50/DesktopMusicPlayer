@@ -1,7 +1,6 @@
 .albumListContainer {
 	overflow-y: scroll;
 	display: flex;
-	flex: 2;
 	flex-wrap: wrap;
 	align-content: flex-start;
 }

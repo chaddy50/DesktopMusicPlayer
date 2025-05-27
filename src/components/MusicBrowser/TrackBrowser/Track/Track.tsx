@@ -1,5 +1,5 @@
 import { formatTimeDuration } from '@/common/Utilities';
-import '@/components/MusicBrowser/RightSidebar/NowPlaying/TrackInfo/TrackInfo.css';
+import '@/components/RightSidebar/NowPlaying/TrackInfo/TrackInfo.css';
 import AlbumData from '@/dataObjects/AlbumData';
 import TrackData from '@/dataObjects/TrackData';
 import NowPlayingStore from '@/state/NowPlayingStore';

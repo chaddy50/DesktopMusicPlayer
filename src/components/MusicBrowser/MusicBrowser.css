@@ -3,3 +3,21 @@
 	flex-direction: row;
 	height: calc(100vh - 10em - 1px);
 }
+
+.albumArtistBrowserContainer {
+	display: flex;
+	flex: 1;
+	min-width: calc(100vw / 6);
+}
+
+.albumBrowserContainer {
+	display: flex;
+	flex: 2;
+	overflow-y: scroll;
+}
+
+.trackBrowserContainer {
+	display: flex;
+	flex: 1;
+	overflow-y: scroll;
+}

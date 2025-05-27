@@ -4,10 +4,10 @@ import { selectedGenreStore } from '@/state/SelectedGenreStore';
 import { invoke } from '@tauri-apps/api/core';
 import { observer } from 'mobx-react';
 import { useEffect, useRef, useState } from 'react';
-import LeftSidebar from './LeftSidebar/LeftSidebar';
-import MainPane from './MainPane/MainPane';
+import AlbumArtistBrowser from './AlbumArtistBrowser/AlbumArtistBrowser';
+import AlbumBrowser from './AlbumBrowser/AlbumBrowser';
 import './MusicBrowser.css';
-import RightSidebar from './RightSidebar/RightSidebar';
+import TrackBrowser from './TrackBrowser/TrackBrowser';
 
 const MusicBrowser = observer(() => {
 	const selectedGenre = selectedGenreStore.genre;
@@ -67,21 +67,31 @@ const MusicBrowser = observer(() => {
 
 	return (
 		<div className='musicBrowserContainer'>
-			<LeftSidebar
-				albumArtists={albumArtists}
-				selectedAlbumArtistIndex={selectedAlbumArtistIndex}
-				setSelectedAlbumArtistIndex={setSelectedAlbumArtistIndex}
-			/>
+			<div className='albumArtistBrowserContainer'>
+				<AlbumArtistBrowser
+					albumArtists={albumArtists}
+					selectedAlbumArtistIndex={selectedAlbumArtistIndex}
+					setSelectedAlbumArtistIndex={setSelectedAlbumArtistIndex}
+				/>
+			</div>
 
-			<MainPane
-				albums={albums}
-				albumArtist={albumArtists[selectedAlbumArtistIndex]}
-				selectedAlbumIndex={selectedAlbumIndex}
-				setSelectedAlbumIndex={setSelectedAlbumIndex}
-				albumListContainerRef={albumListContainerRef}
-			/>
+			<div style={{ display: 'flex', flexDirection: 'column', flex: 4 }}>
+				<div className='albumBrowserContainer'>
+					<AlbumBrowser
+						albumListContainerRef={albumListContainerRef}
+						albums={albums}
+						albumArtist={albumArtists[selectedAlbumArtistIndex]}
+						selectedAlbumIndex={selectedAlbumIndex}
+						setSelectedAlbumIndex={setSelectedAlbumIndex}
+					/>
+				</div>
 
-			<RightSidebar />
+				{selectedAlbumIndex > -1 && (
+					<div className='trackBrowserContainer'>
+						<TrackBrowser album={albums[selectedAlbumIndex]} />
+					</div>
+				)}
+			</div>
 		</div>
 	);
 });

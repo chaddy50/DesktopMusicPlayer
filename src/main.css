@@ -4,6 +4,7 @@ body,
 	height: 100%;
 	margin: 0;
 }
+
 [data-theme='dark'] {
 	background-color: #1e1e1e;
 	color: white;
@@ -16,4 +17,22 @@ body,
 	color: white;
 	border-color: darkgray;
 	scrollbar-color: darkgray;
+}
+
+.mainPaneContainer {
+	display: flex;
+	flex-direction: row;
+	flex: 1;
+	height: calc(100vh - 10em - 1px);
+	width: 100vw;
+}
+
+.mainContentContainer {
+	display: flex;
+	flex: 1;
+}
+
+.rightSidebarContainer {
+	display: flex;
+	width: calc(100vw / 5);
 }

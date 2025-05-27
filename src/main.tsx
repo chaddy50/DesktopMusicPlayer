@@ -4,6 +4,7 @@ import { Provider } from 'mobx-react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
+import RightSidebar from './components/RightSidebar/RightSidebar';
 import TopBar from './components/TopBar/TopBar';
 import NowPlayingData from './dataObjects/NowPlayingData';
 import SettingData from './dataObjects/SettingData';
@@ -32,7 +33,14 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 		<Provider NowPlayingStore={NowPlayingStore} SettingsStore={SettingsStore}>
 			<BrowserRouter>
 				<TopBar />
-				<MusicPlayerRoutes />
+				<div className='mainPaneContainer'>
+					<div className='mainContentContainer'>
+						<MusicPlayerRoutes />
+					</div>
+					<div className='rightSidebarContainer'>
+						<RightSidebar />
+					</div>
+				</div>
 			</BrowserRouter>
 		</Provider>
 	</React.StrictMode>

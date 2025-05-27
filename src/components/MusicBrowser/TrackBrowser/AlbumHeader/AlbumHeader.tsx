@@ -1,6 +1,6 @@
 import { useAlbumArtwork } from '@/common/Hooks';
 import { formatTimeDuration } from '@/common/Utilities';
-import '@/components/MusicBrowser/MainPane/TrackBrowser/TrackBrowser.css';
+import '@/components/MusicBrowser/TrackBrowser/TrackBrowser.css';
 import AlbumData from '@/dataObjects/AlbumData';
 
 interface AlbumHeaderProps {

@@ -19,7 +19,7 @@ function AlbumArtistBrowser(props: AlbumArtistBrowserProps) {
 	return (
 		<div
 			data-testid='albumArtistBrowserContainer'
-			className='artistBrowserContainer'
+			className='artistListContainer'
 		>
 			{albumArtists.map((albumArtistData, index) => {
 				return (

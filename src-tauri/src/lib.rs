@@ -91,23 +91,6 @@ pub fn run() {
                 audio_player: AudioPlayer::new(app.app_handle().clone()),
             });
 
-            let settings = MenuItemBuilder::new("Settings...")
-                .id("settings")
-                .build(app)?;
-
-            let app_submenu = SubmenuBuilder::new(app, "App").item(&settings).build()?;
-
-            let menu = MenuBuilder::new(app).items(&[&app_submenu]).build()?;
-
-            let _ = app.set_menu(menu);
-
-            app.on_menu_event(move |app_handle, event| match event.id().0.as_str() {
-                "settings" => {
-                    app_handle.emit("open_settings", ()).unwrap();
-                }
-                _ => {}
-            });
-
             load_settings(app.app_handle().clone());
 
             theme_thread::run(app.app_handle().clone());
